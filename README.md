@@ -104,7 +104,7 @@ pre-commit install
 
 ## Font management
 
-Fonts are managed via [dymoprint.ini](dymoprint.ini). This should be placed in your
+Fonts are managed via [labelle.ini](labelle.ini). This should be placed in your
 config folder (normally `~/.config`). An example file is provided here.
 
 You may choose any TTF Font you like

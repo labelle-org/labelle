@@ -1,4 +1,5 @@
 import logging
+import warnings
 from configparser import ConfigParser
 from functools import lru_cache
 from pathlib import Path
@@ -10,7 +11,16 @@ logger = logging.getLogger(__name__)
 
 
 def get_config_file() -> Path:
-    return Path(user_config_dir()) / "dymoprint.ini"
+    old_config_file = Path(user_config_dir()) / "dymoprint.ini"
+    config_file = Path(user_config_dir()) / "labelle.ini"
+    if old_config_file.exists() and not config_file.exists():
+        warnings.warn(
+            f"Old config file found at {old_config_file}. "
+            f"Please rename it to {config_file}",
+            stacklevel=2,
+        )
+        config_file = old_config_file
+    return config_file
 
 
 @lru_cache
