@@ -206,19 +206,6 @@ Example 3: barcode with text, text, image
 
 ![alt](doc/Labelle_example_3.png)
 
-## Development
-
-Besides the travis-ci one should run the following command on a feature
-implementation or change to ensure the same outcome on a real device:
-
-```bash
-labelle Tst && \
-labelle -qr Tst && \
-labelle -c code128 Tst && \
-labelle -qr qrencoded "qr_txt" && \
-labelle -c code128 Test "bc_txt"
-```
-
 ## Disclaimers
 
 * This software is provided as-is, without any warranty. Please see [LICENSE](LICENSE)
