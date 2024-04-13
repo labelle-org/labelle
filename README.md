@@ -209,6 +209,20 @@ Example 3: barcode with text, text, image
 
 ![alt](doc/Labelle_example_3.png)
 
+## About the name
+
+The name "Labelle" is a multilingual pun by [@claui](https://github.com/computerlyrik/dymoprint/issues/114#issuecomment-1978982019).
+
+{{< mdl-disable "<!-- markdownlint-disable MD013 -->" >}}
+
+| Language | Word/Interpretation   | Meaning           | Pronunciation (IPA) | Simplified Phonetic Spelling |
+|----------|-----------------------|-------------------|---------------------|------------------------------|
+| English  | Label                 | A printed sticker | /ˈleɪbəl/           | LAY-buhl                     |
+| French   | La belle              | The beautiful     | /la bɛl/            | lah BEL                      |
+| German   | Libelle (sounds like) | Dragonfly         | /liˈbɛlə/           | lee-BELL-uh                  |
+
+{{< mdl-enable "<!-- markdownlint-enable MD013 -->" >}}
+
 ## Disclaimers
 
 * This software is provided as-is, without any warranty. Please see [LICENSE](LICENSE)
