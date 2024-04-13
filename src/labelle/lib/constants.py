@@ -30,9 +30,6 @@ except ImportError as error:
     QRCode = None
 
 
-DESCRIPTION = (
-    "Linux Software to print with LabelManager PnP from Dymo\nwritten in Python"
-)
 UNCONFIRMED_MESSAGE = (
     "WARNING: This device is not confirmed to work with this software. Please "
     "report your experiences in https://github.com/computerlyrik/dymoprint/issues/44"
