@@ -71,7 +71,7 @@ class DymoPrintWindow(QWidget):
 
     def init_elements(self):
         self.setWindowTitle("DymoPrint GUI")
-        self.setWindowIcon(QIcon(str(ICON_DIR / "gui_icon.png")))
+        self.setWindowIcon(QIcon(str(ICON_DIR / "logo_small.png")))
         self.setGeometry(200, 200, 1100, 400)
         printer_icon = QIcon.fromTheme("printer")
         self.print_button.setIcon(printer_icon)
