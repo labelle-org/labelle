@@ -22,7 +22,7 @@ class DymoUSBError(RuntimeError):
 
 class DetectedDevice(NamedTuple):
     id: int
-    """See dymoprint.constants.SUPPORTED_PRODUCTS for a list of known IDs."""
+    """See labelle.constants.SUPPORTED_PRODUCTS for a list of known IDs."""
     dev: usb.core.Device
     intf: usb.core.Interface
     devout: usb.core.Endpoint
