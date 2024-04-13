@@ -78,4 +78,4 @@ MANIFEST
 .conda*/
 
 # setuptools_scm
-src/dymoprint/_version.py
+src/labelle/_version.py
