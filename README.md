@@ -129,6 +129,9 @@ For font discovery, Labelle contains code excerpts from
 See [here](vendoring/README.md) for more information and
 [LICENSE](src/labelle/_vendor/matplotlib/LICENSE) for the license.
 
+Labelle includes the Carlito font, licensed under the
+[SIL Open Font License](src/labelle/resources/fonts/LICENSE).
+
 ## Modes
 
 ### Print text
