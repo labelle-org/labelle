@@ -13,7 +13,7 @@ def _is_env_var_true(env_var: str) -> bool:
 
 
 def is_verbose_env_vars() -> bool:
-    return _is_env_var_true("DYMOPRINT_VERBOSE")
+    return _is_env_var_true("LABELLE_VERBOSE")
 
 
 def _update_log_level():
