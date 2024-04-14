@@ -1,13 +1,18 @@
-# dymoprint
+# Labelle
 
-[![GitHub Actions (Tests)](https://github.com/computerlyrik/dymoprint/workflows/Tests/badge.svg)](https://github.com/computerlyrik/dymoprint)
-[![PyPI version](https://img.shields.io/pypi/v/dymoprint.svg)](https://pypi.org/project/dymoprint/)
+[![GitHub Actions (Tests)](https://github.com/labelle-org/labelle/workflows/Tests/badge.svg)](https://github.com/labelle-org/labelle)
+[![PyPI version](https://img.shields.io/pypi/v/labelle.svg)](https://pypi.org/project/labelle/)
 
-Linux Software to print with LabelManager PnP from Dymo
+Open-source label printing software
 
 * First version from Sebastian Bronner: <https://sbronner.com/dymoprint.html>
-* Cloned to Github and formerly maintained by @computerlyrik: <https://github.com/computerlyrik/dymoprint>
-* Currently maintained by @maresb
+* Cloned to Github and formerly maintained by
+  [@computerlyrik](https://github.com/computerlyrik) and
+  [@maresb](https://github.com/maresb): <https://github.com/computerlyrik/dymoprint>
+* Migrated to `labelle-org` and maintained by
+  [@tomers](https://github.com/tomers), [@maresb](https://github.com/maresb),
+  and [@tomek-szczesny](https://github.com/tomek-szczesny):
+  <https://github.com/labelle-org/labelle>
 
 ## Features
 
@@ -17,26 +22,28 @@ Linux Software to print with LabelManager PnP from Dymo
 * Image printing
 * Combinations of the above
 * GUI Application based on PyQt6
-
-### Experimental
-
-* LabelManager PC
-* LabelPoint 350
-* LabelManager 280
-* LabelManager 420P
-* LabelManager Wireless PnP
 * Windows support by setting the driver to WinUSB using [Zadig](https://zadig.akeo.ie/)
+
+### Supported devices
+
+* DYMO LabelManager PC
+* DYMO LabelPoint 350
+* DYMO LabelManager 280
+* DYMO LabelManager 420P
+* DYMO LabelManager Wireless PnP
+
+Labelle is not affiliated with DYMO. Please see the [disclaimer](#disclaimers) below.
 
 For more information about experimental device support, see [#44](https://github.com/computerlyrik/dymoprint/issues/44).
 
 ## Installation
 
-It is recommended to install dymoprint with
+It is recommended to install Labelle with
 [pipx](https://pypa.github.io/pipx/) so that it runs in an isolated virtual
 environment:
 
 ```bash
-pipx install dymoprint
+pipx install labelle
 ```
 
 In case pipx is not already installed, it can be installed on Ubuntu/Debian with
@@ -52,17 +59,17 @@ sudo pacman -S python-pipx
 ```
 
 By default, users don't have permission to access generic USB devices, so you will
-need to add a rule. The first time you run `dymoprint`, it will give instructions
+need to add a rule. The first time you run `labelle`, it will give instructions
 about how to do this:
 
 {{< mdl-disable "<!-- markdownlint-disable MD013 -->" >}}
 
 ```bash
-$ dymoprint "Hello world"
+$ labelle "Hello world"
 ...
 You do not have sufficient access to the device. You probably want to add the a udev rule in /etc/udev/rules.d with the following command:
 
-  echo 'ACTION=="add", SUBSYSTEMS=="usb", ATTRS{idVendor}=="0922", ATTRS{idProduct}=="1001", MODE="0666"' | sudo tee /etc/udev/rules.d/91-dymo-1001.rules
+  echo 'ACTION=="add", SUBSYSTEMS=="usb", ATTRS{idVendor}=="0922", ATTRS{idProduct}=="1001", MODE="0666"' | sudo tee /etc/udev/rules.d/91-labelle-1001.rules
 ...
 ```
 
@@ -70,20 +77,20 @@ You do not have sufficient access to the device. You probably want to add the a 
 
 ## Testing experimental features
 
-To install a test branch, by user `ghuser` for the branch `branchname`, run
+To install a test branch, by GitHub user `ghuser` for the branch `branchname`, run
 
 ```bash
-pipx install --force git+https://github.com/ghuser/dymoprint@branchname
+pipx install --force git+https://github.com/ghuser/labelle@branchname
 ```
 
 To revert back to the release version, run
 
 ```bash
-pipx install --force dymoprint
+pipx install --force labelle
 ```
 
-To install a particular release version, specify `dymoprint==x.y.z` instead of
-`dymoprint` in the above command.
+To install a particular release version, specify `labelle==x.y.z` in place of
+`labelle` in the above command.
 
 ## Development and code style
 
@@ -104,12 +111,9 @@ pre-commit install
 
 ## Font management
 
-Fonts are managed via [labelle.ini](labelle.ini). This should be placed in your
-config folder (normally `~/.config`). An example file is provided here.
-
-You may choose any TTF Font you like
-
-You may edit the file to point to your favorite font.
+Default fonts are managed via [labelle.ini](labelle.ini).
+This should be placed in your config folder (normally `~/.config`).
+An example file is provided here.
 
 For my Arch-Linux System, fonts are located at e.g.
 
@@ -120,49 +124,49 @@ For my Arch-Linux System, fonts are located at e.g.
 It is also possible to Download a font from
 <http://font.ubuntu.com/> and use it.
 
-For font discovery, Dymoprint contains code excerpts from
+For font discovery, Labelle contains code excerpts from
 [`matplotlib`](https://github.com/matplotlib/matplotlib/).
 See [here](vendoring/README.md) for more information and
-[LICENSE](src/dymoprint/_vendor/matplotlib/LICENSE) for the license.
+[LICENSE](src/labelle/_vendor/matplotlib/LICENSE) for the license.
 
 ## Modes
 
 ### Print text
 
-```dymoprint MyText```
+```labelle MyText```
 
 Multilines will be generated on whitespace
 
-```dymoprint MyLine MySecondLine # Will print two Lines```
+```labelle MyLine MySecondLine # Will print two Lines```
 
 If you want whitespaces just enclose in " "
 
-```dymoprint "prints a single line"```
+```labelle "prints a single line"```
 
 ### Print QRCodes and Barcodes
 
-```dymoprint --help```
+```labelle --help```
 
 ### Print Codes and Text
 
 Just add a text after your qr or barcode text
 
-```dymoprint -qr "QR Content" "Cleartext printed"```
+```labelle -qr "QR Content" "Cleartext printed"```
 
 ### Picture printing
 
 Any picture with JPEG standard may be printed. Beware it will be downsized to tape.
 
-```dymoprint -p mypic.jpg ""```
+```labelle -p mypic.jpg ""```
 
 Take care of the trailing "" - you may enter text here which gets printed in
 front of the image
 
 ## GUI
 
-### Run DymoPrint GUI
+### Run Labelle GUI
 
-```dymoprint_gui```
+```labelle-gui```
 
 ### GUI App Features
 
@@ -192,42 +196,37 @@ the action from the context menu. To print - click the print button.
 
 Example 1: multiple text + QR code
 
-![alt](doc/DymoPrint_example_1.png)
+![alt](doc/Labelle_example_1.png)
 
 Example 2: two images + text with frame, white on red
 
-![alt](doc/DymoPrint_example_2.png)
+![alt](doc/Labelle_example_2.png)
 
-Example 3: barcode, text, image
+Example 3: barcode with text, text, image
 
-![alt](doc/DymoPrint_example_3.png)
+![alt](doc/Labelle_example_3.png)
 
 ## Development
 
 Besides the travis-ci one should run the following command on a feature
-implemention or change to ensure the same outcome on a real device:
+implementation or change to ensure the same outcome on a real device:
 
 ```bash
-dymoprint Tst && \
-dymoprint -qr Tst && \
-dymoprint -c code128 Tst && \
-dymoprint -qr qrencoded "qr_txt" && \
-dymoprint -c code128 Test "bc_txt"
+labelle Tst && \
+labelle -qr Tst && \
+labelle -c code128 Tst && \
+labelle -qr qrencoded "qr_txt" && \
+labelle -c code128 Test "bc_txt"
 ```
 
-### ToDo
+## Disclaimers
 
-* ~~(?)support multiple ProductIDs (1001, 1002) -> use usb-modeswitch?~~
-* ~~put everything in classes that would need to be used by a GUI~~
-* ~~for more options use command line parser framework~~
-* ~~allow selection of font with command line options~~
-* ~~allow font size specification with command line option (points, pixels?)~~
-* ~~provide an option to show a preview of what the label will look like~~
-* ~~read and write a .dymoprint file containing user preferences~~
-* ~~print barcodes~~
-* ~~print graphics~~
-* ~~plot frame around label~~
-* vertical print
-* refactor code with better abstractions
-* pixel fonts
-* web interface
+* This software is provided as-is, without any warranty. Please see [LICENSE](LICENSE)
+  for details.
+* Labelle is not affiliated, associated, authorized, endorsed by, or in any way
+  officially connected with DYMO, or any of its subsidiaries or its affiliates.
+  The official DYMO website can be found at [www.dymo.com](www.dymo.com).
+  The name DYMO®, as well as related names, marks, emblems, and images, are registered
+  trademarks of their respective owners. Currently, Labelle software is designed
+  to support certain devices manufactured by DYMO; however, no endorsement or
+  partnership is implied.
