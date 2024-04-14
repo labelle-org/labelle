@@ -1,7 +1,7 @@
-diff --git a/src/dymoprint/_vendor/matplotlib/font_manager.py b/src/dymoprint/_vendor/matplotlib/font_manager.py
+diff --git a/src/labelle/_vendor/matplotlib/font_manager.py b/src/labelle/_vendor/matplotlib/font_manager.py
 index e570add..d8484d0 100644
---- a/src/dymoprint/_vendor/matplotlib/font_manager.py
-+++ b/src/dymoprint/_vendor/matplotlib/font_manager.py
+--- a/src/labelle/_vendor/matplotlib/font_manager.py
++++ b/src/labelle/_vendor/matplotlib/font_manager.py
 @@ -23,27 +23,14 @@ Future versions may implement the Level 2 or 2.1 specifications.
  #   - setWeights function needs improvement
  #   - 'light' is an invalid weight value, remove it.
