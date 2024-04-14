@@ -5,8 +5,8 @@ from typing import Literal
 
 from PIL import Image
 
-from dymoprint.lib.render_engines.render_context import RenderContext
-from dymoprint.lib.render_engines.render_engine import (
+from labelle.lib.render_engines.render_context import RenderContext
+from labelle.lib.render_engines.render_engine import (
     RenderEngine,
     RenderEngineException,
 )

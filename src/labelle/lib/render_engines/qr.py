@@ -1,12 +1,12 @@
 from PIL import Image
 
-from dymoprint.lib.constants import QRCode
-from dymoprint.lib.render_engines.render_context import RenderContext
-from dymoprint.lib.render_engines.render_engine import (
+from labelle.lib.constants import QRCode
+from labelle.lib.render_engines.render_context import RenderContext
+from labelle.lib.render_engines.render_engine import (
     RenderEngine,
     RenderEngineException,
 )
-from dymoprint.lib.utils import draw_image, scaling
+from labelle.lib.utils import draw_image, scaling
 
 
 class QrTooBigError(RenderEngineException):

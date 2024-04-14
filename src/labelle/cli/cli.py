@@ -12,18 +12,18 @@ from tempfile import NamedTemporaryFile
 
 from PIL import Image, ImageOps
 
-from dymoprint import __version__
-from dymoprint.lib.constants import (
+from labelle import __version__
+from labelle.lib.constants import (
     AVAILABLE_BARCODES,
     DEFAULT_MARGIN_PX,
     PIXELS_PER_MM,
     USE_QR,
     e_qrcode,
 )
-from dymoprint.lib.dymo_labeler import DymoLabeler
-from dymoprint.lib.font_config import NoFontFound, get_available_fonts, get_font_path
-from dymoprint.lib.logger import configure_logging, is_verbose_env_vars, set_not_verbose
-from dymoprint.lib.render_engines import (
+from labelle.lib.dymo_labeler import DymoLabeler
+from labelle.lib.font_config import NoFontFound, get_available_fonts, get_font_path
+from labelle.lib.logger import configure_logging, is_verbose_env_vars, set_not_verbose
+from labelle.lib.render_engines import (
     BarcodeRenderEngine,
     BarcodeWithTextRenderEngine,
     HorizontallyCombinedRenderEngine,
@@ -35,9 +35,9 @@ from dymoprint.lib.render_engines import (
     TestPatternRenderEngine,
     TextRenderEngine,
 )
-from dymoprint.lib.unicode_blocks import image_to_unicode
-from dymoprint.lib.utils import system_run
-from dymoprint.metadata import our_metadata
+from labelle.lib.unicode_blocks import image_to_unicode
+from labelle.lib.utils import system_run
+from labelle.metadata import our_metadata
 
 LOG = logging.getLogger(__name__)
 

@@ -15,9 +15,9 @@ import usb
 from PIL import Image
 from usb.core import NoBackendError, USBError
 
-from dymoprint.lib.constants import ESC, SYN
-from dymoprint.lib.detect import DetectedDevice, DymoUSBError, detect_device
-from dymoprint.lib.utils import mm_to_px
+from labelle.lib.constants import ESC, SYN
+from labelle.lib.detect import DetectedDevice, DymoUSBError, detect_device
+from labelle.lib.utils import mm_to_px
 
 LOG = logging.getLogger(__name__)
 POSSIBLE_USB_ERRORS = (DymoUSBError, NoBackendError, USBError)

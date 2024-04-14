@@ -2,9 +2,9 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional
 
-import dymoprint.resources.fonts
-from dymoprint._vendor.matplotlib import font_manager
-from dymoprint.lib.config_file import get_config_section
+import labelle.resources.fonts
+from labelle._vendor.matplotlib import font_manager
+from labelle.lib.config_file import get_config_section
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ class NoStyleFound(ValueError):
         super().__init__(msg)
 
 
-_DEFAULT_FONTS_DIR = Path(dymoprint.resources.fonts.__file__).parent
+_DEFAULT_FONTS_DIR = Path(labelle.resources.fonts.__file__).parent
 _DEFAULT_STYLE = "regular"
 _DEFAULT_STYLES_TO_FONT_PATH: Dict[str, Path] = {
     "regular": _DEFAULT_FONTS_DIR / "Carlito-Regular.ttf",

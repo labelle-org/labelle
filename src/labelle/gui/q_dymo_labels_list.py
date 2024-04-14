@@ -6,25 +6,25 @@ from PyQt6 import QtCore
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem, QMenu
 
-from dymoprint.gui.common import crash_msg_box
-from dymoprint.gui.q_dymo_label_widgets import (
+from labelle.gui.common import crash_msg_box
+from labelle.gui.q_dymo_label_widgets import (
     BarcodeDymoLabelWidget,
     EmptyRenderEngine,
     ImageDymoLabelWidget,
     QrDymoLabelWidget,
     TextDymoLabelWidget,
 )
-from dymoprint.lib.dymo_labeler import DymoLabeler
-from dymoprint.lib.render_engines import (
+from labelle.lib.dymo_labeler import DymoLabeler
+from labelle.lib.render_engines import (
     HorizontallyCombinedRenderEngine,
     PrintPayloadRenderEngine,
     PrintPreviewRenderEngine,
     RenderContext,
 )
-from dymoprint.lib.render_engines.render_engine import (
+from labelle.lib.render_engines.render_engine import (
     RenderEngineException,
 )
-from dymoprint.lib.utils import mm_to_px
+from labelle.lib.utils import mm_to_px
 
 LOG = logging.getLogger(__name__)
 

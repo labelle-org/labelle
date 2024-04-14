@@ -16,10 +16,10 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from dymoprint.gui.common import crash_msg_box
-from dymoprint.lib.constants import AVAILABLE_BARCODES, ICON_DIR
-from dymoprint.lib.font_config import get_available_fonts
-from dymoprint.lib.render_engines import (
+from labelle.gui.common import crash_msg_box
+from labelle.lib.constants import AVAILABLE_BARCODES, ICON_DIR
+from labelle.lib.font_config import get_available_fonts
+from labelle.lib.render_engines import (
     BarcodeRenderEngine,
     BarcodeWithTextRenderEngine,
     EmptyRenderEngine,
@@ -30,7 +30,7 @@ from dymoprint.lib.render_engines import (
     RenderContext,
     TextRenderEngine,
 )
-from dymoprint.lib.render_engines.render_engine import RenderEngineException
+from labelle.lib.render_engines.render_engine import RenderEngineException
 
 
 class FontStyle(QComboBox):

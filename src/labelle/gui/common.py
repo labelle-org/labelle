@@ -3,7 +3,7 @@ import traceback
 
 from PyQt6.QtWidgets import QMessageBox, QWidget
 
-from dymoprint.lib.logger import VERBOSE_NOTICE, is_verbose, print_exception
+from labelle.lib.logger import VERBOSE_NOTICE, is_verbose, print_exception
 
 LOG = logging.getLogger(__name__)
 

@@ -12,8 +12,8 @@ import sys
 
 from PIL import ImageDraw
 
-from dymoprint.lib.constants import PIXELS_PER_MM
-from dymoprint.lib.logger import print_exception
+from labelle.lib.constants import PIXELS_PER_MM
+from labelle.lib.logger import print_exception
 
 LOG = logging.getLogger(__name__)
 

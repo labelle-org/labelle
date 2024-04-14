@@ -16,8 +16,8 @@
 
 from pathlib import Path
 
-import dymoprint.resources.fonts
-import dymoprint.resources.icons
+import labelle.resources.fonts
+import labelle.resources.icons
 
 try:
     from pyqrcode import QRCode
@@ -70,7 +70,7 @@ DPI = 180
 MM_PER_INCH = 25.4
 PIXELS_PER_MM = DPI / MM_PER_INCH
 
-ICON_DIR = Path(dymoprint.resources.icons.__file__).parent
+ICON_DIR = Path(labelle.resources.icons.__file__).parent
 
 AVAILABLE_BARCODES = [
     "code39",

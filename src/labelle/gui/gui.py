@@ -20,16 +20,16 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from dymoprint.gui.common import crash_msg_box
-from dymoprint.lib.constants import ICON_DIR
-from dymoprint.lib.dymo_labeler import (
+from labelle.gui.common import crash_msg_box
+from labelle.lib.constants import ICON_DIR
+from labelle.lib.dymo_labeler import (
     DymoLabeler,
     DymoLabelerDetectError,
     DymoLabelerPrintError,
 )
-from dymoprint.lib.logger import configure_logging, is_verbose_env_vars, set_not_verbose
-from dymoprint.lib.render_engines import RenderContext
-from dymoprint.lib.utils import system_run
+from labelle.lib.logger import configure_logging, is_verbose_env_vars, set_not_verbose
+from labelle.lib.render_engines import RenderContext
+from labelle.lib.utils import system_run
 
 from .q_dymo_labels_list import QDymoLabelList
 

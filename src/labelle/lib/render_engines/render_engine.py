@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from PIL import Image
 
-from dymoprint.lib.render_engines.render_context import RenderContext
+from labelle.lib.render_engines.render_context import RenderContext
 
 
 class RenderEngineException(Exception):

@@ -1,9 +1,9 @@
 import barcode as barcode_module
 from PIL import Image
 
-from dymoprint.lib.barcode_writer import BarcodeImageWriter
-from dymoprint.lib.render_engines.render_context import RenderContext
-from dymoprint.lib.render_engines.render_engine import (
+from labelle.lib.barcode_writer import BarcodeImageWriter
+from labelle.lib.render_engines.render_context import RenderContext
+from labelle.lib.render_engines.render_engine import (
     RenderEngine,
     RenderEngineException,
 )

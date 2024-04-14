@@ -2,7 +2,7 @@ import math
 
 from PIL import Image
 
-from dymoprint.lib.render_engines import RenderContext, RenderEngine
+from labelle.lib.render_engines import RenderContext, RenderEngine
 
 
 class TestPatternRenderEngine(RenderEngine):
