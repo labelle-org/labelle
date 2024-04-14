@@ -32,7 +32,7 @@ except ImportError as error:
 
 UNCONFIRMED_MESSAGE = (
     "WARNING: This device is not confirmed to work with this software. Please "
-    "report your experiences in https://github.com/computerlyrik/dymoprint/issues/44"
+    "report your experiences in https://github.com/labelle-org/labelle/issues/4"
 )
 SUPPORTED_PRODUCTS = {
     0x0011: "DYMO LabelMANAGER PC",

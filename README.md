@@ -42,7 +42,7 @@
 
 Labelle is not affiliated with DYMO. Please see the [disclaimer](#disclaimers) below.
 
-For more information about experimental device support, see [#44](https://github.com/computerlyrik/dymoprint/issues/44).
+For more information about experimental device support, see [#4](https://github.com/labelle-org/labelle/issues/4).
 
 ## Installation
 

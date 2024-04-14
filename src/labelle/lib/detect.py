@@ -13,7 +13,8 @@ from .constants import (
 )
 
 LOG = logging.getLogger(__name__)
-GITHUB_LINK = "<https://github.com/computerlyrik/dymoprint/pull/56>"
+GITHUB_ISSUE_MAC = "<https://github.com/labelle-org/labelle/issues/5>"
+GITHUB_ISSUE_UDEV = "<https://github.com/labelle-org/labelle/issues/6>"
 
 
 class DymoUSBError(RuntimeError):
@@ -149,7 +150,7 @@ def instruct_on_access_denied(dev: usb.core.Device) -> NoReturn:
         raise DymoUSBError(
             f"Could not access {dev}. Thanks for bravely trying this on a Mac. You "
             f"are in uncharted territory. It would be appreciated if you share the "
-            f"results of your experimentation at {GITHUB_LINK}."
+            f"results of your experimentation at {GITHUB_ISSUE_MAC}."
         )
     else:
         raise DymoUSBError(f"Unknown platform {system}")
@@ -190,7 +191,7 @@ def instruct_on_access_denied_linux(dev: usb.core.Device) -> NoReturn:
     You do not have sufficient access to the device. You probably want to add the a udev
     rule in /etc/udev/rules.d with the following command:
 
-      echo '{udev_rule}' | sudo tee /etc/udev/rules.d/91-dymo-{dev.idProduct:x}.rules"
+      echo '{udev_rule}' | sudo tee /etc/udev/rules.d/91-labelle-{dev.idProduct:x}.rules
 
     Next, refresh udev with:
 
@@ -200,7 +201,7 @@ def instruct_on_access_denied_linux(dev: usb.core.Device) -> NoReturn:
     Finally, turn your device off and back on again to activate the new permissions.
 
     If this still does not resolve the problem, you might need to reboot.
-    In case rebooting is necessary, please report this at {GITHUB_LINK}.
+    In case rebooting is necessary, please report this at {GITHUB_ISSUE_UDEV}.
     We are still trying to figure out a simple procedure which works for everyone.
     In case you still cannot connect, or if you have any information or ideas, please
     post them at that link.
