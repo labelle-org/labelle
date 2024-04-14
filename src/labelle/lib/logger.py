@@ -3,7 +3,7 @@ import os
 import sys
 
 _IS_VERBOSE = True
-LOG = logging.getLogger("dymoprint")
+LOG = logging.getLogger("labelle")
 VERBOSE_NOTICE = "Run with --verbose for more information"
 
 
