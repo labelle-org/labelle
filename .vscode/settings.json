@@ -1,9 +1,9 @@
 {
     "python.analysis.extraPaths": [
-        "/usr/local/py-utils/venvs/dymoprint/lib/python3.12/site-packages"
+        "/usr/local/py-utils/venvs/labelle/lib/python3.12/site-packages"
     ],
     "python.autoComplete.extraPaths": [
-        "/usr/local/py-utils/venvs/dymoprint/lib/python3.12/site-packages"
+        "/usr/local/py-utils/venvs/labelle/lib/python3.12/site-packages"
     ],
     "editor.rulers": [
         88

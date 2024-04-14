@@ -29,8 +29,8 @@ COPY ../pyproject.toml /tmp/temp-project/pyproject.toml
 RUN touch /tmp/temp-project/README.md \
     && cd /tmp/temp-project \
     && git init \
-    && mkdir -p src/dymoprint \
-    && echo '__version__ = "0.0.0"' > src/dymoprint/_version.py \
+    && mkdir -p src/labelle \
+    && echo '__version__ = "0.0.0"' > src/labelle/_version.py \
     && pip install -e . \
-    && pip uninstall -y dymoprint \
+    && pip uninstall -y labelle \
     && rm -rf /tmp/temp-project

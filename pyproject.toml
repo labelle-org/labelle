@@ -3,13 +3,15 @@ requires = ["hatchling >=1.11.1,<2.0.0", "hatch-vcs >=0.3.0,<0.4"]
 build-backend = "hatchling.build"
 
 [project]
-name = "dymoprint"
-description = "Linux Software to print with LabelManager PnP from Dymo"
+name = "labelle"
+description = "Open-source label printing software"
 readme = "README.md"
-url = "https://github.com/computerlyrik/dymoprint"
-authors = [{ name = "Sebastian J. Bronner", email = "waschtl@sbronner.com" }]
+url = "https://github.com/labelle-org/labelle"
+authors = [{name = "Sebastian J. Bronner", email = "waschtl@sbronner.com"}]
 maintainers = [
-    { name = "Ben Mares", email = "services-dymoprint@tensorial.com" },
+    {name = "Tomer Shalev", email = "tshalev@proofpoint.com"},
+    {name = "Ben Mares", email = "services-labelle@tensorial.com"},
+    {name = "Tomek Szczęsny", email = "mctom@tlen.pl"},
 ]
 license = "Apache-2.0"
 license-file = "LICENSE"
@@ -37,13 +39,13 @@ dynamic = ["version"]
 requires-python = ">=3.8,<4"
 
 [project.urls]
-Homepage = "https://github.com/computerlyrik/dymoprint"
-source = "https://github.com/computerlyrik/dymoprint"
-tracker = "https://github.com/computerlyrik/dymoprint/issues"
+Homepage = "https://github.com/labelle-org/labelle"
+source = "https://github.com/labelle-org/labelle"
+tracker = "https://github.com/labelle-org/labelle/issues"
 
 [project.scripts]
-dymoprint = "dymoprint.cli.cli:main"
-dymoprint_gui = "dymoprint.gui.gui:main"
+labelle = "labelle.cli.cli:main"
+labelle-gui = "labelle.gui.gui:main"
 
 [tool.hatch.version]
 source = "vcs"
@@ -51,10 +53,10 @@ source = "vcs"
 raw-options = { version_scheme = "no-guess-dev" }
 
 [tool.hatch.build.hooks.vcs]
-version-file = "src/dymoprint/_version.py"
+version-file = "src/labelle/_version.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/dymoprint"]
+packages = ["src/labelle"]
 
 [tool.tox]
 legacy_tox_ini = """
@@ -78,15 +80,15 @@ python =
 commands =
   pip check
   pip freeze
-  dymoprint --version
-  dymoprint --help
-  dymoprint --preview "single line"
-  dymoprint --preview-inverted "single line"
-  dymoprint --preview multiple lines
-  dymoprint --preview -qr "qr text"
-  dymoprint --preview -c code128 "bc txt"
-  dymoprint --preview -qr "qr text" qr caption
-  dymoprint --preview -c code128 "bc txt" barcode caption
+  labelle --version
+  labelle --help
+  labelle --preview "single line"
+  labelle --preview-inverted "single line"
+  labelle --preview multiple lines
+  labelle --preview -qr "qr text"
+  labelle --preview -c code128 "bc txt"
+  labelle --preview -qr "qr text" qr caption
+  labelle --preview -c code128 "bc txt" barcode caption
 
 [testenv:{clean,build}]
 description =
@@ -121,8 +123,8 @@ commands =
 """
 
 [tool.vendoring]
-destination = "src/dymoprint/_vendor"
-namespace = "dymoprint._vendor"
+destination = "src/labelle/_vendor"
+namespace = "labelle._vendor"
 requirements = "vendoring/vendor.txt"
 protected-files = ["vendoring/README.md", "vendoring/vendor.txt"]
 patches-dir = "vendoring/patches"

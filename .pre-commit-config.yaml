@@ -1,4 +1,4 @@
-exclude: ^src/dymoprint/_vendor/.*$
+exclude: ^src/labelle/_vendor/.*$
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
