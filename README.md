@@ -14,8 +14,8 @@
 ## Open-source label printing software
 
 * First version from Sebastian Bronner: <https://sbronner.com/dymoprint.html>
-* Cloned to Github and formerly maintained by
-  [@computerlyrik](https://github.com/computerlyrik) and
+* Cloned to Github and maintained by
+  [@computerlyrik](https://github.com/computerlyrik) and later
   [@maresb](https://github.com/maresb): <https://github.com/computerlyrik/dymoprint>
 * Migrated to `labelle-org` and maintained by
   [@tomers](https://github.com/tomers), [@maresb](https://github.com/maresb),
