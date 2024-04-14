@@ -4,13 +4,13 @@
 [![PyPI version](https://img.shields.io/pypi/v/labelle.svg)](https://pypi.org/project/labelle/)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/labelle-org/labelle/main.svg)](https://results.pre-commit.ci/latest/github/labelle-org/labelle/main)
 
-{{< mdl-disable "<!-- markdownlint-disable MD033 -->" >}}
+<!-- markdownlint-disable MD033 -->
 
 <p align="center">
   <img src="labelle.png" alt="logo" width="400"></img>
 </p>
 
-{{< mdl-enable "<!-- markdownlint-enable MD033 -->" >}}
+<!-- markdownlint-enable MD033 -->
 
 ## Open-source label printing software
 
@@ -71,7 +71,7 @@ By default, users don't have permission to access generic USB devices, so you wi
 need to add a rule. The first time you run `labelle`, it will give instructions
 about how to do this:
 
-{{< mdl-disable "<!-- markdownlint-disable MD013 -->" >}}
+<!-- markdownlint-disable MD013 -->
 
 ```bash
 $ labelle "Hello world"
@@ -82,7 +82,7 @@ You do not have sufficient access to the device. You probably want to add the a 
 ...
 ```
 
-{{< mdl-enable "<!-- markdownlint-enable MD013 -->" >}}
+<!-- markdownlint-enable MD013 -->
 
 ## Testing experimental features
 
@@ -222,7 +222,7 @@ Example 3: barcode with text, text, image
 
 The name "Labelle" is a multilingual pun by [@claui](https://github.com/computerlyrik/dymoprint/issues/114#issuecomment-1978982019).
 
-{{< mdl-disable "<!-- markdownlint-disable MD013 -->" >}}
+<!-- markdownlint-disable MD013 -->
 
 | Language | Word/Interpretation   | Meaning           | Pronunciation (IPA) | Simplified Phonetic Spelling |
 |----------|-----------------------|-------------------|---------------------|------------------------------|
@@ -230,7 +230,7 @@ The name "Labelle" is a multilingual pun by [@claui](https://github.com/computer
 | French   | La belle              | The beautiful     | /la bɛl/            | lah BEL                      |
 | German   | Libelle (sounds like) | Dragonfly         | /liˈbɛlə/           | lee-BELL-uh                  |
 
-{{< mdl-enable "<!-- markdownlint-enable MD013 -->" >}}
+<!-- markdownlint-enable MD013 -->
 
 ## Disclaimers
 
