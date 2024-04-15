@@ -27,7 +27,8 @@ from labelle.lib.devices.dymo_labeler import (
     DymoLabeler,
     DymoLabelerPrintError,
 )
-from labelle.lib.logger import configure_logging, is_verbose_env_vars, set_not_verbose
+from labelle.lib.env_config import is_verbose_env_vars
+from labelle.lib.logger import configure_logging, set_not_verbose
 from labelle.lib.render_engines import RenderContext
 from labelle.lib.utils import system_run
 

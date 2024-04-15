@@ -22,8 +22,9 @@ from labelle.lib.constants import (
 )
 from labelle.lib.devices.device_manager import DeviceManager
 from labelle.lib.devices.dymo_labeler import DymoLabeler
+from labelle.lib.env_config import is_verbose_env_vars
 from labelle.lib.font_config import NoFontFound, get_available_fonts, get_font_path
-from labelle.lib.logger import configure_logging, is_verbose_env_vars, set_not_verbose
+from labelle.lib.logger import configure_logging, set_not_verbose
 from labelle.lib.render_engines import (
     BarcodeRenderEngine,
     BarcodeWithTextRenderEngine,
