@@ -30,11 +30,11 @@ class DetectedDevice(NamedTuple):
     devin: usb.core.Endpoint
 
 
-def device_info(dev: usb.core.Device) -> str:
+def _device_info(dev: usb.core.Device) -> str:
     try:
         _ = dev.manufacturer
     except ValueError:
-        instruct_on_access_denied(dev)
+        _instruct_on_access_denied(dev)
     res = ""
     res += f"{dev!r}\n"
     res += f"  manufacturer: {dev.manufacturer}\n"
@@ -66,12 +66,12 @@ def _find_and_select_device() -> usb.core.Device:
     if len(dymo_devs) > 1:
         LOG.debug("Found multiple Dymo devices:")
         for dev in dymo_devs:
-            LOG.debug(device_info(dev))
+            LOG.debug(_device_info(dev))
         LOG.debug("Using first device.")
         dev = dymo_devs[0]
     else:
         dev = dymo_devs[0]
-        LOG.debug(f"Found one Dymo device: {device_info(dev)}")
+        LOG.debug(f"Found one Dymo device: {_device_info(dev)}")
     dev = dymo_devs[0]
     if dev.idProduct in SUPPORTED_PRODUCTS:
         LOG.debug(f"Recognized device as {SUPPORTED_PRODUCTS[dev.idProduct]}")
@@ -152,10 +152,10 @@ def detect_device() -> DetectedDevice:
     )
 
 
-def instruct_on_access_denied(dev: usb.core.Device) -> NoReturn:
+def _instruct_on_access_denied(dev: usb.core.Device) -> NoReturn:
     system = platform.system()
     if system == "Linux":
-        instruct_on_access_denied_linux(dev)
+        _instruct_on_access_denied_linux(dev)
     elif system == "Windows":
         raise DymoUSBError(
             "Couldn't access the device. Please make sure that the "
@@ -172,7 +172,7 @@ def instruct_on_access_denied(dev: usb.core.Device) -> NoReturn:
         raise DymoUSBError(f"Unknown platform {system}")
 
 
-def instruct_on_access_denied_linux(dev: usb.core.Device) -> NoReturn:
+def _instruct_on_access_denied_linux(dev: usb.core.Device) -> NoReturn:
     # try:
     #     os_release = platform.freedesktop_os_release()
     # except OSError:
