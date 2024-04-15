@@ -16,11 +16,11 @@ from PIL import Image
 from usb.core import NoBackendError, USBError
 
 from labelle.lib.constants import ESC, SYN
-from labelle.lib.devices.detect import DetectedDevice, DymoUSBError
+from labelle.lib.devices.usb_device import DetectedDevice, UsbDeviceError
 from labelle.lib.utils import mm_to_px
 
 LOG = logging.getLogger(__name__)
-POSSIBLE_USB_ERRORS = (DymoUSBError, NoBackendError, USBError)
+POSSIBLE_USB_ERRORS = (UsbDeviceError, NoBackendError, USBError)
 
 
 class DymoLabelerDetectError(Exception):

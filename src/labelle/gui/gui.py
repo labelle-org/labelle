@@ -22,12 +22,12 @@ from PyQt6.QtWidgets import (
 
 from labelle.gui.common import crash_msg_box
 from labelle.lib.constants import ICON_DIR
-from labelle.lib.devices.detect import setup_device
 from labelle.lib.devices.device_manager import DeviceManager, DeviceManagerError
 from labelle.lib.devices.dymo_labeler import (
     DymoLabeler,
     DymoLabelerPrintError,
 )
+from labelle.lib.devices.usb_device import setup_device
 from labelle.lib.logger import configure_logging, is_verbose_env_vars, set_not_verbose
 from labelle.lib.render_engines import RenderContext
 from labelle.lib.utils import system_run
