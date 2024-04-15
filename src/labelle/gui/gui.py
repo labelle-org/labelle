@@ -117,7 +117,6 @@ class DymoPrintWindow(QWidget):
         self.refresh_devices()
         self.status_time = QTimer()
         self.status_time.timeout.connect(self.refresh_devices)
-        self.status_time.setInterval(2000)
         self.status_time.start(2000)
 
     def init_connections(self):
