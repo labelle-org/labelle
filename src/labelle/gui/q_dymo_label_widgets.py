@@ -18,6 +18,7 @@ from PyQt6.QtWidgets import (
 
 from labelle.gui.common import crash_msg_box
 from labelle.lib.constants import AVAILABLE_BARCODES, ICON_DIR
+from labelle.lib.env_config import is_dev_mode_no_margins
 from labelle.lib.font_config import get_available_fonts
 from labelle.lib.render_engines import (
     BarcodeRenderEngine,
@@ -113,7 +114,8 @@ class TextDymoLabelWidget(BaseDymoLabelWidget):
         super().__init__(parent)
         self.render_context = render_context
 
-        self.label = QPlainTextEdit("text")
+        default_label_text = "." if is_dev_mode_no_margins() else "text"
+        self.label = QPlainTextEdit(default_label_text)
         self.label.setFixedHeight(15 * (len(self.label.toPlainText().splitlines()) + 2))
         self.setFixedHeight(self.label.height() + 10)
         self.font_style = FontStyle()

@@ -5,6 +5,7 @@ from typing import Literal
 
 from PIL import Image
 
+from labelle.lib.env_config import is_dev_mode_no_margins
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import (
     RenderEngine,
@@ -38,11 +39,16 @@ class MarginsRenderEngine(RenderEngine):
         assert min_width_px >= 0
         self.mode = mode
         self.justify = justify
-        self.visible_horizontal_margin_px = visible_horizontal_margin_px
-        self.labeler_horizontal_margin_px = labeler_horizontal_margin_px
+        if is_dev_mode_no_margins():
+            self.visible_horizontal_margin_px = 0.0
+            self.labeler_horizontal_margin_px = 0.0
+            self.min_width_px = 0.0
+        else:
+            self.visible_horizontal_margin_px = visible_horizontal_margin_px
+            self.labeler_horizontal_margin_px = labeler_horizontal_margin_px
+            self.min_width_px = min_width_px
         self.labeler_vertical_margin_px = labeler_vertical_margin_px
         self.max_width_px = max_width_px
-        self.min_width_px = min_width_px
         self.render_engine = render_engine
 
     def _calculate_visible_width(self, payload_width_px: int) -> float:
