@@ -114,9 +114,9 @@ class DymoPrintWindow(QWidget):
         self.label_list.populate()
 
     def init_timers(self):
-        self.check_status()
+        self.refresh_devices()
         self.status_time = QTimer()
-        self.status_time.timeout.connect(self.check_status)
+        self.status_time.timeout.connect(self.refresh_devices)
         self.status_time.setInterval(2000)
         self.status_time.start(2000)
 
@@ -223,7 +223,7 @@ class DymoPrintWindow(QWidget):
         except DymoLabelerPrintError as err:
             crash_msg_box(self, "Printing Failed!", err)
 
-    def check_status(self):
+    def refresh_devices(self):
         self.error_label.setText("")
         try:
             self.device_manager.scan()
