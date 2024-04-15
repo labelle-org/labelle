@@ -20,7 +20,7 @@ from labelle.lib.constants import (
     USE_QR,
     e_qrcode,
 )
-from labelle.lib.dymo_labeler import DymoLabeler
+from labelle.lib.devices.dymo_labeler import DymoLabeler
 from labelle.lib.font_config import NoFontFound, get_available_fonts, get_font_path
 from labelle.lib.logger import configure_logging, is_verbose_env_vars, set_not_verbose
 from labelle.lib.render_engines import (

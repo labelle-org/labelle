@@ -22,7 +22,7 @@ from PyQt6.QtWidgets import (
 
 from labelle.gui.common import crash_msg_box
 from labelle.lib.constants import ICON_DIR
-from labelle.lib.dymo_labeler import (
+from labelle.lib.devices.dymo_labeler import (
     DymoLabeler,
     DymoLabelerDetectError,
     DymoLabelerPrintError,
