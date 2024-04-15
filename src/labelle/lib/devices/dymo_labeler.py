@@ -16,7 +16,7 @@ from PIL import Image
 from usb.core import NoBackendError, USBError
 
 from labelle.lib.constants import ESC, SYN
-from labelle.lib.detect import DetectedDevice, DymoUSBError, detect_device
+from labelle.lib.devices.detect import DetectedDevice, DymoUSBError
 from labelle.lib.utils import mm_to_px
 
 LOG = logging.getLogger(__name__)
@@ -261,8 +261,6 @@ class DymoLabeler:
 
     @property
     def _functions(self):
-        if not self.device:
-            self.detect()
         assert self.device is not None
         return DymoLabelerFunctions(
             devout=self.device.devout,
@@ -284,12 +282,6 @@ class DymoLabeler:
             mm_to_px(self.minimum_horizontal_margin_mm),
             mm_to_px(vertical_margin_mm),
         )
-
-    def detect(self):
-        try:
-            self.device = detect_device()
-        except POSSIBLE_USB_ERRORS as e:
-            raise DymoLabelerDetectError(str(e)) from e
 
     def print(
         self,

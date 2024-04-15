@@ -22,9 +22,10 @@ from PyQt6.QtWidgets import (
 
 from labelle.gui.common import crash_msg_box
 from labelle.lib.constants import ICON_DIR
+from labelle.lib.devices.detect import setup_device
+from labelle.lib.devices.device_manager import DeviceManager, DeviceManagerError
 from labelle.lib.devices.dymo_labeler import (
     DymoLabeler,
-    DymoLabelerDetectError,
     DymoLabelerPrintError,
 )
 from labelle.lib.logger import configure_logging, is_verbose_env_vars, set_not_verbose
@@ -38,6 +39,7 @@ LOG = logging.getLogger(__name__)
 
 class DymoPrintWindow(QWidget):
     label_bitmap_to_print: Optional[Image.Image]
+    device_manager: DeviceManager
     dymo_labeler: DymoLabeler
     render_context: RenderContext
     tape_size_mm: QComboBox
@@ -82,6 +84,7 @@ class DymoPrintWindow(QWidget):
         shadow.setBlurRadius(15)
         self.label_render.setGraphicsEffect(shadow)
 
+        self.device_manager = DeviceManager()
         self.dymo_labeler = DymoLabeler()
         for tape_size_mm in self.dymo_labeler.SUPPORTED_TAPE_SIZES_MM:
             self.tape_size_mm.addItem(str(tape_size_mm), tape_size_mm)
@@ -223,9 +226,11 @@ class DymoPrintWindow(QWidget):
     def check_status(self):
         self.error_label.setText("")
         try:
-            self.dymo_labeler.detect()
+            self.device_manager.scan()
+            device = self.device_manager.find_and_select_device()
+            self.dymo_labeler.device = setup_device(device)
             is_enabled = True
-        except DymoLabelerDetectError as e:
+        except DeviceManagerError as e:
             error = str(e)
             if self.last_error != error:
                 self.last_error = error

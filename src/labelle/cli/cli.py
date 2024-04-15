@@ -20,6 +20,8 @@ from labelle.lib.constants import (
     USE_QR,
     e_qrcode,
 )
+from labelle.lib.devices.detect import setup_device
+from labelle.lib.devices.device_manager import DeviceManager
 from labelle.lib.devices.dymo_labeler import DymoLabeler
 from labelle.lib.font_config import NoFontFound, get_available_fonts, get_font_path
 from labelle.lib.logger import configure_logging, is_verbose_env_vars, set_not_verbose
@@ -335,6 +337,12 @@ def run():
             min_width_px=min_payload_len_px,
         )
         bitmap, _ = render.render(render_context)
+
+        device_manager = DeviceManager()
+        if device_manager.last_scan_error:
+            raise device_manager.last_scan_error
+        device = device_manager.find_and_select_device()
+        dymo_labeler.device = setup_device(device)
         dymo_labeler.print(bitmap)
 
 
