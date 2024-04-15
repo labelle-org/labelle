@@ -4,7 +4,7 @@ from typing import NamedTuple, NoReturn
 
 import usb
 
-from .constants import (
+from labelle.lib.constants import (
     DEV_VENDOR,
     HID_INTERFACE_CLASS,
     PRINTER_INTERFACE_CLASS,
@@ -53,7 +53,7 @@ def device_info(dev: usb.core.Device) -> str:
     return res
 
 
-def detect_device() -> DetectedDevice:
+def _find_and_select_device() -> usb.core.Device:
     dymo_devs = list(usb.core.find(idVendor=DEV_VENDOR, find_all=True))
     if len(dymo_devs) == 0:
         LOG.debug(f"No Dymo devices found (expected vendor {hex(DEV_VENDOR)})")
@@ -77,7 +77,11 @@ def detect_device() -> DetectedDevice:
         LOG.debug(f"Recognized device as {SUPPORTED_PRODUCTS[dev.idProduct]}")
     else:
         LOG.debug(f"Unrecognized device: {hex(dev.idProduct)}. {UNCONFIRMED_MESSAGE}")
+    assert isinstance(dev, usb.core.Device)
+    return dev
 
+
+def _configure_device(dev):
     try:
         dev.get_active_configuration()
         LOG.debug("Active device configuration already found.")
@@ -93,6 +97,10 @@ def detect_device() -> DetectedDevice:
             else:
                 raise
 
+
+def _find_device_descriptors(
+    dev,
+) -> tuple[usb.core.Interface, usb.core.Endpoint, usb.core.Endpoint]:
     intf = usb.util.find_descriptor(
         dev.get_active_configuration(), bInterfaceClass=PRINTER_INTERFACE_CLASS
     )
@@ -131,6 +139,14 @@ def detect_device() -> DetectedDevice:
 
     if not devout or not devin:
         raise DymoUSBError("The device endpoints not be found")
+
+    return intf, devout, devin
+
+
+def detect_device() -> DetectedDevice:
+    dev = _find_and_select_device()
+    _configure_device(dev)
+    intf, devout, devin = _find_device_descriptors(dev)
     return DetectedDevice(
         id=dev.idProduct, dev=dev, intf=intf, devout=devout, devin=devin
     )
