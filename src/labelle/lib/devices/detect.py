@@ -53,8 +53,12 @@ def _device_info(dev: usb.core.Device) -> str:
     return res
 
 
+def _find_devices() -> list[usb.core.Device]:
+    return list(usb.core.find(idVendor=DEV_VENDOR, find_all=True))
+
+
 def _find_and_select_device() -> usb.core.Device:
-    dymo_devs = list(usb.core.find(idVendor=DEV_VENDOR, find_all=True))
+    dymo_devs = _find_devices()
     if len(dymo_devs) == 0:
         LOG.debug(f"No Dymo devices found (expected vendor {hex(DEV_VENDOR)})")
         for dev in usb.core.find(find_all=True):
