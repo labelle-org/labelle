@@ -27,7 +27,6 @@ from labelle.lib.devices.dymo_labeler import (
     DymoLabeler,
     DymoLabelerPrintError,
 )
-from labelle.lib.devices.usb_device import setup_device
 from labelle.lib.logger import configure_logging, is_verbose_env_vars, set_not_verbose
 from labelle.lib.render_engines import RenderContext
 from labelle.lib.utils import system_run
@@ -227,7 +226,8 @@ class DymoPrintWindow(QWidget):
         try:
             self.device_manager.scan()
             device = self.device_manager.find_and_select_device()
-            self.dymo_labeler.device = setup_device(device)
+            device.setup()
+            self.dymo_labeler.device = device
             is_enabled = True
         except DeviceManagerError as e:
             error = str(e)

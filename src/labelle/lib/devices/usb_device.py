@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import platform
-from typing import NamedTuple, NoReturn
+from typing import NoReturn
 
 import usb
 
@@ -24,9 +24,15 @@ class UsbDeviceError(RuntimeError):
 
 class UsbDevice:
     _dev: usb.core.Device
+    _intf: usb.core.Interface | None
+    _devin: usb.core.Endpoint | None
+    _devout: usb.core.Endpoint | None
 
     def __init__(self, dev: usb.core.Device) -> None:
         self._dev = dev
+        self._intf = None
+        self._devin = None
+        self._devout = None
 
     @property
     def hash(self):
@@ -175,85 +181,84 @@ class UsbDevice:
         LOG.error(msg)
         raise UsbDeviceError("Insufficient access to the device")
 
-
-class DetectedDevice(NamedTuple):
-    id: int
-    """See dymoprint.constants.SUPPORTED_PRODUCTS for a list of known IDs."""
-    dev: usb.core.Device
-    intf: usb.core.Interface
-    devout: usb.core.Endpoint
-    devin: usb.core.Endpoint
-
-
-def _configure_device(dev):
-    try:
-        dev.get_active_configuration()
-        LOG.debug("Active device configuration already found.")
-    except usb.core.USBError:
+    def _set_configuration(self):
         try:
-            dev.set_configuration()
-            LOG.debug("Device configuration set.")
-        except usb.core.USBError as e:
-            if e.errno == 13:
-                raise UsbDeviceError("Access denied") from e
-            if e.errno == 16:
-                LOG.debug("Device is busy, but this is okay.")
-            else:
-                raise
+            self._dev.get_active_configuration()
+            LOG.debug("Active device configuration already found.")
+        except usb.core.USBError:
+            try:
+                self._dev.set_configuration()
+                LOG.debug("Device configuration set.")
+            except usb.core.USBError as e:
+                if e.errno == 13:
+                    raise UsbDeviceError("Access denied") from e
+                if e.errno == 16:
+                    LOG.debug("Device is busy, but this is okay.")
+                else:
+                    raise
 
-
-def _find_device_descriptors(
-    dev,
-) -> tuple[usb.core.Interface, usb.core.Endpoint, usb.core.Endpoint]:
-    intf = usb.util.find_descriptor(
-        dev.get_active_configuration(), bInterfaceClass=PRINTER_INTERFACE_CLASS
-    )
-    if intf is not None:
-        LOG.debug(f"Opened printer interface: {intf!r}")
-    else:
+    def setup(
+        self,
+    ):
+        self._set_configuration()
         intf = usb.util.find_descriptor(
-            dev.get_active_configuration(), bInterfaceClass=HID_INTERFACE_CLASS
+            self._dev.get_active_configuration(),
+            bInterfaceClass=PRINTER_INTERFACE_CLASS,
         )
         if intf is not None:
-            LOG.debug(f"Opened HID interface: {intf!r}")
+            LOG.debug(f"Opened printer interface: {intf!r}")
         else:
-            raise UsbDeviceError("Could not open a valid interface")
-    assert isinstance(intf, usb.core.Interface)
+            intf = usb.util.find_descriptor(
+                self._dev.get_active_configuration(),
+                bInterfaceClass=HID_INTERFACE_CLASS,
+            )
+            if intf is not None:
+                LOG.debug(f"Opened HID interface: {intf!r}")
+            else:
+                raise UsbDeviceError("Could not open a valid interface")
+        assert isinstance(intf, usb.core.Interface)
 
-    try:
-        if dev.is_kernel_driver_active(intf.bInterfaceNumber):
-            LOG.debug(f"Detaching kernel driver from interface {intf.bInterfaceNumber}")
-            dev.detach_kernel_driver(intf.bInterfaceNumber)
-    except NotImplementedError:
-        LOG.debug(f"Kernel driver detaching not necessary on " f"{platform.system()}.")
-    devout = usb.util.find_descriptor(
-        intf,
-        custom_match=(
-            lambda e: usb.util.endpoint_direction(e.bEndpointAddress)
-            == usb.util.ENDPOINT_OUT
-        ),
-    )
-    devin = usb.util.find_descriptor(
-        intf,
-        custom_match=(
-            lambda e: usb.util.endpoint_direction(e.bEndpointAddress)
-            == usb.util.ENDPOINT_IN
-        ),
-    )
+        try:
+            if self._dev.is_kernel_driver_active(intf.bInterfaceNumber):
+                LOG.debug(
+                    f"Detaching kernel driver from interface {intf.bInterfaceNumber}"
+                )
+                self._dev.detach_kernel_driver(intf.bInterfaceNumber)
+        except NotImplementedError:
+            LOG.debug(
+                f"Kernel driver detaching not necessary on " f"{platform.system()}."
+            )
+        devout = usb.util.find_descriptor(
+            intf,
+            custom_match=(
+                lambda e: usb.util.endpoint_direction(e.bEndpointAddress)
+                == usb.util.ENDPOINT_OUT
+            ),
+        )
+        devin = usb.util.find_descriptor(
+            intf,
+            custom_match=(
+                lambda e: usb.util.endpoint_direction(e.bEndpointAddress)
+                == usb.util.ENDPOINT_IN
+            ),
+        )
 
-    if not devout or not devin:
-        raise UsbDeviceError("The device endpoints not be found")
+        if not devout or not devin:
+            self._intf = None
+            self._devin = None
+            self._devout = None
+            raise UsbDeviceError("The device endpoints not be found")
+        self._intf = intf
+        self._devin = devin
+        self._devout = devout
 
-    return intf, devout, devin
+    def dispose(self):
+        usb.util.dispose_resources(self._dev)
 
+    @property
+    def devin(self):
+        return self._devin
 
-def setup_device(usb_device: UsbDevice) -> DetectedDevice:
-    _configure_device(usb_device._dev)
-    intf, devout, devin = _find_device_descriptors(usb_device._dev)
-    return DetectedDevice(
-        id=usb_device._dev.idProduct,
-        dev=usb_device._dev,
-        intf=intf,
-        devout=devout,
-        devin=devin,
-    )
+    @property
+    def devout(self):
+        return self._devout

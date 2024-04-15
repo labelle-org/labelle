@@ -16,7 +16,7 @@ from PIL import Image
 from usb.core import NoBackendError, USBError
 
 from labelle.lib.constants import ESC, SYN
-from labelle.lib.devices.usb_device import DetectedDevice, UsbDeviceError
+from labelle.lib.devices.usb_device import UsbDevice, UsbDeviceError
 from labelle.lib.utils import mm_to_px
 
 LOG = logging.getLogger(__name__)
@@ -235,7 +235,7 @@ class DymoLabelerFunctions:
 
 
 class DymoLabeler:
-    device: DetectedDevice
+    _device: UsbDevice
     tape_size_mm: int
 
     LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM = 8.1
@@ -253,7 +253,7 @@ class DymoLabeler:
                 f"Supported sizes: {self.SUPPORTED_TAPE_SIZES_MM}"
             )
         self.tape_size_mm = tape_size_mm
-        self.device = None
+        self._device = None
 
     @property
     def height_px(self):
@@ -261,10 +261,10 @@ class DymoLabeler:
 
     @property
     def _functions(self):
-        assert self.device is not None
+        assert self._device is not None
         return DymoLabelerFunctions(
-            devout=self.device.devout,
-            devin=self.device.devin,
+            devout=self._device.devout,
+            devin=self._device.devin,
             synwait=64,
         )
 
@@ -282,6 +282,14 @@ class DymoLabeler:
             mm_to_px(self.minimum_horizontal_margin_mm),
             mm_to_px(vertical_margin_mm),
         )
+
+    @property
+    def device(self) -> UsbDevice:
+        return self._device
+
+    @device.setter
+    def device(self, device: UsbDevice):
+        self._device = device
 
     def print(
         self,
@@ -322,7 +330,7 @@ class DymoLabeler:
             LOG.debug("Printing label..")
             self._functions.print_label(label_matrix)
             LOG.debug("Done printing.")
-            usb.util.dispose_resources(self.device.dev)
+            self._device.dispose()
             LOG.debug("Cleaned up.")
         except POSSIBLE_USB_ERRORS as e:
             raise DymoLabelerPrintError(str(e)) from e
