@@ -37,7 +37,7 @@ from .q_dymo_labels_list import QDymoLabelList
 LOG = logging.getLogger(__name__)
 
 
-class DymoPrintWindow(QWidget):
+class LabelleWindow(QWidget):
     label_bitmap_to_print: Optional[Image.Image]
     device_manager: DeviceManager
     dymo_labeler: DymoLabeler
@@ -263,6 +263,6 @@ def main():
     with system_run():
         app = QApplication(sys.argv)
         parse(app)
-        window = DymoPrintWindow()
+        window = LabelleWindow()
         window.show()
         sys.exit(app.exec())
