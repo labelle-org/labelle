@@ -45,7 +45,7 @@ class MarginsRenderEngine(RenderEngine):
         self.min_width_px = min_width_px
         self.render_engine = render_engine
 
-    def calculate_visible_width(self, payload_width_px: int) -> float:
+    def _calculate_visible_width(self, payload_width_px: int) -> float:
         minimal_label_width_px = (
             payload_width_px + self.visible_horizontal_margin_px * 2
         )
@@ -61,7 +61,7 @@ class MarginsRenderEngine(RenderEngine):
     def render(self, context: RenderContext) -> tuple[Image.Image, dict[str, float]]:
         payload_bitmap = self.render_engine.render(context)
         payload_width_px = payload_bitmap.width
-        label_width_px = self.calculate_visible_width(payload_width_px)
+        label_width_px = self._calculate_visible_width(payload_width_px)
         padding_px = label_width_px - payload_width_px  # sum of margins from both sides
 
         if self.justify == "left":
