@@ -11,4 +11,4 @@ def is_dev_mode_no_margins():
 
 
 def is_verbose_env_vars() -> bool:
-    return is_env_var_true("DYMOPRINT_VERBOSE")
+    return is_env_var_true("LABELLE_VERBOSE")
