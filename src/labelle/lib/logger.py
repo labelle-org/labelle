@@ -1,19 +1,9 @@
 import logging
-import os
 import sys
 
 _IS_VERBOSE = True
 LOG = logging.getLogger("labelle")
 VERBOSE_NOTICE = "Run with --verbose for more information"
-
-
-def _is_env_var_true(env_var: str) -> bool:
-    val = os.getenv(env_var)
-    return val is not None and val.lower() in ("1", "true")
-
-
-def is_verbose_env_vars() -> bool:
-    return _is_env_var_true("LABELLE_VERBOSE")
 
 
 def _update_log_level():

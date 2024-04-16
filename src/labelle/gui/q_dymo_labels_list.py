@@ -14,7 +14,7 @@ from labelle.gui.q_dymo_label_widgets import (
     QrDymoLabelWidget,
     TextDymoLabelWidget,
 )
-from labelle.lib.dymo_labeler import DymoLabeler
+from labelle.lib.devices.dymo_labeler import DymoLabeler
 from labelle.lib.render_engines import (
     HorizontallyCombinedRenderEngine,
     PrintPayloadRenderEngine,
