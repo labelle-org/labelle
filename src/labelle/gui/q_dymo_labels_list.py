@@ -81,7 +81,7 @@ class QDymoLabelList(QListWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.dymo_labeler = None
-        self.margin_px = None
+        self.h_margin_mm = 0.0
         self.min_label_width_mm = None
         self.justify = "center"
         self.render_context = None
