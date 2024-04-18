@@ -38,120 +38,120 @@ LOG = logging.getLogger(__name__)
 
 
 class LabelleWindow(QWidget):
-    label_bitmap_to_print: Optional[Image.Image]
-    device_manager: DeviceManager
-    dymo_labeler: DymoLabeler
-    render_context: RenderContext
-    tape_size_mm: QComboBox
+    _label_bitmap_to_print: Optional[Image.Image]
+    _device_manager: DeviceManager
+    _dymo_labeler: DymoLabeler
+    _render_context: RenderContext
+    _tape_size_mm: QComboBox
 
     def __init__(self):
         super().__init__()
-        self.label_bitmap_to_print = None
-        self.detected_device = None
+        self._label_bitmap_to_print = None
+        self._detected_device = None
 
-        self.window_layout = QVBoxLayout()
+        self._window_layout = QVBoxLayout()
 
-        self.label_list = QDymoLabelList()
-        self.label_render = QLabel()
-        self.error_label = QLabel()
-        self.print_button = QPushButton()
-        self.horizontal_margin_mm = QSpinBox()
-        self.tape_size_mm = QComboBox()
-        self.foreground_color = QComboBox()
-        self.background_color = QComboBox()
-        self.min_label_width_mm = QSpinBox()
-        self.justify = QComboBox()
-        self.preview_show_margins = QCheckBox()
-        self.last_error = None
+        self._label_list = QDymoLabelList()
+        self._label_render = QLabel()
+        self._error_label = QLabel()
+        self._print_button = QPushButton()
+        self._horizontal_margin_mm = QSpinBox()
+        self._tape_size_mm = QComboBox()
+        self._foreground_color = QComboBox()
+        self._background_color = QComboBox()
+        self._min_label_width_mm = QSpinBox()
+        self._justify = QComboBox()
+        self._preview_show_margins = QCheckBox()
+        self._last_error = None
 
-        self.init_elements()
-        self.init_timers()
-        self.init_connections()
-        self.init_layout()
+        self._init_elements()
+        self._init_timers()
+        self._init_connections()
+        self._init_layout()
 
-        self.label_list.render_label()
+        self._label_list.render_label()
 
-    def init_elements(self):
+    def _init_elements(self):
         self.setWindowTitle("Labelle GUI")
         self.setWindowIcon(QIcon(str(ICON_DIR / "logo_small.png")))
         self.setGeometry(200, 200, 1100, 400)
         printer_icon = QIcon.fromTheme("printer")
-        self.print_button.setIcon(printer_icon)
-        self.print_button.setFixedSize(64, 64)
-        self.print_button.setIconSize(QSize(48, 48))
+        self._print_button.setIcon(printer_icon)
+        self._print_button.setFixedSize(64, 64)
+        self._print_button.setIconSize(QSize(48, 48))
 
         shadow = QGraphicsDropShadowEffect()
         shadow.setBlurRadius(15)
-        self.label_render.setGraphicsEffect(shadow)
+        self._label_render.setGraphicsEffect(shadow)
 
-        self.device_manager = DeviceManager()
-        self.dymo_labeler = DymoLabeler()
-        for tape_size_mm in self.dymo_labeler.SUPPORTED_TAPE_SIZES_MM:
-            self.tape_size_mm.addItem(str(tape_size_mm), tape_size_mm)
-        tape_size_index = self.dymo_labeler.SUPPORTED_TAPE_SIZES_MM.index(
-            self.dymo_labeler.tape_size_mm
+        self._device_manager = DeviceManager()
+        self._dymo_labeler = DymoLabeler()
+        for tape_size_mm in self._dymo_labeler.SUPPORTED_TAPE_SIZES_MM:
+            self._tape_size_mm.addItem(str(tape_size_mm), tape_size_mm)
+        tape_size_index = self._dymo_labeler.SUPPORTED_TAPE_SIZES_MM.index(
+            self._dymo_labeler.tape_size_mm
         )
-        self.tape_size_mm.setCurrentIndex(tape_size_index)
+        self._tape_size_mm.setCurrentIndex(tape_size_index)
 
-        h_margins_mm = round(self.dymo_labeler.minimum_horizontal_margin_mm)
-        self.horizontal_margin_mm.setMinimum(h_margins_mm)
-        self.horizontal_margin_mm.setMaximum(100)
-        self.horizontal_margin_mm.setValue(h_margins_mm)
+        h_margins_mm = round(self._dymo_labeler.minimum_horizontal_margin_mm)
+        self._horizontal_margin_mm.setMinimum(h_margins_mm)
+        self._horizontal_margin_mm.setMaximum(100)
+        self._horizontal_margin_mm.setValue(h_margins_mm)
 
-        self.min_label_width_mm.setMinimum(h_margins_mm * 2)
-        self.min_label_width_mm.setMaximum(300)
-        self.justify.addItems(["center", "left", "right"])
+        self._min_label_width_mm.setMinimum(h_margins_mm * 2)
+        self._min_label_width_mm.setMaximum(300)
+        self._justify.addItems(["center", "left", "right"])
 
-        self.foreground_color.addItems(
+        self._foreground_color.addItems(
             ["black", "white", "yellow", "blue", "red", "green"]
         )
-        self.background_color.addItems(
+        self._background_color.addItems(
             ["white", "black", "yellow", "blue", "red", "green"]
         )
-        self.preview_show_margins.setChecked(False)
+        self._preview_show_margins.setChecked(False)
 
-        self.update_params()
-        self.label_list.populate()
+        self._update_params()
+        self._label_list.populate()
 
-    def init_timers(self):
-        self.refresh_devices()
-        self.status_time = QTimer()
-        self.status_time.timeout.connect(self.refresh_devices)
-        self.status_time.start(2000)
+    def _init_timers(self):
+        self._refresh_devices()
+        self._status_time = QTimer()
+        self._status_time.timeout.connect(self._refresh_devices)
+        self._status_time.start(2000)
 
-    def init_connections(self):
-        self.horizontal_margin_mm.valueChanged.connect(self.label_list.render_label)
-        self.horizontal_margin_mm.valueChanged.connect(self.update_params)
-        self.tape_size_mm.currentTextChanged.connect(self.update_params)
-        self.min_label_width_mm.valueChanged.connect(self.update_params)
-        self.justify.currentTextChanged.connect(self.update_params)
-        self.foreground_color.currentTextChanged.connect(self.update_params)
-        self.background_color.currentTextChanged.connect(self.update_params)
-        self.label_list.renderPrintPreviewSignal.connect(self.update_preview_render)
-        self.label_list.renderPrintPayloadSignal.connect(self.update_print_render)
-        self.print_button.clicked.connect(self.print_label)
-        self.preview_show_margins.stateChanged.connect(self.update_params)
+    def _init_connections(self):
+        self._horizontal_margin_mm.valueChanged.connect(self._label_list.render_label)
+        self._horizontal_margin_mm.valueChanged.connect(self._update_params)
+        self._tape_size_mm.currentTextChanged.connect(self._update_params)
+        self._min_label_width_mm.valueChanged.connect(self._update_params)
+        self._justify.currentTextChanged.connect(self._update_params)
+        self._foreground_color.currentTextChanged.connect(self._update_params)
+        self._background_color.currentTextChanged.connect(self._update_params)
+        self._label_list.renderPrintPreviewSignal.connect(self._update_preview_render)
+        self._label_list.renderPrintPayloadSignal.connect(self._update_print_render)
+        self._print_button.clicked.connect(self._print_label)
+        self._preview_show_margins.stateChanged.connect(self._update_params)
 
-    def init_layout(self):
+    def _init_layout(self):
         settings_widget = QToolBar(self)
         settings_widget.addWidget(QLabel("Margin [mm]:"))
-        settings_widget.addWidget(self.horizontal_margin_mm)
+        settings_widget.addWidget(self._horizontal_margin_mm)
         settings_widget.addSeparator()
         settings_widget.addWidget(QLabel("Tape Size [mm]:"))
-        settings_widget.addWidget(self.tape_size_mm)
+        settings_widget.addWidget(self._tape_size_mm)
         settings_widget.addSeparator()
         settings_widget.addWidget(QLabel("Min Label Length [mm]:"))
-        settings_widget.addWidget(self.min_label_width_mm)
+        settings_widget.addWidget(self._min_label_width_mm)
         settings_widget.addSeparator()
         settings_widget.addWidget(QLabel("Justify:"))
-        settings_widget.addWidget(self.justify)
+        settings_widget.addWidget(self._justify)
         settings_widget.addSeparator()
         settings_widget.addWidget(QLabel("Tape Colors: "))
-        settings_widget.addWidget(self.foreground_color)
+        settings_widget.addWidget(self._foreground_color)
         settings_widget.addWidget(QLabel(" on "))
-        settings_widget.addWidget(self.background_color)
+        settings_widget.addWidget(self._background_color)
         settings_widget.addWidget(QLabel("Show margins:"))
-        settings_widget.addWidget(self.preview_show_margins)
+        settings_widget.addWidget(self._preview_show_margins)
 
         render_widget = QWidget(self)
         label_render_widget = QWidget(render_widget)
@@ -161,13 +161,13 @@ class LabelleWindow(QWidget):
         label_render_layout = QVBoxLayout(label_render_widget)
         print_render_layout = QVBoxLayout(print_render_widget)
         label_render_layout.addWidget(
-            self.label_render, alignment=QtCore.Qt.AlignmentFlag.AlignCenter
+            self._label_render, alignment=QtCore.Qt.AlignmentFlag.AlignCenter
         )
         print_render_layout.addWidget(
-            self.print_button, alignment=QtCore.Qt.AlignmentFlag.AlignRight
+            self._print_button, alignment=QtCore.Qt.AlignmentFlag.AlignRight
         )
         print_render_layout.addWidget(
-            self.error_label, alignment=QtCore.Qt.AlignmentFlag.AlignCenter
+            self._error_label, alignment=QtCore.Qt.AlignmentFlag.AlignCenter
         )
         render_layout.addWidget(
             label_render_widget, alignment=QtCore.Qt.AlignmentFlag.AlignRight
@@ -176,69 +176,69 @@ class LabelleWindow(QWidget):
             print_render_widget, alignment=QtCore.Qt.AlignmentFlag.AlignRight
         )
 
-        self.window_layout.addWidget(settings_widget)
-        self.window_layout.addWidget(self.label_list)
-        self.window_layout.addWidget(render_widget)
-        self.setLayout(self.window_layout)
+        self._window_layout.addWidget(settings_widget)
+        self._window_layout.addWidget(self._label_list)
+        self._window_layout.addWidget(render_widget)
+        self.setLayout(self._window_layout)
 
-    def update_params(self):
-        justify: Literal["left", "center", "right"] = self.justify.currentText()
-        horizontal_margin_mm: float = self.horizontal_margin_mm.value()
-        min_label_width_mm: float = self.min_label_width_mm.value()
-        tape_size_mm: int = self.tape_size_mm.currentData()
+    def _update_params(self):
+        justify: Literal["left", "center", "right"] = self._justify.currentText()
+        horizontal_margin_mm: float = self._horizontal_margin_mm.value()
+        min_label_width_mm: float = self._min_label_width_mm.value()
+        tape_size_mm: int = self._tape_size_mm.currentData()
 
-        self.dymo_labeler.tape_size_mm = tape_size_mm
+        self._dymo_labeler.tape_size_mm = tape_size_mm
 
         # Update render context
-        self.render_context = RenderContext(
-            foreground_color=self.foreground_color.currentText(),
-            background_color=self.background_color.currentText(),
-            height_px=self.dymo_labeler.height_px,
-            preview_show_margins=self.preview_show_margins.isChecked(),
+        self._render_context = RenderContext(
+            foreground_color=self._foreground_color.currentText(),
+            background_color=self._background_color.currentText(),
+            height_px=self._dymo_labeler.height_px,
+            preview_show_margins=self._preview_show_margins.isChecked(),
         )
 
-        self.label_list.update_params(
-            dymo_labeler=self.dymo_labeler,
+        self._label_list.update_params(
+            dymo_labeler=self._dymo_labeler,
             h_margin_mm=horizontal_margin_mm,
             min_label_width_mm=min_label_width_mm,
-            render_context=self.render_context,
+            render_context=self._render_context,
             justify=justify,
         )
 
-    def update_preview_render(self, preview_bitmap):
+    def _update_preview_render(self, preview_bitmap):
         qim = ImageQt.ImageQt(preview_bitmap)
         q_image = QPixmap.fromImage(qim)
-        self.label_render.setPixmap(q_image)
-        self.label_render.adjustSize()
+        self._label_render.setPixmap(q_image)
+        self._label_render.adjustSize()
 
-    def update_print_render(self, label_bitmap_to_print):
-        self.label_bitmap_to_print = label_bitmap_to_print
+    def _update_print_render(self, label_bitmap_to_print):
+        self._label_bitmap_to_print = label_bitmap_to_print
 
-    def print_label(self):
+    def _print_label(self):
         try:
-            if self.label_bitmap_to_print is None:
+            if self._label_bitmap_to_print is None:
                 raise RuntimeError("No label to print! Call update_label_render first.")
-            self.dymo_labeler.print(self.label_bitmap_to_print)
+            self._dymo_labeler.print(self._label_bitmap_to_print)
         except DymoLabelerPrintError as err:
             crash_msg_box(self, "Printing Failed!", err)
 
-    def refresh_devices(self):
-        self.error_label.setText("")
+    def _refresh_devices(self):
+        self._error_label.setText("")
         try:
-            self.device_manager.scan()
-            device = self.device_manager.find_and_select_device()
+            self._device_manager.scan()
+            device = self._device_manager.find_and_select_device()
             device.setup()
-            self.dymo_labeler.device = device
+            self._dymo_labeler.device = device
             is_enabled = True
         except DeviceManagerError as e:
             error = str(e)
-            if self.last_error != error:
-                self.last_error = error
+            if self._last_error != error:
+                self._last_error = error
                 LOG.error(error)
-            self.error_label.setText(error)
+            self._error_label.setText(error)
             is_enabled = False
-        self.print_button.setEnabled(is_enabled)
-        self.print_button.setCursor(
+        self._print_button.setEnabled(is_enabled)
+        self._print_button.setCursor(
             Qt.CursorShape.ArrowCursor if is_enabled else Qt.CursorShape.ForbiddenCursor
         )
 
