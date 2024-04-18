@@ -4,19 +4,19 @@ from typing import Optional
 
 from PIL import Image, ImageQt
 from PyQt6 import QtCore
-from PyQt6.QtCore import QCommandLineOption, QCommandLineParser, QSize, Qt, QTimer
+from PyQt6.QtCore import QCommandLineOption, QCommandLineParser, QTimer
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import (
     QApplication,
     QGraphicsDropShadowEffect,
     QHBoxLayout,
     QLabel,
-    QPushButton,
     QVBoxLayout,
     QWidget,
 )
 
 from labelle.gui.common import crash_msg_box
+from labelle.gui.q_actions import QActions
 from labelle.gui.q_dymo_labels_list import QDymoLabelList
 from labelle.gui.q_settings_toolbar import QSettingsToolbar, Settings
 from labelle.lib.constants import ICON_DIR
@@ -45,10 +45,8 @@ class LabelleWindow(QWidget):
 
         self._label_list = QDymoLabelList()
         self._label_render = QLabel()
-        self._error_label = QLabel()
-        self._print_button = QPushButton()
+        self._actions = QActions(self)
         self._settings_toolbar = QSettingsToolbar(self)
-        self._last_error = None
 
         self._init_elements()
         self._init_timers()
@@ -62,10 +60,6 @@ class LabelleWindow(QWidget):
         self.setWindowTitle("Labelle GUI")
         self.setWindowIcon(QIcon(str(ICON_DIR / "logo_small.png")))
         self.setGeometry(200, 200, 1100, 400)
-        printer_icon = QIcon.fromTheme("printer")
-        self._print_button.setIcon(printer_icon)
-        self._print_button.setFixedSize(64, 64)
-        self._print_button.setIconSize(QSize(48, 48))
 
         shadow = QGraphicsDropShadowEffect()
         shadow.setBlurRadius(15)
@@ -90,7 +84,7 @@ class LabelleWindow(QWidget):
     def _init_connections(self):
         self._label_list.renderPrintPreviewSignal.connect(self._update_preview_render)
         self._label_list.renderPrintPayloadSignal.connect(self._update_print_render)
-        self._print_button.clicked.connect(self._print_label)
+        self._actions.print_label_signal.connect(self._on_print_label)
         self._settings_toolbar.settings_changed_signal.connect(
             self._on_settings_changed
         )
@@ -98,25 +92,18 @@ class LabelleWindow(QWidget):
     def _init_layout(self):
         render_widget = QWidget(self)
         label_render_widget = QWidget(render_widget)
-        print_render_widget = QWidget(render_widget)
+        self._actions.setParent(render_widget)
 
         render_layout = QHBoxLayout(render_widget)
         label_render_layout = QVBoxLayout(label_render_widget)
-        print_render_layout = QVBoxLayout(print_render_widget)
         label_render_layout.addWidget(
             self._label_render, alignment=QtCore.Qt.AlignmentFlag.AlignCenter
-        )
-        print_render_layout.addWidget(
-            self._print_button, alignment=QtCore.Qt.AlignmentFlag.AlignRight
-        )
-        print_render_layout.addWidget(
-            self._error_label, alignment=QtCore.Qt.AlignmentFlag.AlignCenter
         )
         render_layout.addWidget(
             label_render_widget, alignment=QtCore.Qt.AlignmentFlag.AlignRight
         )
         render_layout.addWidget(
-            print_render_widget, alignment=QtCore.Qt.AlignmentFlag.AlignRight
+            self._actions, alignment=QtCore.Qt.AlignmentFlag.AlignRight
         )
 
         self._window_layout.addWidget(self._settings_toolbar)
@@ -151,7 +138,7 @@ class LabelleWindow(QWidget):
     def _update_print_render(self, label_bitmap_to_print):
         self._label_bitmap_to_print = label_bitmap_to_print
 
-    def _print_label(self):
+    def _on_print_label(self):
         try:
             if self._label_bitmap_to_print is None:
                 raise RuntimeError("No label to print! Call update_label_render first.")
@@ -160,24 +147,14 @@ class LabelleWindow(QWidget):
             crash_msg_box(self, "Printing Failed!", err)
 
     def _refresh_devices(self):
-        self._error_label.setText("")
         try:
             self._device_manager.scan()
             device = self._device_manager.find_and_select_device()
             device.setup()
             self._dymo_labeler.device = device
-            is_enabled = True
+            self._actions.clear_error()
         except DeviceManagerError as e:
-            error = str(e)
-            if self._last_error != error:
-                self._last_error = error
-                LOG.error(error)
-            self._error_label.setText(error)
-            is_enabled = False
-        self._print_button.setEnabled(is_enabled)
-        self._print_button.setCursor(
-            Qt.CursorShape.ArrowCursor if is_enabled else Qt.CursorShape.ForbiddenCursor
-        )
+            self._actions.set_error(str(e))
 
 
 def parse(app):
