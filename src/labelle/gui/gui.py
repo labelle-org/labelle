@@ -91,16 +91,11 @@ class LabelleWindow(QWidget):
 
     def _init_layout(self):
         render_widget = QWidget(self)
-        label_render_widget = QWidget(render_widget)
         self._actions.setParent(render_widget)
 
         render_layout = QHBoxLayout(render_widget)
-        label_render_layout = QVBoxLayout(label_render_widget)
-        label_render_layout.addWidget(
-            self._label_render, alignment=QtCore.Qt.AlignmentFlag.AlignCenter
-        )
         render_layout.addWidget(
-            label_render_widget, alignment=QtCore.Qt.AlignmentFlag.AlignRight
+            self._label_render, alignment=QtCore.Qt.AlignmentFlag.AlignRight
         )
         render_layout.addWidget(
             self._actions, alignment=QtCore.Qt.AlignmentFlag.AlignRight
