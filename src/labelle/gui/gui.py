@@ -17,19 +17,15 @@ from PyQt6.QtWidgets import (
 )
 
 from labelle.gui.common import crash_msg_box
+from labelle.gui.q_dymo_labels_list import QDymoLabelList
 from labelle.gui.q_settings_toolbar import QSettingsToolbar, Settings
 from labelle.lib.constants import ICON_DIR
 from labelle.lib.devices.device_manager import DeviceManager, DeviceManagerError
-from labelle.lib.devices.dymo_labeler import (
-    DymoLabeler,
-    DymoLabelerPrintError,
-)
+from labelle.lib.devices.dymo_labeler import DymoLabeler, DymoLabelerPrintError
 from labelle.lib.env_config import is_verbose_env_vars
 from labelle.lib.logger import configure_logging, set_not_verbose
 from labelle.lib.render_engines import RenderContext
 from labelle.lib.utils import system_run
-
-from .q_dymo_labels_list import QDymoLabelList
 
 LOG = logging.getLogger(__name__)
 
