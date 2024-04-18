@@ -2,22 +2,16 @@ import logging
 import sys
 from typing import Optional
 
-from PIL import Image, ImageQt
+from PIL import Image
 from PyQt6 import QtCore
 from PyQt6.QtCore import QCommandLineOption, QCommandLineParser, QTimer
-from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtWidgets import (
-    QApplication,
-    QGraphicsDropShadowEffect,
-    QHBoxLayout,
-    QLabel,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QApplication, QHBoxLayout, QVBoxLayout, QWidget
 
 from labelle.gui.common import crash_msg_box
 from labelle.gui.q_actions import QActions
 from labelle.gui.q_labels_list import QLabelList
+from labelle.gui.q_render import QRender
 from labelle.gui.q_settings_toolbar import QSettingsToolbar, Settings
 from labelle.lib.constants import ICON_DIR
 from labelle.lib.devices.device_manager import DeviceManager, DeviceManagerError
@@ -44,7 +38,7 @@ class LabelleWindow(QWidget):
         self._window_layout = QVBoxLayout()
 
         self._label_list = QLabelList()
-        self._label_render = QLabel()
+        self._render = QRender(self)
         self._actions = QActions(self)
         self._settings_toolbar = QSettingsToolbar(self)
 
@@ -60,10 +54,6 @@ class LabelleWindow(QWidget):
         self.setWindowTitle("Labelle GUI")
         self.setWindowIcon(QIcon(str(ICON_DIR / "logo_small.png")))
         self.setGeometry(200, 200, 1100, 400)
-
-        shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(15)
-        self._label_render.setGraphicsEffect(shadow)
 
         self._device_manager = DeviceManager()
         self._dymo_labeler = DymoLabeler()
@@ -92,10 +82,11 @@ class LabelleWindow(QWidget):
     def _init_layout(self):
         render_widget = QWidget(self)
         self._actions.setParent(render_widget)
+        self._render.setParent(render_widget)
 
         render_layout = QHBoxLayout(render_widget)
         render_layout.addWidget(
-            self._label_render, alignment=QtCore.Qt.AlignmentFlag.AlignRight
+            self._render, alignment=QtCore.Qt.AlignmentFlag.AlignRight
         )
         render_layout.addWidget(
             self._actions, alignment=QtCore.Qt.AlignmentFlag.AlignRight
@@ -125,10 +116,7 @@ class LabelleWindow(QWidget):
         )
 
     def _update_preview_render(self, preview_bitmap):
-        qim = ImageQt.ImageQt(preview_bitmap)
-        q_image = QPixmap.fromImage(qim)
-        self._label_render.setPixmap(q_image)
-        self._label_render.adjustSize()
+        self._render.update_preview_render(preview_bitmap)
 
     def _update_print_render(self, label_bitmap_to_print):
         self._label_bitmap_to_print = label_bitmap_to_print
