@@ -45,7 +45,7 @@ class FontStyle(QComboBox):
             self.setCurrentText("Carlito-Regular")
 
 
-class BaseDymoLabelWidget(QWidget):
+class BaseLabelWidget(QWidget):
     """A base class for creating Dymo label widgets.
 
     Signals:
@@ -84,7 +84,7 @@ class BaseDymoLabelWidget(QWidget):
             return EmptyRenderEngine()
 
 
-class TextDymoLabelWidget(BaseDymoLabelWidget):
+class TextDymoLabelWidget(BaseLabelWidget):
     """A widget for rendering text on a Dymo label.
 
     Args:
@@ -180,7 +180,7 @@ class TextDymoLabelWidget(BaseDymoLabelWidget):
         )
 
 
-class QrDymoLabelWidget(BaseDymoLabelWidget):
+class QrDymoLabelWidget(BaseLabelWidget):
     """A widget for rendering QR codes on Dymo labels.
 
     Args:
@@ -229,7 +229,7 @@ class QrDymoLabelWidget(BaseDymoLabelWidget):
             return EmptyRenderEngine()
 
 
-class BarcodeDymoLabelWidget(BaseDymoLabelWidget):
+class BarcodeDymoLabelWidget(BaseLabelWidget):
     """A widget for rendering barcode labels using the Dymo label printer.
 
     Args:
@@ -389,7 +389,7 @@ class BarcodeDymoLabelWidget(BaseDymoLabelWidget):
         return render_engine
 
 
-class ImageDymoLabelWidget(BaseDymoLabelWidget):
+class ImageDymoLabelWidget(BaseLabelWidget):
     """A widget for rendering image-based Dymo labels.
 
     Args:
