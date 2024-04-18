@@ -17,7 +17,7 @@ from PyQt6.QtWidgets import (
 
 from labelle.gui.common import crash_msg_box
 from labelle.gui.q_actions import QActions
-from labelle.gui.q_dymo_labels_list import QDymoLabelList
+from labelle.gui.q_labels_list import QLabelList
 from labelle.gui.q_settings_toolbar import QSettingsToolbar, Settings
 from labelle.lib.constants import ICON_DIR
 from labelle.lib.devices.device_manager import DeviceManager, DeviceManagerError
@@ -43,7 +43,7 @@ class LabelleWindow(QWidget):
 
         self._window_layout = QVBoxLayout()
 
-        self._label_list = QDymoLabelList()
+        self._label_list = QLabelList()
         self._label_render = QLabel()
         self._actions = QActions(self)
         self._settings_toolbar = QSettingsToolbar(self)

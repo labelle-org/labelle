@@ -7,7 +7,7 @@ from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem, QMenu
 
 from labelle.gui.common import crash_msg_box
-from labelle.gui.q_dymo_label_widgets import (
+from labelle.gui.q_label_widgets import (
     BarcodeDymoLabelWidget,
     EmptyRenderEngine,
     ImageDymoLabelWidget,
@@ -29,7 +29,7 @@ from labelle.lib.utils import mm_to_px
 LOG = logging.getLogger(__name__)
 
 
-class QDymoLabelList(QListWidget):
+class QLabelList(QListWidget):
     """A custom QListWidget for displaying and managing Dymo label widgets.
 
     Args:
