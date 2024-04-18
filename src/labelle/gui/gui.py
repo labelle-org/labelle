@@ -1,6 +1,6 @@
 import logging
 import sys
-from typing import Literal, Optional
+from typing import Optional
 
 from PIL import Image, ImageQt
 from PyQt6 import QtCore
@@ -8,19 +8,16 @@ from PyQt6.QtCore import QCommandLineOption, QCommandLineParser, QSize, Qt, QTim
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import (
     QApplication,
-    QCheckBox,
-    QComboBox,
     QGraphicsDropShadowEffect,
     QHBoxLayout,
     QLabel,
     QPushButton,
-    QSpinBox,
-    QToolBar,
     QVBoxLayout,
     QWidget,
 )
 
 from labelle.gui.common import crash_msg_box
+from labelle.gui.q_settings_toolbar import QSettingsToolbar, Settings
 from labelle.lib.constants import ICON_DIR
 from labelle.lib.devices.device_manager import DeviceManager, DeviceManagerError
 from labelle.lib.devices.dymo_labeler import (
@@ -42,7 +39,6 @@ class LabelleWindow(QWidget):
     _device_manager: DeviceManager
     _dymo_labeler: DymoLabeler
     _render_context: RenderContext
-    _tape_size_mm: QComboBox
 
     def __init__(self):
         super().__init__()
@@ -55,13 +51,7 @@ class LabelleWindow(QWidget):
         self._label_render = QLabel()
         self._error_label = QLabel()
         self._print_button = QPushButton()
-        self._horizontal_margin_mm = QSpinBox()
-        self._tape_size_mm = QComboBox()
-        self._foreground_color = QComboBox()
-        self._background_color = QComboBox()
-        self._min_label_width_mm = QSpinBox()
-        self._justify = QComboBox()
-        self._preview_show_margins = QCheckBox()
+        self._settings_toolbar = QSettingsToolbar(self)
         self._last_error = None
 
         self._init_elements()
@@ -69,6 +59,7 @@ class LabelleWindow(QWidget):
         self._init_connections()
         self._init_layout()
 
+        self._settings_toolbar.on_settings_changed()
         self._label_list.render_label()
 
     def _init_elements(self):
@@ -86,31 +77,12 @@ class LabelleWindow(QWidget):
 
         self._device_manager = DeviceManager()
         self._dymo_labeler = DymoLabeler()
-        for tape_size_mm in self._dymo_labeler.SUPPORTED_TAPE_SIZES_MM:
-            self._tape_size_mm.addItem(str(tape_size_mm), tape_size_mm)
-        tape_size_index = self._dymo_labeler.SUPPORTED_TAPE_SIZES_MM.index(
-            self._dymo_labeler.tape_size_mm
+        self._settings_toolbar.update_labeler_context(
+            supported_tape_sizes=self._dymo_labeler.SUPPORTED_TAPE_SIZES_MM,
+            installed_tape_size=self._dymo_labeler.tape_size_mm,
+            minimum_horizontal_margin_mm=self._dymo_labeler.minimum_horizontal_margin_mm,
         )
-        self._tape_size_mm.setCurrentIndex(tape_size_index)
 
-        h_margins_mm = round(self._dymo_labeler.minimum_horizontal_margin_mm)
-        self._horizontal_margin_mm.setMinimum(h_margins_mm)
-        self._horizontal_margin_mm.setMaximum(100)
-        self._horizontal_margin_mm.setValue(h_margins_mm)
-
-        self._min_label_width_mm.setMinimum(h_margins_mm * 2)
-        self._min_label_width_mm.setMaximum(300)
-        self._justify.addItems(["center", "left", "right"])
-
-        self._foreground_color.addItems(
-            ["black", "white", "yellow", "blue", "red", "green"]
-        )
-        self._background_color.addItems(
-            ["white", "black", "yellow", "blue", "red", "green"]
-        )
-        self._preview_show_margins.setChecked(False)
-
-        self._update_params()
         self._label_list.populate()
 
     def _init_timers(self):
@@ -120,39 +92,14 @@ class LabelleWindow(QWidget):
         self._status_time.start(2000)
 
     def _init_connections(self):
-        self._horizontal_margin_mm.valueChanged.connect(self._label_list.render_label)
-        self._horizontal_margin_mm.valueChanged.connect(self._update_params)
-        self._tape_size_mm.currentTextChanged.connect(self._update_params)
-        self._min_label_width_mm.valueChanged.connect(self._update_params)
-        self._justify.currentTextChanged.connect(self._update_params)
-        self._foreground_color.currentTextChanged.connect(self._update_params)
-        self._background_color.currentTextChanged.connect(self._update_params)
         self._label_list.renderPrintPreviewSignal.connect(self._update_preview_render)
         self._label_list.renderPrintPayloadSignal.connect(self._update_print_render)
         self._print_button.clicked.connect(self._print_label)
-        self._preview_show_margins.stateChanged.connect(self._update_params)
+        self._settings_toolbar.settings_changed_signal.connect(
+            self._on_settings_changed
+        )
 
     def _init_layout(self):
-        settings_widget = QToolBar(self)
-        settings_widget.addWidget(QLabel("Margin [mm]:"))
-        settings_widget.addWidget(self._horizontal_margin_mm)
-        settings_widget.addSeparator()
-        settings_widget.addWidget(QLabel("Tape Size [mm]:"))
-        settings_widget.addWidget(self._tape_size_mm)
-        settings_widget.addSeparator()
-        settings_widget.addWidget(QLabel("Min Label Length [mm]:"))
-        settings_widget.addWidget(self._min_label_width_mm)
-        settings_widget.addSeparator()
-        settings_widget.addWidget(QLabel("Justify:"))
-        settings_widget.addWidget(self._justify)
-        settings_widget.addSeparator()
-        settings_widget.addWidget(QLabel("Tape Colors: "))
-        settings_widget.addWidget(self._foreground_color)
-        settings_widget.addWidget(QLabel(" on "))
-        settings_widget.addWidget(self._background_color)
-        settings_widget.addWidget(QLabel("Show margins:"))
-        settings_widget.addWidget(self._preview_show_margins)
-
         render_widget = QWidget(self)
         label_render_widget = QWidget(render_widget)
         print_render_widget = QWidget(render_widget)
@@ -176,33 +123,27 @@ class LabelleWindow(QWidget):
             print_render_widget, alignment=QtCore.Qt.AlignmentFlag.AlignRight
         )
 
-        self._window_layout.addWidget(settings_widget)
+        self._window_layout.addWidget(self._settings_toolbar)
         self._window_layout.addWidget(self._label_list)
         self._window_layout.addWidget(render_widget)
         self.setLayout(self._window_layout)
 
-    def _update_params(self):
-        justify: Literal["left", "center", "right"] = self._justify.currentText()
-        horizontal_margin_mm: float = self._horizontal_margin_mm.value()
-        min_label_width_mm: float = self._min_label_width_mm.value()
-        tape_size_mm: int = self._tape_size_mm.currentData()
-
-        self._dymo_labeler.tape_size_mm = tape_size_mm
+    def _on_settings_changed(self, settings: Settings):
+        self._dymo_labeler.tape_size_mm = settings.tape_size_mm
 
         # Update render context
         self._render_context = RenderContext(
-            foreground_color=self._foreground_color.currentText(),
-            background_color=self._background_color.currentText(),
+            foreground_color=settings.foreground_color,
+            background_color=settings.background_color,
             height_px=self._dymo_labeler.height_px,
-            preview_show_margins=self._preview_show_margins.isChecked(),
+            preview_show_margins=settings.preview_show_margins,
         )
-
         self._label_list.update_params(
             dymo_labeler=self._dymo_labeler,
-            h_margin_mm=horizontal_margin_mm,
-            min_label_width_mm=min_label_width_mm,
+            h_margin_mm=settings.horizontal_margin_mm,
+            min_label_width_mm=settings.min_label_width_mm,
             render_context=self._render_context,
-            justify=justify,
+            justify=settings.justify,
         )
 
     def _update_preview_render(self, preview_bitmap):
