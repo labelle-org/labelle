@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import (
     QToolBar,
 )
 
-from labelle.lib.devices.device_manager import OnlineDeviceManager
+from labelle.lib.devices.online_device_manager import OnlineDeviceManager
 from labelle.lib.devices.usb_device import UsbDevice
 
 LOG = logging.getLogger(__name__)
