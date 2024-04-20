@@ -288,8 +288,18 @@ class DymoLabeler:
         return self._device
 
     @device.setter
-    def device(self, device: UsbDevice):
+    def device(self, device: UsbDevice | None):
+        try:
+            if device:
+                device.setup()
+        except UsbDeviceError as e:
+            device = None
+            LOG.error(e)
         self._device = device
+
+    @property
+    def is_ready(self) -> bool:
+        return self.device is not None
 
     def print(
         self,
