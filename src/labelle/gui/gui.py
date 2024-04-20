@@ -29,6 +29,7 @@ class LabelleWindow(QWidget):
     _device_manager: DeviceManager
     _dymo_labeler: DymoLabeler
     _render_context: RenderContext
+    _render_widget: QWidget
 
     def __init__(self):
         super().__init__()
@@ -41,6 +42,7 @@ class LabelleWindow(QWidget):
         self._render = QRender(self)
         self._actions = QActions(self)
         self._settings_toolbar = QSettingsToolbar(self)
+        self._render_widget = QWidget(self)
 
         self._init_elements()
         self._init_timers()
@@ -80,11 +82,10 @@ class LabelleWindow(QWidget):
         )
 
     def _init_layout(self):
-        render_widget = QWidget(self)
-        self._actions.setParent(render_widget)
-        self._render.setParent(render_widget)
+        self._actions.setParent(self._render_widget)
+        self._render.setParent(self._render_widget)
 
-        render_layout = QHBoxLayout(render_widget)
+        render_layout = QHBoxLayout(self._render_widget)
         render_layout.addWidget(
             self._render, alignment=QtCore.Qt.AlignmentFlag.AlignRight
         )
@@ -94,7 +95,7 @@ class LabelleWindow(QWidget):
 
         self._window_layout.addWidget(self._settings_toolbar)
         self._window_layout.addWidget(self._label_list)
-        self._window_layout.addWidget(render_widget)
+        self._window_layout.addWidget(self._render_widget)
         self.setLayout(self._window_layout)
 
     def _on_settings_changed(self, settings: Settings):
