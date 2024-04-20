@@ -197,9 +197,13 @@ class UsbDevice:
                 else:
                     raise
 
-    def setup(
-        self,
-    ):
+    def setup(self):
+        try:
+            self._setup()
+        except usb.core.USBError as e:
+            raise UsbDeviceError(f"Failed setup USB device: {e}") from e
+
+    def _setup(self):
         self._set_configuration()
         intf = usb.util.find_descriptor(
             self._dev.get_active_configuration(),

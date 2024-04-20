@@ -4,17 +4,18 @@ from typing import Optional
 
 from PIL import Image
 from PyQt6 import QtCore
-from PyQt6.QtCore import QCommandLineOption, QCommandLineParser, QTimer
+from PyQt6.QtCore import QCommandLineOption, QCommandLineParser
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication, QHBoxLayout, QVBoxLayout, QWidget
 
 from labelle.gui.common import crash_msg_box
 from labelle.gui.q_actions import QActions
+from labelle.gui.q_device_selector import QDeviceSelector
 from labelle.gui.q_labels_list import QLabelList
 from labelle.gui.q_render import QRender
 from labelle.gui.q_settings_toolbar import QSettingsToolbar, Settings
 from labelle.lib.constants import ICON_DIR
-from labelle.lib.devices.device_manager import DeviceManager, DeviceManagerError
+from labelle.lib.devices.device_manager import DeviceManager
 from labelle.lib.devices.dymo_labeler import DymoLabeler, DymoLabelerPrintError
 from labelle.lib.env_config import is_verbose_env_vars
 from labelle.lib.logger import configure_logging, set_not_verbose
@@ -38,6 +39,7 @@ class LabelleWindow(QWidget):
 
         self._window_layout = QVBoxLayout()
 
+        self._device_selector = QDeviceSelector(self)
         self._label_list = QLabelList()
         self._render = QRender(self)
         self._actions = QActions(self)
@@ -45,10 +47,10 @@ class LabelleWindow(QWidget):
         self._render_widget = QWidget(self)
 
         self._init_elements()
-        self._init_timers()
         self._init_connections()
         self._init_layout()
 
+        self._device_selector.repopulate()
         self._settings_toolbar.on_settings_changed()
         self._label_list.render_label()
 
@@ -67,18 +69,15 @@ class LabelleWindow(QWidget):
 
         self._label_list.populate()
 
-    def _init_timers(self):
-        self._refresh_devices()
-        self._status_time = QTimer()
-        self._status_time.timeout.connect(self._refresh_devices)
-        self._status_time.start(2000)
-
     def _init_connections(self):
         self._label_list.renderPrintPreviewSignal.connect(self._update_preview_render)
         self._label_list.renderPrintPayloadSignal.connect(self._update_print_render)
         self._actions.print_label_signal.connect(self._on_print_label)
         self._settings_toolbar.settings_changed_signal.connect(
             self._on_settings_changed
+        )
+        self._device_selector.selectedDeviceChangedSignal.connect(
+            self._on_device_selected
         )
 
     def _init_layout(self):
@@ -93,12 +92,14 @@ class LabelleWindow(QWidget):
             self._actions, alignment=QtCore.Qt.AlignmentFlag.AlignRight
         )
 
+        self._window_layout.addWidget(self._device_selector)
         self._window_layout.addWidget(self._settings_toolbar)
         self._window_layout.addWidget(self._label_list)
         self._window_layout.addWidget(self._render_widget)
         self.setLayout(self._window_layout)
 
     def _on_settings_changed(self, settings: Settings):
+        assert self._dymo_labeler is not None
         self._dymo_labeler.tape_size_mm = settings.tape_size_mm
 
         # Update render context
@@ -116,6 +117,11 @@ class LabelleWindow(QWidget):
             justify=settings.justify,
         )
 
+        is_ready = self._dymo_labeler.is_ready
+        self._settings_toolbar.setEnabled(is_ready)
+        self._label_list.setEnabled(is_ready)
+        self._render_widget.setEnabled(is_ready)
+
     def _update_preview_render(self, preview_bitmap):
         self._render.update_preview_render(preview_bitmap)
 
@@ -126,19 +132,14 @@ class LabelleWindow(QWidget):
         try:
             if self._label_bitmap_to_print is None:
                 raise RuntimeError("No label to print! Call update_label_render first.")
+            assert self._dymo_labeler is not None
             self._dymo_labeler.print(self._label_bitmap_to_print)
         except DymoLabelerPrintError as err:
             crash_msg_box(self, "Printing Failed!", err)
 
-    def _refresh_devices(self):
-        try:
-            self._device_manager.scan()
-            device = self._device_manager.find_and_select_device()
-            device.setup()
-            self._dymo_labeler.device = device
-            self._actions.clear_error()
-        except DeviceManagerError as e:
-            self._actions.set_error(str(e))
+    def _on_device_selected(self):
+        self._dymo_labeler.device = self._device_selector.selected_device
+        self._settings_toolbar.on_settings_changed()
 
 
 def parse(app):
