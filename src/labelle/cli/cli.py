@@ -339,7 +339,7 @@ def run():
         bitmap, _ = render.render(render_context)
 
         device_manager = DeviceManager()
-        device = device_manager.scan()
+        device_manager.scan()
         device = device_manager.find_and_select_device()
         device.setup()
         dymo_labeler.print(bitmap)
