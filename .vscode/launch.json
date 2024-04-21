@@ -5,14 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Module",
+            "name": "CLI",
             "type": "debugpy",
             "request": "launch",
-            "module": "labelle.command_line",
+            "module": "labelle.cli.cli",
             "args": [
+                "--preview",
                 "hi",
             ],
-            "justMyCode": true
+            "justMyCode": false,
+        },
+        {
+            "name": "GUI",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "labelle.gui.gui",
+            "justMyCode": false,
         }
     ]
 }
