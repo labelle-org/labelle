@@ -34,6 +34,7 @@ from labelle.lib.render_engines import (
     PrintPreviewRenderEngine,
     QrRenderEngine,
     RenderContext,
+    RenderEngine,
     TestPatternRenderEngine,
     TextRenderEngine,
 )
@@ -249,7 +250,7 @@ def run():
     if args.max_length is not None and args.max_length < args.min_length:
         raise CommandLineUsageError("Maximum length is less than minimum length")
 
-    render_engines = []
+    render_engines: list[RenderEngine] = []
 
     if args.test_pattern:
         render_engines.append(TestPatternRenderEngine(args.test_pattern))
@@ -306,6 +307,7 @@ def run():
     )
 
     # print or show the label
+    render: RenderEngine
     if args.preview or args.preview_inverted or args.imagemagick or args.browser:
         render = PrintPreviewRenderEngine(
             render_engine=render_engine,
@@ -336,7 +338,7 @@ def run():
             max_width_px=max_payload_len_px,
             min_width_px=min_payload_len_px,
         )
-        bitmap, _ = render.render(render_context)
+        bitmap, _ = render.render_with_meta(render_context)
 
         device_manager = DeviceManager()
         device_manager.scan()

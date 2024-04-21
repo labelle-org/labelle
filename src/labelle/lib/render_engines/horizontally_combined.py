@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Sequence
+
 from PIL import Image
 
 from labelle.lib.render_engines.empty import EmptyRenderEngine
@@ -12,7 +14,7 @@ class HorizontallyCombinedRenderEngine(RenderEngine):
 
     def __init__(
         self,
-        render_engines: list[RenderEngine],
+        render_engines: Sequence[RenderEngine],
     ):
         super().__init__()
         self.render_engines = render_engines
