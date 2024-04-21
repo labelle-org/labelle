@@ -343,7 +343,7 @@ def run():
         device_manager = DeviceManager()
         device_manager.scan()
         device = device_manager.find_and_select_device()
-        device.setup()
+        dymo_labeler.device = device
         dymo_labeler.print(bitmap)
 
 

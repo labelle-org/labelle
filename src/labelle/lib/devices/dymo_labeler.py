@@ -11,7 +11,7 @@ import array
 import logging
 import math
 
-import usb
+import hid
 from PIL import Image
 from usb.core import NoBackendError, USBError
 
@@ -58,13 +58,11 @@ class DymoLabelerFunctions:
     # sensible timeout can also be calculated dynamically.
     _synwait: int | None
     _bytesPerLine: int | None
-    _devout: usb.core.Endpoint
-    _devin: usb.core.Endpoint
+    _device: UsbDevice
 
     def __init__(
         self,
-        devout: usb.core.Endpoint,
-        devin: usb.core.Endpoint,
+        device: UsbDevice,
         synwait: int | None = None,
     ):
         """Initialize the LabelManager object (HLF)."""
@@ -73,8 +71,7 @@ class DymoLabelerFunctions:
         self._bytesPerLine = None
         self._dotTab = 0
         self._maxLines = 200
-        self._devout = devout
-        self._devin = devin
+        self._device = device
         self._synwait = synwait
 
     @classmethod
@@ -85,7 +82,7 @@ class DymoLabelerFunctions:
     def height_px(cls, tape_size_mm: int):
         return cls._max_bytes_per_line(tape_size_mm) * 8
 
-    def _send_command(self):
+    def _send_command(self, hid_device: hid.device):
         """Send the already built command to the LabelManager (MLF)."""
         if len(self._cmd) == 0:
             return None
@@ -97,9 +94,14 @@ class DymoLabelerFunctions:
             else:
                 # Send a status request
                 cmdBin = array.array("B", [ESC, ord("A")])
-                cmdBin.tofile(self._devout)
-                rspBin = self._devin.read(8)
-                _ = array.array("B", rspBin).tolist()
+                print(hid_device.get_manufacturer_string())
+                print(hid_device.get_product_string())
+                print(f"writing {len(cmdBin.tolist())} ints: {cmdBin.tolist()}")
+                hid_device.write(cmdBin.tolist())
+                print("wrote. reading...")
+                rspBin = hid_device.read(8)
+                rsp = array.array("B", rspBin).tolist()
+                print(f"read {rsp}")
                 # Ok, we got a response. Now we can send a chunk of data
 
                 # Compute a chunk with at most synwait SYN characters
@@ -123,13 +125,17 @@ class DymoLabelerFunctions:
 
             # Send the chunk
             cmdBin = array.array("B", cmd_to_send)
-            cmdBin.tofile(self._devout)
+            print(f"writing {cmdBin.tolist()}")
+            hid_device.write(cmdBin.tolist())
+            print("wrote")
 
         self._cmd = []  # This looks redundant.
         if not self._response:
             return None
         self._response = False
-        responseBin = self._devin.read(8)
+        print("reading...")
+        responseBin = hid_device.read(8)
+        print(f"read {responseBin}")
         response = array.array("B", responseBin).tolist()
         return response
 
@@ -208,34 +214,38 @@ class DymoLabelerFunctions:
         cmd = [0x00] * 8
         self._build_command(cmd)
 
-    def _get_status(self):
+    def _get_status(self, hid_device: hid.device):
         """Ask for and return the device's status (HLF)."""
         self._status_request()
-        return self._send_command()
+        return self._send_command(hid_device)
 
     def print_label(self, lines: list[list[int]]):
         """Print the label described by lines.
 
         Automatically split the label if it's larger than maxLines.
         """
-        while len(lines) > self._maxLines + 1:
-            self._raw_print_label(lines[0 : self._maxLines])
-            del lines[0 : self._maxLines]
-        self._raw_print_label(lines)
+        with self._device.hid_device() as hid_device:
+            # enable non-blocking mode
+            # hid_device.set_nonblocking(1)
 
-    def _raw_print_label(self, lines: list[list[int]]):
+            while len(lines) > self._maxLines + 1:
+                self._raw_print_label(hid_device, lines[0 : self._maxLines])
+                del lines[0 : self._maxLines]
+            self._raw_print_label(hid_device, lines)
+
+    def _raw_print_label(self, hid_device: hid.device, lines: list[list[int]]):
         """Print the label described by lines (HLF)."""
         # Here used to be a matrix optimization code that caused problems in issue #87
         self._tape_color(0)
         for line in lines:
             self._line(line)
         self._status_request()
-        status = self._get_status()
+        status = self._get_status(hid_device)
         LOG.debug(f"Post-send response: {status}")
 
 
 class DymoLabeler:
-    _device: UsbDevice | None
+    device: UsbDevice | None
     tape_size_mm: int
 
     LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM = 8.1
@@ -253,7 +263,7 @@ class DymoLabeler:
                 f"Supported sizes: {self.SUPPORTED_TAPE_SIZES_MM}"
             )
         self.tape_size_mm = tape_size_mm
-        self._device = None
+        self.device = None
 
     @property
     def height_px(self):
@@ -261,10 +271,9 @@ class DymoLabeler:
 
     @property
     def _functions(self):
-        assert self._device is not None
+        assert self.device is not None
         return DymoLabelerFunctions(
-            devout=self._device.devout,
-            devin=self._device.devin,
+            device=self.device,
             synwait=64,
         )
 
@@ -282,20 +291,6 @@ class DymoLabeler:
             mm_to_px(self.minimum_horizontal_margin_mm),
             mm_to_px(vertical_margin_mm),
         )
-
-    @property
-    def device(self) -> UsbDevice | None:
-        return self._device
-
-    @device.setter
-    def device(self, device: UsbDevice | None):
-        try:
-            if device:
-                device.setup()
-        except UsbDeviceError as e:
-            device = None
-            LOG.error(e)
-        self._device = device
 
     @property
     def is_ready(self) -> bool:
@@ -340,8 +335,5 @@ class DymoLabeler:
             LOG.debug("Printing label..")
             self._functions.print_label(label_matrix)
             LOG.debug("Done printing.")
-            if self._device is not None:
-                self._device.dispose()
-            LOG.debug("Cleaned up.")
         except POSSIBLE_USB_ERRORS as e:
             raise DymoLabelerPrintError(str(e)) from e

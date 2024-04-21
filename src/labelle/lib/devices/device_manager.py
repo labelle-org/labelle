@@ -65,8 +65,8 @@ class DeviceManager:
             LOG.debug(dev.device_info)
         dev = devices[0]
         if dev.is_supported:
-            msg = f"Recognized device as {SUPPORTED_PRODUCTS[dev.id_product]}"
+            msg = f"Recognized device as {SUPPORTED_PRODUCTS[dev.product_id]}"
         else:
-            msg = f"Unrecognized device: {hex(dev.id_product)}. {UNCONFIRMED_MESSAGE}"
+            msg = f"Unrecognized device: {hex(dev.product_id)}. {UNCONFIRMED_MESSAGE}"
         LOG.debug(msg)
         return dev

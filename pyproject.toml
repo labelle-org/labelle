@@ -24,6 +24,7 @@ dependencies = [
     "pyusb",
     "PyQt6",
     "darkdetect",
+    "hidapi",
 ]
 classifiers = [
     "Operating System :: POSIX :: Linux",
