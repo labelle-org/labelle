@@ -194,3 +194,5 @@ ignore = [
 exclude = ["_vendor"]
 check_untyped_defs = true
 install_types = true
+mypy_path = "src/"
+packages = ["labelle"]
