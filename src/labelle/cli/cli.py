@@ -349,3 +349,7 @@ def main():
     configure_logging()
     with system_run():
         run()
+
+
+if __name__ == "__main__":
+    main()
