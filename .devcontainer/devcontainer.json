@@ -24,6 +24,7 @@
 				"github.vscode-github-actions",
 				"ms-azuretools.vscode-docker",
 				"ms-python.mypy-type-checker",
+				"ms-python.python",
 				"tamasfe.even-better-toml",
 				"zhoufeng.pyqt-integration"
 			],
