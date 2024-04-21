@@ -1,5 +1,5 @@
 import logging
-from typing import Literal, Optional
+from typing import Optional
 
 from PIL import Image
 from PyQt6 import QtCore
@@ -73,7 +73,7 @@ class QLabelList(QListWidget):
     )
     render_context: Optional[RenderContext]
     itemWidget: TextDymoLabelWidget
-    dymo_labeler: DymoLabeler
+    dymo_labeler: Optional[DymoLabeler]
     h_margin_mm: float
     min_label_width_mm: Optional[float]
     justify: str
@@ -89,6 +89,7 @@ class QLabelList(QListWidget):
         self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
 
     def populate(self):
+        assert self.render_context is not None
         for item_widget in [TextDymoLabelWidget(self.render_context)]:
             item = QListWidgetItem(self)
             item.setSizeHint(item_widget.sizeHint())
@@ -113,7 +114,7 @@ class QLabelList(QListWidget):
         h_margin_mm: float,
         min_label_width_mm: float,
         render_context: RenderContext,
-        justify: Literal["left", "center", "right"] = "center",
+        justify: str = "center",
     ):
         """Update the render context used for rendering the label.
 
@@ -148,6 +149,8 @@ class QLabelList(QListWidget):
         return HorizontallyCombinedRenderEngine(render_engines=render_engines)
 
     def render_preview(self):
+        assert self.dymo_labeler is not None
+        assert self.render_context is not None
         render_engine = PrintPreviewRenderEngine(
             render_engine=self._payload_render_engine,
             justify=self.justify,
@@ -165,6 +168,8 @@ class QLabelList(QListWidget):
         self.renderPrintPreviewSignal.emit(bitmap)
 
     def render_print(self):
+        assert self.dymo_labeler is not None
+        assert self.render_context is not None
         render_engine = PrintPayloadRenderEngine(
             render_engine=self._payload_render_engine,
             justify=self.justify,
@@ -174,7 +179,7 @@ class QLabelList(QListWidget):
             min_width_px=mm_to_px(self.min_label_width_mm),
         )
         try:
-            bitmap, _ = render_engine.render(self.render_context)
+            bitmap, _ = render_engine.render_with_meta(self.render_context)
         except RenderEngineException as err:
             crash_msg_box(self, "Render Engine Failed!", err)
             bitmap = EmptyRenderEngine().render(self.render_context)
@@ -193,6 +198,7 @@ class QLabelList(QListWidget):
             event (QContextMenuEvent): The context menu event.
 
         """
+        assert self.render_context is not None
         contextMenu = QMenu(self)
         add_text: Optional[QAction] = contextMenu.addAction("Add Text")
         add_qr: Optional[QAction] = contextMenu.addAction("Add QR")

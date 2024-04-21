@@ -16,7 +16,7 @@ LOG = logging.getLogger(__name__)
 
 class QDeviceSelector(QToolBar):
     _device_manager: OnlineDeviceManager
-    _selected_device: UsbDevice
+    _selected_device: UsbDevice | None
 
     selectedDeviceChangedSignal = QtCore.pyqtSignal(name="selectedDeviceChangedSignal")
 

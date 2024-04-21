@@ -235,7 +235,7 @@ class DymoLabelerFunctions:
 
 
 class DymoLabeler:
-    _device: UsbDevice
+    _device: UsbDevice | None
     tape_size_mm: int
 
     LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM = 8.1
@@ -284,7 +284,7 @@ class DymoLabeler:
         )
 
     @property
-    def device(self) -> UsbDevice:
+    def device(self) -> UsbDevice | None:
         return self._device
 
     @device.setter
@@ -340,7 +340,8 @@ class DymoLabeler:
             LOG.debug("Printing label..")
             self._functions.print_label(label_matrix)
             LOG.debug("Done printing.")
-            self._device.dispose()
+            if self._device is not None:
+                self._device.dispose()
             LOG.debug("Cleaned up.")
         except POSSIBLE_USB_ERRORS as e:
             raise DymoLabelerPrintError(str(e)) from e

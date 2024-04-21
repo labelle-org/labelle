@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Literal
-
 from PIL import Image
 
 from labelle.lib.render_engines.margins import MarginsRenderEngine
@@ -13,7 +11,7 @@ class PrintPayloadRenderEngine(RenderEngine):
     def __init__(
         self,
         render_engine: RenderEngine,
-        justify: Literal["left", "center", "right"] = "center",
+        justify: str = "center",
         visible_horizontal_margin_px: float = 0,
         labeler_margin_px: tuple[float, float] = (0, 0),
         max_width_px: float | None = None,
@@ -30,5 +28,10 @@ class PrintPayloadRenderEngine(RenderEngine):
             min_width_px=min_width_px,
         )
 
-    def render(self, context: RenderContext) -> tuple[Image.Image, dict[str, float]]:
-        return self.render_engine.render(context)
+    def render(self, _: RenderContext) -> Image.Image:
+        raise RuntimeError("This should never be called")
+
+    def render_with_meta(
+        self, context: RenderContext
+    ) -> tuple[Image.Image, dict[str, float]]:
+        return self.render_engine.render_with_meta(context)

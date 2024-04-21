@@ -29,6 +29,7 @@ from labelle.lib.render_engines import (
     PictureRenderEngine,
     QrRenderEngine,
     RenderContext,
+    RenderEngine,
     TextRenderEngine,
 )
 from labelle.lib.render_engines.render_engine import RenderEngineException
@@ -372,6 +373,7 @@ class BarcodeDymoLabelWidget(BaseLabelWidget):
             BarcodeWithTextRenderEngine).
 
         """
+        render_engine: RenderEngine
         if self.show_text_checkbox.isChecked():
             render_engine = BarcodeWithTextRenderEngine(
                 content=self.label.text(),

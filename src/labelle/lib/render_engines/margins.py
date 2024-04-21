@@ -24,7 +24,7 @@ class MarginsRenderEngine(RenderEngine):
         self,
         render_engine: RenderEngine,
         mode: Literal["print", "preview"],
-        justify: Literal["left", "center", "right"] = "center",
+        justify: str = "center",
         visible_horizontal_margin_px: float = 0,
         labeler_margin_px: tuple[float, float] = (0, 0),
         max_width_px: float | None = None,
@@ -53,7 +53,7 @@ class MarginsRenderEngine(RenderEngine):
 
     def _calculate_visible_width(self, payload_width_px: int) -> float:
         minimal_label_width_px = (
-            payload_width_px + self.visible_horizontal_margin_px * 2
+            payload_width_px + self.visible_horizontal_margin_px * 2.0
         )
         if self.max_width_px is not None and minimal_label_width_px > self.max_width_px:
             raise BitmapTooBigError(minimal_label_width_px, self.max_width_px)
@@ -64,7 +64,12 @@ class MarginsRenderEngine(RenderEngine):
             label_width_px = minimal_label_width_px
         return label_width_px
 
-    def render(self, context: RenderContext) -> tuple[Image.Image, dict[str, float]]:
+    def render(self, _: RenderContext) -> Image.Image:
+        raise RuntimeError("This should never be called")
+
+    def render_with_meta(
+        self, context: RenderContext
+    ) -> tuple[Image.Image, dict[str, float]]:
         payload_bitmap = self.render_engine.render(context)
         payload_width_px = payload_bitmap.width
         label_width_px = self._calculate_visible_width(payload_width_px)
@@ -102,10 +107,12 @@ class MarginsRenderEngine(RenderEngine):
             # print head is already in offset from label's edge under the cutter
             horizontal_offset_px -= self.labeler_horizontal_margin_px
             # no need to add vertical margins to bitmap
-            bitmap_height = payload_bitmap.height
+            bitmap_height = float(payload_bitmap.height)
         elif self.mode == "preview":
             # add vertical margins to bitmap
-            bitmap_height = payload_bitmap.height + self.labeler_vertical_margin_px * 2
+            bitmap_height = (
+                float(payload_bitmap.height) + self.labeler_vertical_margin_px * 2.0
+            )
             vertical_offset_px = self.labeler_vertical_margin_px
 
         bitmap = Image.new("1", (math.ceil(label_width_px), math.ceil(bitmap_height)))

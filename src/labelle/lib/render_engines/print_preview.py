@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Literal
-
 from darkdetect import isDark
 from PIL import Image, ImageColor, ImageDraw, ImageOps
 
@@ -20,7 +18,7 @@ class PrintPreviewRenderEngine(RenderEngine):
     def __init__(
         self,
         render_engine: RenderEngine,
-        justify: Literal["left", "center", "right"] = "center",
+        justify: str = "center",
         visible_horizontal_margin_px: float = 0,
         labeler_margin_px: tuple[float, float] = (0, 0),
         max_width_px: float | None = None,
@@ -50,7 +48,7 @@ class PrintPreviewRenderEngine(RenderEngine):
         return "white" if isDark() else "blue"
 
     def _get_label_bitmap(self, context: RenderContext):
-        render_bitmap, meta = self.render_engine.render(context)
+        render_bitmap, meta = self.render_engine.render_with_meta(context)
         bitmap = ImageOps.invert(render_bitmap.convert("L")).convert("RGBA")
         pixel_map = {
             "black": context.foreground_color,
