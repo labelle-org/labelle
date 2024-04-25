@@ -17,6 +17,7 @@ from labelle.lib.constants import (
     DEFAULT_MARGIN_PX,
     PIXELS_PER_MM,
     USE_QR,
+    Align,
     BarcodeType,
     e_qrcode,
 )
@@ -83,12 +84,8 @@ def parse_args():
     parser.add_argument(
         "-a",
         "--align",
-        choices=[
-            "left",
-            "center",
-            "right",
-        ],
-        default="left",
+        choices=[align.value for align in Align],
+        default=Align.LEFT,
         help="Align multiline text (left,center,right)",
     )
     parser.add_argument(

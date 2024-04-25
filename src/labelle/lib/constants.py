@@ -89,3 +89,9 @@ class BarcodeType(str, Enum):
 
 
 DEFAULT_BARCODE_TYPE = BarcodeType.EAN
+
+
+class Align(str, Enum):
+    LEFT = "left"
+    CENTER = "center"
+    RIGHT = "right"

@@ -17,7 +17,7 @@ from PyQt6.QtWidgets import (
 )
 
 from labelle.gui.common import crash_msg_box
-from labelle.lib.constants import ICON_DIR, BarcodeType
+from labelle.lib.constants import ICON_DIR, Align, BarcodeType
 from labelle.lib.env_config import is_dev_mode_no_margins
 from labelle.lib.font_config import get_available_fonts
 from labelle.lib.render_engines import (
@@ -170,8 +170,7 @@ class TextDymoLabelWidget(BaseLabelWidget):
             TextRenderEngine: The rendered engine.
 
         """
-        selected_alignment = self.align.currentText()
-        assert selected_alignment in ("left", "center", "right")
+        selected_alignment = Align(self.align.currentText())
         return TextRenderEngine(
             text_lines=self.label.toPlainText().splitlines(),
             font_file_name=self.font_style.currentData(),

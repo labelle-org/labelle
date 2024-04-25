@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal
 
 from PIL import Image
 
+from labelle.lib.constants import Align
 from labelle.lib.render_engines.barcode import BarcodeRenderEngine
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import (
@@ -24,7 +24,7 @@ class BarcodeWithTextRenderEngine(RenderEngine):
         font_file_name: Path | str,
         frame_width_px: int,
         font_size_ratio: float = 0.9,
-        align: Literal["left", "center", "right"] = "center",
+        align: Align = Align.CENTER,
     ):
         super().__init__()
         self._barcode = BarcodeRenderEngine(content, barcode_type)

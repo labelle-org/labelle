@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal
 
 from PIL import Image, ImageFont
 
+from labelle.lib.constants import Align
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import RenderEngine
 from labelle.lib.utils import draw_image
@@ -17,7 +17,7 @@ class TextRenderEngine(RenderEngine):
         font_file_name: Path | str,
         frame_width_px: int,
         font_size_ratio: float = 0.9,
-        align: Literal["left", "center", "right"] = "left",
+        align: Align = Align.CENTER,
     ):
         if isinstance(text_lines, str):
             text_lines = [text_lines]
@@ -69,7 +69,7 @@ class TextRenderEngine(RenderEngine):
             draw.multiline_text(
                 (label_width_px / 2, height_px / 2),
                 multiline_text,
-                align=self.align,
+                align=self.align.value,
                 anchor="mm",
                 font=font,
                 fill=1,
