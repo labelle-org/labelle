@@ -314,7 +314,7 @@ class DymoLabeler:
         # Convert the image to the proper matrix for the dymo labeler object so that
         # rows span the width of the label, and the first row corresponds to the left
         # edge of the label.
-        rotated_bitmap = bitmap.transpose(Image.ROTATE_270)
+        rotated_bitmap = bitmap.transpose(Image.Transpose.ROTATE_270)
 
         # Convert the image to raw bytes. Pixels along rows are chunked into groups of
         # 8 pixels, and subsequent rows are concatenated.

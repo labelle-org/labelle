@@ -323,9 +323,9 @@ def run():
             min_width_px=min_payload_len_px,
         )
         bitmap = render.render(render_context)
-        LOG.debug("Demo mode: showing label..")
+        LOG.debug("Demo mode: showing label...")
         if args.preview or args.preview_inverted:
-            label_rotated = bitmap.transpose(Image.ROTATE_270)
+            label_rotated = bitmap.transpose(Image.Transpose.ROTATE_270)
             print(image_to_unicode(label_rotated, invert=args.preview_inverted))
         if args.imagemagick:
             ImageOps.invert(bitmap).show()
