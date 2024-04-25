@@ -6,10 +6,11 @@ from dataclasses import dataclass
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import QCheckBox, QComboBox, QLabel, QSpinBox, QToolBar, QWidget
 
+from labelle.lib.constants import Justify
+
 LOG = logging.getLogger(__name__)
 
 
-JUSTIFY__VALUES = ["center", "left", "right"]
 FOREGROUND_COLOR__VALUES = ["black", "white", "yellow", "blue", "red", "green"]
 BACKGROUND_COLOR__VALUES = ["white", "black", "yellow", "blue", "red", "green"]
 HORIZONTAL_MARGIN_MM__MAX_VALUE = 100
@@ -22,7 +23,7 @@ class Settings:
     background_color: str
     foreground_color: str
     horizontal_margin_mm: float
-    justify: str
+    justify: Justify
     min_label_width_mm: float
     preview_show_margins: bool
     tape_size_mm: int
@@ -49,7 +50,7 @@ class QSettingsToolbar(QToolBar):
     def _init_elements(self):
         self._horizontal_margin_mm.setMaximum(HORIZONTAL_MARGIN_MM__MAX_VALUE)
         self._min_label_width_mm.setMaximum(MIN_LABEL_WIDTH_MM__MIN_VALUE)
-        self._justify.addItems(JUSTIFY__VALUES)
+        self._justify.addItems(justify.value for justify in Justify)
         self._foreground_color.addItems(FOREGROUND_COLOR__VALUES)
         self._background_color.addItems(BACKGROUND_COLOR__VALUES)
         self._preview_show_margins.setChecked(PREVIEW_SHOW_MARGINS__DEFAULT_VALUE)
@@ -106,7 +107,7 @@ class QSettingsToolbar(QToolBar):
             background_color=self._background_color.currentText(),
             foreground_color=self._foreground_color.currentText(),
             horizontal_margin_mm=self._horizontal_margin_mm.value(),
-            justify=self._justify.currentText(),
+            justify=Justify(self._justify.currentText()),
             min_label_width_mm=self._min_label_width_mm.value(),
             preview_show_margins=self._preview_show_margins.isChecked(),
             tape_size_mm=self._tape_size_mm.currentData(),

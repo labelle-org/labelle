@@ -95,3 +95,9 @@ class Align(str, Enum):
     LEFT = "left"
     CENTER = "center"
     RIGHT = "right"
+
+
+class Justify(str, Enum):
+    LEFT = "left"
+    CENTER = "center"
+    RIGHT = "right"

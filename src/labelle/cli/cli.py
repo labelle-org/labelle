@@ -19,6 +19,7 @@ from labelle.lib.constants import (
     USE_QR,
     Align,
     BarcodeType,
+    Justify,
     e_qrcode,
 )
 from labelle.lib.devices.device_manager import DeviceManager
@@ -120,11 +121,7 @@ def parse_args():
     length_options.add_argument(
         "-j",
         "--justify",
-        choices=[
-            "left",
-            "center",
-            "right",
-        ],
+        choices=[justify.value for justify in Justify],
         default="center",
         help=(
             "Justify content of label if label content is less than the "

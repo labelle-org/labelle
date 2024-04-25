@@ -14,6 +14,7 @@ from labelle.gui.q_label_widgets import (
     QrDymoLabelWidget,
     TextDymoLabelWidget,
 )
+from labelle.lib.constants import Justify
 from labelle.lib.devices.dymo_labeler import DymoLabeler
 from labelle.lib.render_engines import (
     HorizontallyCombinedRenderEngine,
@@ -76,14 +77,14 @@ class QLabelList(QListWidget):
     dymo_labeler: Optional[DymoLabeler]
     h_margin_mm: float
     min_label_width_mm: Optional[float]
-    justify: str
+    justify: Justify
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.dymo_labeler = None
         self.h_margin_mm = 0.0
         self.min_label_width_mm = None
-        self.justify = "center"
+        self.justify = Justify.CENTER
         self.render_context = None
         self.setAlternatingRowColors(True)
         self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
@@ -114,7 +115,7 @@ class QLabelList(QListWidget):
         h_margin_mm: float,
         min_label_width_mm: float,
         render_context: RenderContext,
-        justify: str = "center",
+        justify: Justify = Justify.CENTER,
     ):
         """Update the render context used for rendering the label.
 

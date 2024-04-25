@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from PIL import Image
 
+from labelle.lib.constants import Justify
 from labelle.lib.render_engines.margins import MarginsRenderEngine
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import RenderEngine
@@ -11,7 +12,7 @@ class PrintPayloadRenderEngine(RenderEngine):
     def __init__(
         self,
         render_engine: RenderEngine,
-        justify: str = "center",
+        justify: Justify = Justify.CENTER,
         visible_horizontal_margin_px: float = 0,
         labeler_margin_px: tuple[float, float] = (0, 0),
         max_width_px: float | None = None,
