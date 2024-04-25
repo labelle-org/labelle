@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import logging
-from typing import Optional
 
 from PyQt6 import QtCore
 from PyQt6.QtCore import QTimer
@@ -14,7 +15,7 @@ POSSIBLE_USB_ERRORS = (NoBackendError, USBError)
 
 
 class OnlineDeviceManager(QWidget):
-    _last_scan_error: Optional[DeviceManagerError]
+    _last_scan_error: DeviceManagerError | None
     _status_time: QTimer
     _device_manager: DeviceManager
     last_scan_error_changed_signal = QtCore.pyqtSignal(
@@ -49,7 +50,7 @@ class OnlineDeviceManager(QWidget):
         self._refresh_devices()
 
     @property
-    def last_scan_error(self) -> Optional[DeviceManagerError]:
+    def last_scan_error(self) -> DeviceManagerError | None:
         return self._last_scan_error
 
     @property

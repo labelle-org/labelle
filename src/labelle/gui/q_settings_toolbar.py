@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import logging
 from dataclasses import dataclass
-from typing import Optional
 
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import QCheckBox, QComboBox, QLabel, QSpinBox, QToolBar, QWidget
@@ -30,7 +31,7 @@ class Settings:
 class QSettingsToolbar(QToolBar):
     settings_changed_signal = QtCore.pyqtSignal(Settings, name="settingsChangedSignal")
 
-    def __init__(self, parent: Optional[QWidget] = None):
+    def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         self._background_color = QComboBox()
         self._foreground_color = QComboBox()
