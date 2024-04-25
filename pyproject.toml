@@ -82,13 +82,13 @@ commands =
   pip freeze
   labelle --version
   labelle --help
-  labelle --preview "single line"
-  labelle --preview-inverted "single line"
-  labelle --preview multiple lines
-  labelle --preview -qr "qr text"
-  labelle --preview -c code128 "bc txt"
-  labelle --preview -qr "qr text" qr caption
-  labelle --preview -c code128 "bc txt" barcode caption
+  labelle --preview --text "single line"
+  labelle --preview-inverted --text "inverted"
+  labelle --preview --text multiple --text lines
+  labelle --preview --barcode-type code128 --barcode "Barcode"
+  labelle --preview --barcode-type code128 --barcode "Barcode" --barcode-with-text --text "Caption"
+  labelle --preview --qr "QR"
+  labelle --preview --qr "QR" --text "Caption"
 
 [testenv:{clean,build}]
 description =

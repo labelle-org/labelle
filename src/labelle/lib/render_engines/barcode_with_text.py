@@ -20,7 +20,7 @@ class BarcodeWithTextRenderEngine(RenderEngine):
     def __init__(
         self,
         content: str,
-        barcode_type,
+        barcode_type: str | None,
         font_file_name: Path | str,
         frame_width_px: int,
         font_size_ratio: float = 0.9,

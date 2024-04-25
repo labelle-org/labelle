@@ -63,10 +63,9 @@ def parse_args():
         "--version", action="version", version=f"%(prog)s {__version__}"
     )
     parser.add_argument(
-        "text",
-        nargs="+",
+        "--text",
+        action="append",
         help="Text Parameter, each parameter gives a new line",
-        type=str,
     )
     parser.add_argument(
         "-f",
@@ -159,21 +158,23 @@ def parse_args():
         action="store_true",
         help="Preview label in the browser, do not send to printer",
     )
+    parser.add_argument("--qr-content", type=str, help="Printing a QR-code")
     parser.add_argument(
-        "-qr", action="store_true", help="Printing the first text parameter as QR-code"
+        "--barcode-type",
+        choices=BARCODE_TYPES,
+        type=str,
+        help="The barcode type",
     )
     parser.add_argument(
         "-c",
         "--barcode",
-        choices=BARCODE_TYPES,
-        default=False,
-        help="Printing the first text parameter as barcode",
+        type=str,
+        help="Printing a barcode",
     )
     parser.add_argument(
-        "--barcode-text",
-        choices=BARCODE_TYPES,
-        default=False,
-        help="Printing the first text parameter as barcode and text under it",
+        "--barcode-with-text",
+        action="store_true",
+        help="The text under the barcode",
     )
     parser.add_argument("-p", "--picture", help="Print the specified picture")
     parser.add_argument(
@@ -233,17 +234,19 @@ def run():
         msg = f"{e}. Valid fonts are: {', '.join(valid_font_names)}"
         raise CommandLineUsageError(msg) from None
 
-    labeltext = args.text
-
     # check if barcode, qrcode or text should be printed, use frames only on text
-    if args.qr and not USE_QR:
+    if args.qr_content and not USE_QR:
         raise CommandLineUsageError(
             "QR code cannot be used without QR support " "installed"
         ) from e_qrcode
 
-    if args.barcode and args.qr:
+    if args.barcode_type and not args.barcode:
         raise CommandLineUsageError(
-            "Can not print both QR and Barcode on the same " "label (yet)"
+            "Cannot specify barcode type without a barcode value"
+        )
+    if args.barcode_with_text and not args.barcode:
+        raise CommandLineUsageError(
+            "Cannot specify barcode text without a barcode value"
         )
 
     if args.fixed_length is not None and (
@@ -261,23 +264,28 @@ def run():
     if args.test_pattern:
         render_engines.append(TestPatternRenderEngine(args.test_pattern))
 
-    if args.qr:
-        render_engines.append(QrRenderEngine(labeltext.pop(0)))
+    if args.qr_content:
+        render_engines.append(QrRenderEngine(args.qr_content))
 
-    elif args.barcode:
-        render_engines.append(BarcodeRenderEngine(labeltext.pop(0), args.barcode))
-
-    elif args.barcode_text:
-        render_engines.append(
-            BarcodeWithTextRenderEngine(
-                labeltext.pop(0), args.barcode_text, font_path, args.frame_width_px
+    if args.barcode:
+        barcode_render: RenderEngine
+        if args.barcode_with_text:
+            barcode_render = BarcodeWithTextRenderEngine(
+                content=args.barcode,
+                barcode_type=args.barcode_type,
+                font_file_name=font_path,
+                frame_width_px=args.frame_width_px,
             )
-        )
+        else:
+            barcode_render = BarcodeRenderEngine(
+                content=args.barcode, barcode_type=args.barcode_type
+            )
+        render_engines.append(barcode_render)
 
-    if labeltext:
+    if args.text:
         render_engines.append(
             TextRenderEngine(
-                text_lines=labeltext,
+                text_lines=args.text,
                 font_file_name=font_path,
                 frame_width_px=args.frame_width_px,
                 font_size_ratio=int(args.scale) / 100.0,

@@ -86,3 +86,5 @@ BARCODE_TYPES = [
     "upc",
     "upca",
 ]
+
+DEFAULT_BARCODE_TYPE = "ean"
