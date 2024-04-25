@@ -246,6 +246,7 @@ class DymoLabeler:
     def __init__(
         self,
         tape_size_mm: int = DEFAULT_TAPE_SIZE_MM,
+        device: UsbDevice | None = None,
     ):
         if tape_size_mm not in self.SUPPORTED_TAPE_SIZES_MM:
             raise ValueError(
@@ -253,14 +254,14 @@ class DymoLabeler:
                 f"Supported sizes: {self.SUPPORTED_TAPE_SIZES_MM}"
             )
         self.tape_size_mm = tape_size_mm
-        self._device = None
+        self._device = device
 
     @property
     def height_px(self):
         return DymoLabelerFunctions.height_px(self.tape_size_mm)
 
     @property
-    def _functions(self):
+    def _functions(self) -> DymoLabelerFunctions:
         assert self._device is not None
         return DymoLabelerFunctions(
             devout=self._device.devout,

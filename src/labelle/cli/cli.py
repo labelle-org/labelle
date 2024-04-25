@@ -297,7 +297,12 @@ def run():
         else None
     )
 
-    dymo_labeler = DymoLabeler(tape_size_mm=args.tape_size_mm)
+    device_manager = DeviceManager()
+    device_manager.scan()
+    device = device_manager.find_and_select_device()
+    device.setup()
+
+    dymo_labeler = DymoLabeler(tape_size_mm=args.tape_size_mm, device=device)
     render_engine = HorizontallyCombinedRenderEngine(render_engines)
     render_context = RenderContext(
         background_color="white",
@@ -340,10 +345,6 @@ def run():
         )
         bitmap, _ = render.render_with_meta(render_context)
 
-        device_manager = DeviceManager()
-        device_manager.scan()
-        device = device_manager.find_and_select_device()
-        device.setup()
         dymo_labeler.print(bitmap)
 
 
