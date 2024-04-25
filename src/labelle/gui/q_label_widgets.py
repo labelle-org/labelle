@@ -17,7 +17,7 @@ from PyQt6.QtWidgets import (
 )
 
 from labelle.gui.common import crash_msg_box
-from labelle.lib.constants import BARCODE_TYPES, ICON_DIR
+from labelle.lib.constants import ICON_DIR, BarcodeType
 from labelle.lib.env_config import is_dev_mode_no_margins
 from labelle.lib.font_config import get_available_fonts
 from labelle.lib.render_engines import (
@@ -306,7 +306,7 @@ class BarcodeDymoLabelWidget(BaseLabelWidget):
 
         self.barcode_type_label = QLabel("Type:")
         self.barcode_type = QComboBox()
-        self.barcode_type.addItems(BARCODE_TYPES)
+        self.barcode_type.addItems(bt.value for bt in BarcodeType)
 
         # Checkbox for toggling text fields
         self.show_text_label = QLabel("Text:")

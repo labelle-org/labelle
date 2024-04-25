@@ -14,10 +14,10 @@ from PIL import Image, ImageOps
 
 from labelle import __version__
 from labelle.lib.constants import (
-    BARCODE_TYPES,
     DEFAULT_MARGIN_PX,
     PIXELS_PER_MM,
     USE_QR,
+    BarcodeType,
     e_qrcode,
 )
 from labelle.lib.devices.device_manager import DeviceManager
@@ -161,7 +161,7 @@ def parse_args():
     parser.add_argument("--qr-content", type=str, help="Printing a QR-code")
     parser.add_argument(
         "--barcode-type",
-        choices=BARCODE_TYPES,
+        choices=[bt.value for bt in BarcodeType],
         type=str,
         help="The barcode type",
     )
