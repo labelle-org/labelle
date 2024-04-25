@@ -16,7 +16,7 @@ class PrintPayloadRenderEngine(RenderEngine):
         visible_horizontal_margin_px: float = 0,
         labeler_margin_px: tuple[float, float] = (0, 0),
         max_width_px: float | None = None,
-        min_width_px: float = 0,
+        min_width_px: float | None = 0,
     ):
         super().__init__()
         self.render_engine = MarginsRenderEngine(

@@ -29,7 +29,7 @@ class MarginsRenderEngine(RenderEngine):
         visible_horizontal_margin_px: float = 0,
         labeler_margin_px: tuple[float, float] = (0, 0),
         max_width_px: float | None = None,
-        min_width_px: float = 0,
+        min_width_px: float | None = 0,
     ):
         super().__init__()
         labeler_horizontal_margin_px, labeler_vertical_margin_px = labeler_margin_px
@@ -37,6 +37,8 @@ class MarginsRenderEngine(RenderEngine):
         assert labeler_horizontal_margin_px >= 0
         assert labeler_vertical_margin_px >= 0
         assert not max_width_px or max_width_px >= 0
+        if min_width_px is None:
+            min_width_px = 0
         assert min_width_px >= 0
         self.mode = mode
         self.justify = justify

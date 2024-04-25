@@ -24,6 +24,7 @@ dependencies = [
     "pyusb",
     "PyQt6",
     "darkdetect",
+    "typer",
 ]
 classifiers = [
     "Operating System :: POSIX :: Linux",
@@ -82,13 +83,14 @@ commands =
   pip freeze
   labelle --version
   labelle --help
-  labelle --preview --text "single line"
-  labelle --preview-inverted --text "inverted"
-  labelle --preview --text multiple --text lines
-  labelle --preview --barcode-type code128 --barcode "Barcode"
-  labelle --preview --barcode-type code128 --barcode "Barcode" --barcode-with-text --text "Caption"
-  labelle --preview --qr "QR"
-  labelle --preview --qr "QR" --text "Caption"
+  labelle --output console --text "single line"
+  labelle --output console_inverted --text "inverted"
+  labelle --output console --text multiple --text lines
+  labelle --output console --barcode "Barcode" --barcode-type code128
+  labelle --output console --barcode-with-text "Barcode" --barcode-type code128 --text "Caption"
+  labelle --output console --qr "QR"
+  labelle --output console --qr "QR" --text "Caption"
+  labelle --output console --picture ./labelle.png
 
 [testenv:{clean,build}]
 description =

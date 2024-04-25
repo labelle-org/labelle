@@ -245,9 +245,11 @@ class DymoLabeler:
 
     def __init__(
         self,
-        tape_size_mm: int = DEFAULT_TAPE_SIZE_MM,
+        tape_size_mm: int | None = None,
         device: UsbDevice | None = None,
     ):
+        if tape_size_mm is None:
+            tape_size_mm = self.DEFAULT_TAPE_SIZE_MM
         if tape_size_mm not in self.SUPPORTED_TAPE_SIZES_MM:
             raise ValueError(
                 f"Unsupported tape size {tape_size_mm}mm. "

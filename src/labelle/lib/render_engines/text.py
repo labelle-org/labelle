@@ -15,7 +15,7 @@ class TextRenderEngine(RenderEngine):
         self,
         text_lines: str | list[str],
         font_file_name: Path | str,
-        frame_width_px: int,
+        frame_width_px: int | None,
         font_size_ratio: float = 0.9,
         align: Align = Align.CENTER,
     ):
@@ -27,7 +27,7 @@ class TextRenderEngine(RenderEngine):
 
         self.text_lines = text_lines
         self.font_file_name = font_file_name
-        self.frame_width_px = frame_width_px
+        self.frame_width_px = frame_width_px or 0
         self.font_size_ratio = font_size_ratio
         self.align = align
 
@@ -40,7 +40,9 @@ class TextRenderEngine(RenderEngine):
 
         font_offset_px = int((line_height - font_size_px) / 2)
         if self.frame_width_px:
-            frame_width_px = min(self.frame_width_px, font_offset_px, 3)
+            frame_width_px = self.frame_width_px or min(
+                self.frame_width_px, font_offset_px, 3
+            )
         else:
             frame_width_px = self.frame_width_px
 

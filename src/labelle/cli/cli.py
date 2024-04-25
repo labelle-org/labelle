@@ -5,12 +5,16 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
-import argparse
 import logging
 import webbrowser
+from enum import Enum
+from pathlib import Path
 from tempfile import NamedTemporaryFile
+from typing import List, Optional
 
+import typer
 from PIL import Image, ImageOps
+from typing_extensions import Annotated
 
 from labelle import __version__
 from labelle.lib.constants import (
@@ -41,173 +45,26 @@ from labelle.lib.render_engines import (
     TextRenderEngine,
 )
 from labelle.lib.unicode_blocks import image_to_unicode
-from labelle.lib.utils import system_run
-from labelle.metadata import our_metadata
 
 LOG = logging.getLogger(__name__)
 
-FLAG_TO_STYLE = {
-    "r": "regular",
-    "b": "bold",
-    "i": "italic",
-    "n": "narrow",
-}
+
+class Style(str, Enum):
+    regular = "regular"
+    bold = "bold"
+    italic = "italic"
+    narrow = "narrow"
 
 
-class CommandLineUsageError(Exception):
-    pass
+class Output(str, Enum):
+    printer = "printer"
+    console = "console"
+    console_inverted = "console_inverted"
+    browser = "browser"
+    imagemagick = "imagemagick"
 
 
-def parse_args():
-    # check for any text specified on the command line
-    parser = argparse.ArgumentParser(description=our_metadata["Summary"])
-    parser.add_argument(
-        "--version", action="version", version=f"%(prog)s {__version__}"
-    )
-    parser.add_argument(
-        "--text",
-        action="append",
-        help="Text Parameter, each parameter gives a new line",
-    )
-    parser.add_argument(
-        "-f",
-        "--frame-width-px",
-        action="count",
-        help="Draw frame around the text, more arguments for thicker frame",
-    )
-    parser.add_argument(
-        "-s",
-        "--style",
-        choices=["r", "b", "i", "n"],
-        default="r",
-        help="Set fonts style (regular,bold,italic,narrow)",
-    )
-    parser.add_argument(
-        "-a",
-        "--align",
-        choices=[align.value for align in Align],
-        default=Align.LEFT,
-        help="Align multiline text (left,center,right)",
-    )
-    parser.add_argument(
-        "--test-pattern",
-        type=int,
-        default=0,
-        help="Prints test pattern of a desired dot width",
-    )
-
-    length_options = parser.add_argument_group("Length options")
-
-    length_options.add_argument(
-        "-l",
-        "--min-length",
-        type=int,
-        default=0,
-        help="Specify minimum label length in mm",
-    )
-    length_options.add_argument(
-        "--max-length",
-        type=int,
-        default=None,
-        help="Specify maximum label length in mm, error if the label won't fit",
-    )
-    length_options.add_argument(
-        "--fixed-length",
-        type=int,
-        default=None,
-        help="Specify fixed label length in mm, error if the label won't fit",
-    )
-
-    length_options.add_argument(
-        "-j",
-        "--justify",
-        choices=[justify.value for justify in Justify],
-        default="center",
-        help=(
-            "Justify content of label if label content is less than the "
-            "minimum or fixed length (left, center, right)"
-        ),
-    )
-    parser.add_argument(
-        "-u", "--font", nargs="?", help='Set user font, overrides "-s" parameter'
-    )
-    parser.add_argument(
-        "-n",
-        "--preview",
-        action="store_true",
-        help="Unicode preview of label, do not send to printer",
-    )
-    parser.add_argument(
-        "--preview-inverted",
-        action="store_true",
-        help="Unicode preview of label, colors inverted, do not send to printer",
-    )
-    parser.add_argument(
-        "--imagemagick",
-        action="store_true",
-        help="Preview label with Imagemagick, do not send to printer",
-    )
-    parser.add_argument(
-        "--browser",
-        action="store_true",
-        help="Preview label in the browser, do not send to printer",
-    )
-    parser.add_argument("--qr-content", type=str, help="Printing a QR-code")
-    parser.add_argument(
-        "--barcode-type",
-        choices=[bt.value for bt in BarcodeType],
-        type=str,
-        help="The barcode type",
-    )
-    parser.add_argument(
-        "-c",
-        "--barcode",
-        type=str,
-        help="Printing a barcode",
-    )
-    parser.add_argument(
-        "--barcode-with-text",
-        action="store_true",
-        help="The text under the barcode",
-    )
-    parser.add_argument("-p", "--picture", help="Print the specified picture")
-    parser.add_argument(
-        "-m",
-        "--margin-px",
-        type=int,
-        default=DEFAULT_MARGIN_PX,
-        help=f"Margin in px (default is {DEFAULT_MARGIN_PX})",
-    )
-    parser.add_argument(
-        "--scale", type=int, default=90, help="Scaling font factor, [0,10] [%%]"
-    )
-    parser.add_argument(
-        "-t",
-        "--tape-size-mm",
-        type=int,
-        choices=[6, 9, 12, 19],
-        default=12,
-        help="Tape size: 6,9,12,19 mm, default=12mm",
-    )
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        help="Increase logging verbosity",
-    )
-    parser.add_argument(
-        "--device",
-        nargs="+",
-        help=(
-            "Select a particular device by filtering for a given substring "
-            "in the device's manufacturer, product or serial number"
-        ),
-        type=str,
-    )
-    return parser.parse_args()
-
-
-def mm_to_payload_px(mm, margin):
+def mm_to_payload_px(mm: float, margin: float):
     """Convert a length in mm to a number of pixels of payload.
 
     The print resolution is 7 pixels/mm, and margin is subtracted from each side.
@@ -215,92 +72,192 @@ def mm_to_payload_px(mm, margin):
     return max(0, (mm * PIXELS_PER_MM) - margin * 2)
 
 
-def run():
-    args = parse_args()
+def version_callback(value: bool):
+    if value:
+        typer.echo(f"Labelle: {__version__}")
+        raise typer.Exit()
 
-    if (not args.verbose) and (not is_verbose_env_vars()):
+
+def qr_callback(qr_content: str) -> str:
+    # check if barcode, qrcode or text should be printed, use frames only on text
+    if qr_content and not USE_QR:
+        raise typer.BadParameter(
+            "QR code cannot be used without QR support installed"
+        ) from e_qrcode
+    return qr_content
+
+
+def app(
+    version: Annotated[
+        Optional[bool],
+        typer.Option("--version", callback=version_callback, is_eager=True),
+    ] = None,
+    device_pattern: Annotated[
+        Optional[List[str]],
+        typer.Option(
+            "--device",
+            help=(
+                "Select a particular device by filtering for a given substring "
+                "in the device's manufacturer, product or serial number"
+            ),
+        ),
+    ] = None,
+    text: Annotated[
+        Optional[List[str]],
+        typer.Option(help="Text Parameter, each parameter gives a new line"),
+    ] = None,
+    verbose: Annotated[
+        bool, typer.Option("--verbose", "-v", help="Increase logging verbosity")
+    ] = False,
+    style: Annotated[Style, typer.Option(help="Set fonts style")] = Style.regular,
+    frame_width_px: Annotated[
+        Optional[int],
+        typer.Option(
+            help="Draw frame around the text, more arguments for thicker frame"
+        ),
+    ] = None,
+    align: Annotated[Align, typer.Option(help="Align multiline text")] = Align.LEFT,
+    justify: Annotated[
+        Justify,
+        typer.Option(
+            help="Justify content of label if label content is less than the minimum or"
+            " fixed length"
+        ),
+    ] = Justify.LEFT,
+    test_pattern: Annotated[
+        Optional[int],
+        typer.Option(help="Prints test pattern of a desired dot width"),
+    ] = None,
+    min_length: Annotated[
+        Optional[float],
+        typer.Option(help="Minimum label length [mm]"),
+    ] = None,
+    max_length: Annotated[
+        Optional[float],
+        typer.Option(help="Maximum label length [mm], error if the label won't fit"),
+    ] = None,
+    fixed_length: Annotated[
+        Optional[float],
+        typer.Option(help="Fixed label length [mm], error if the label won't fit"),
+    ] = None,
+    output: Annotated[
+        Output,
+        typer.Option(help="Destination of the label render"),
+    ] = Output.printer,
+    font: Annotated[
+        Optional[str],
+        typer.Option(help="User font. Overrides --style parameter"),
+    ] = None,
+    qr_content: Annotated[
+        Optional[str],
+        typer.Option("--qr", callback=qr_callback, help="QR code"),
+    ] = None,
+    barcode_content: Annotated[
+        Optional[str],
+        typer.Option("--barcode", help="Barcode"),
+    ] = None,
+    barcode_type: Annotated[
+        Optional[BarcodeType], typer.Option(help="The barcode type")
+    ] = None,
+    barcode_with_text_content: Annotated[
+        Optional[str],
+        typer.Option("--barcode-with-text", help="Barcode with text"),
+    ] = None,
+    picture: Annotated[
+        Optional[Path], typer.Option(help="Print the specified picture")
+    ] = None,
+    margin_px: Annotated[
+        float,
+        typer.Option(help="Horizontal margins [px]"),
+    ] = DEFAULT_MARGIN_PX,
+    font_scale: Annotated[
+        float,
+        typer.Option(help="Scaling font factor, [0,100] [%%]"),
+    ] = 90,
+    tape_size_mm: Annotated[
+        Optional[int],
+        typer.Option(help="Tape size [mm]"),
+    ] = None,
+):
+    if (not verbose) and (not is_verbose_env_vars()):
         # Neither --verbose flag nor the environment variable is set.
         set_not_verbose()
 
     # read config file
-    style = FLAG_TO_STYLE.get(args.style)
     try:
-        font_path = get_font_path(font=args.font, style=style)
+        font_path = get_font_path(font=font, style=style)
     except NoFontFound as e:
         valid_font_names = [f.stem for f in get_available_fonts()]
         msg = f"{e}. Valid fonts are: {', '.join(valid_font_names)}"
-        raise CommandLineUsageError(msg) from None
+        raise typer.BadParameter(msg) from None
 
-    # check if barcode, qrcode or text should be printed, use frames only on text
-    if args.qr_content and not USE_QR:
-        raise CommandLineUsageError(
-            "QR code cannot be used without QR support " "installed"
-        ) from e_qrcode
+    if barcode_type and not (barcode_content or barcode_with_text_content):
+        raise typer.BadParameter("Cannot specify barcode type without a barcode value")
 
-    if args.barcode_type and not args.barcode:
-        raise CommandLineUsageError(
-            "Cannot specify barcode type without a barcode value"
-        )
-    if args.barcode_with_text and not args.barcode:
-        raise CommandLineUsageError(
-            "Cannot specify barcode text without a barcode value"
+    if barcode_with_text_content and barcode_content:
+        raise typer.BadParameter(
+            "Cannot specify both barcode with text and regular barcode"
         )
 
-    if args.fixed_length is not None and (
-        args.min_length != 0 or args.max_length is not None
-    ):
-        raise CommandLineUsageError(
-            "Cannot't specify min/max and fixed length at the " "same time"
+    if fixed_length is not None and (min_length != 0 or max_length is not None):
+        raise typer.BadParameter(
+            "Cannot specify min/max and fixed length at the same time"
         )
 
-    if args.max_length is not None and args.max_length < args.min_length:
-        raise CommandLineUsageError("Maximum length is less than minimum length")
+    if min_length is None:
+        min_length = 0.0
+    if min_length < 0:
+        raise typer.BadParameter("Minimum length must be non-negative number")
+    if max_length is not None:
+        if max_length <= 0:
+            raise typer.BadParameter("Maximum length must be positive number")
+        if max_length < min_length:
+            raise typer.BadParameter("Maximum length is less than minimum length")
 
     render_engines: list[RenderEngine] = []
 
-    if args.test_pattern:
-        render_engines.append(TestPatternRenderEngine(args.test_pattern))
+    if test_pattern:
+        render_engines.append(TestPatternRenderEngine(test_pattern))
 
-    if args.qr_content:
-        render_engines.append(QrRenderEngine(args.qr_content))
+    if qr_content:
+        render_engines.append(QrRenderEngine(qr_content))
 
-    if args.barcode:
-        barcode_render: RenderEngine
-        if args.barcode_with_text:
-            barcode_render = BarcodeWithTextRenderEngine(
-                content=args.barcode,
-                barcode_type=args.barcode_type,
-                font_file_name=font_path,
-                frame_width_px=args.frame_width_px,
-            )
-        else:
-            barcode_render = BarcodeRenderEngine(
-                content=args.barcode, barcode_type=args.barcode_type
-            )
-        render_engines.append(barcode_render)
-
-    if args.text:
+    if barcode_with_text_content:
         render_engines.append(
-            TextRenderEngine(
-                text_lines=args.text,
+            BarcodeWithTextRenderEngine(
+                content=barcode_with_text_content,
+                barcode_type=barcode_type,
                 font_file_name=font_path,
-                frame_width_px=args.frame_width_px,
-                font_size_ratio=int(args.scale) / 100.0,
-                align=args.align,
+                frame_width_px=frame_width_px,
             )
         )
 
-    if args.picture:
-        render_engines.append(PictureRenderEngine(args.picture))
+    if barcode_content:
+        render_engines.append(
+            BarcodeRenderEngine(content=barcode_content, barcode_type=barcode_type)
+        )
 
-    if args.fixed_length is not None:
-        min_label_mm_len = args.fixed_length
-        max_label_mm_len = args.fixed_length
+    if text:
+        render_engines.append(
+            TextRenderEngine(
+                text_lines=text,
+                font_file_name=font_path,
+                frame_width_px=frame_width_px,
+                font_size_ratio=int(font_scale) / 100.0,
+                align=align,
+            )
+        )
+
+    if picture:
+        render_engines.append(PictureRenderEngine(picture))
+
+    if fixed_length is None:
+        min_label_mm_len = min_length
+        max_label_mm_len = max_length
     else:
-        min_label_mm_len = args.min_length
-        max_label_mm_len = args.max_length
+        min_label_mm_len = fixed_length
+        max_label_mm_len = fixed_length
 
-    margin_px = args.margin_px
     min_payload_len_px = mm_to_payload_px(min_label_mm_len, margin_px)
     max_payload_len_px = (
         mm_to_payload_px(max_label_mm_len, margin_px)
@@ -308,18 +265,15 @@ def run():
         else None
     )
 
-    requires_device = not (
-        args.preview or args.preview_inverted or args.imagemagick or args.browser
-    )
-    if not requires_device:
-        device = None
-    else:
+    if output == Output.printer:
         device_manager = DeviceManager()
         device_manager.scan()
-        device = device_manager.find_and_select_device(patterns=args.device)
+        device = device_manager.find_and_select_device(patterns=device_pattern)
         device.setup()
+    else:
+        device = None
 
-    dymo_labeler = DymoLabeler(tape_size_mm=args.tape_size_mm, device=device)
+    dymo_labeler = DymoLabeler(tape_size_mm=tape_size_mm, device=device)
     render_engine = HorizontallyCombinedRenderEngine(render_engines)
     render_context = RenderContext(
         background_color="white",
@@ -330,10 +284,10 @@ def run():
 
     # print or show the label
     render: RenderEngine
-    if requires_device:
+    if output == Output.printer:
         render = PrintPayloadRenderEngine(
             render_engine=render_engine,
-            justify=args.justify,
+            justify=justify,
             visible_horizontal_margin_px=margin_px,
             labeler_margin_px=dymo_labeler.labeler_margin_px,
             max_width_px=max_payload_len_px,
@@ -344,7 +298,7 @@ def run():
     else:
         render = PrintPreviewRenderEngine(
             render_engine=render_engine,
-            justify=args.justify,
+            justify=justify,
             visible_horizontal_margin_px=margin_px,
             labeler_margin_px=dymo_labeler.labeler_margin_px,
             max_width_px=max_payload_len_px,
@@ -352,12 +306,13 @@ def run():
         )
         bitmap = render.render(render_context)
         LOG.debug("Demo mode: showing label...")
-        if args.preview or args.preview_inverted:
+        if output in (Output.console, Output.console_inverted):
             label_rotated = bitmap.transpose(Image.Transpose.ROTATE_270)
-            print(image_to_unicode(label_rotated, invert=args.preview_inverted))
-        if args.imagemagick:
+            invert = output == Output.console_inverted
+            typer.echo(image_to_unicode(label_rotated, invert=invert))
+        if output == Output.imagemagick:
             ImageOps.invert(bitmap).show()
-        if args.browser:
+        if output == Output.browser:
             with NamedTemporaryFile(suffix=".png", delete=False) as fp:
                 inverted = ImageOps.invert(bitmap.convert("RGB"))
                 ImageOps.invert(inverted).save(fp)
@@ -366,8 +321,7 @@ def run():
 
 def main():
     configure_logging()
-    with system_run():
-        run()
+    typer.run(app)
 
 
 if __name__ == "__main__":
