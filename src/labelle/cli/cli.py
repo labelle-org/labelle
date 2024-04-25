@@ -303,10 +303,16 @@ def run():
         else None
     )
 
-    device_manager = DeviceManager()
-    device_manager.scan()
-    device = device_manager.find_and_select_device(patterns=args.device)
-    device.setup()
+    is_print = not (
+        args.preview or args.preview_inverted or args.imagemagick or args.browser
+    )
+    if not is_print:
+        device = None
+    else:
+        device_manager = DeviceManager()
+        device_manager.scan()
+        device = device_manager.find_and_select_device(patterns=args.device)
+        device.setup()
 
     dymo_labeler = DymoLabeler(tape_size_mm=args.tape_size_mm, device=device)
     render_engine = HorizontallyCombinedRenderEngine(render_engines)
@@ -319,7 +325,18 @@ def run():
 
     # print or show the label
     render: RenderEngine
-    if args.preview or args.preview_inverted or args.imagemagick or args.browser:
+    if is_print:
+        render = PrintPayloadRenderEngine(
+            render_engine=render_engine,
+            justify=args.justify,
+            visible_horizontal_margin_px=margin_px,
+            labeler_margin_px=dymo_labeler.labeler_margin_px,
+            max_width_px=max_payload_len_px,
+            min_width_px=min_payload_len_px,
+        )
+        bitmap, _ = render.render_with_meta(render_context)
+        dymo_labeler.print(bitmap)
+    else:
         render = PrintPreviewRenderEngine(
             render_engine=render_engine,
             justify=args.justify,
@@ -340,18 +357,6 @@ def run():
                 inverted = ImageOps.invert(bitmap.convert("RGB"))
                 ImageOps.invert(inverted).save(fp)
                 webbrowser.open(f"file://{fp.name}")
-    else:
-        render = PrintPayloadRenderEngine(
-            render_engine=render_engine,
-            justify=args.justify,
-            visible_horizontal_margin_px=margin_px,
-            labeler_margin_px=dymo_labeler.labeler_margin_px,
-            max_width_px=max_payload_len_px,
-            min_width_px=min_payload_len_px,
-        )
-        bitmap, _ = render.render_with_meta(render_context)
-
-        dymo_labeler.print(bitmap)
 
 
 def main():
