@@ -23,7 +23,6 @@ Future versions may implement the Level 2 or 2.1 specifications.
 #   - setWeights function needs improvement
 #   - 'light' is an invalid weight value, remove it.
 
-from typing import Set
 from collections import namedtuple
 from functools import lru_cache
 import logging
@@ -194,8 +193,8 @@ def win32FontDirectory():
     """
     import winreg
     try:
-        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, MSFolders) as user:  # type: ignore[attr-defined]
-            return winreg.QueryValueEx(user, 'Fonts')[0]  # type: ignore[attr-defined]
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, MSFolders) as user:
+            return winreg.QueryValueEx(user, 'Fonts')[0]
     except OSError:
         return os.path.join(os.environ['WINDIR'], 'Fonts')
 
@@ -206,17 +205,17 @@ def _get_win32_installed_fonts():
     items = set()
     # Search and resolve fonts listed in the registry.
     for domain, base_dirs in [
-            (winreg.HKEY_LOCAL_MACHINE, [win32FontDirectory()]),    # type: ignore[attr-defined] # System.
-            (winreg.HKEY_CURRENT_USER, MSUserFontDirectories),    # type: ignore[attr-defined] # User.
+            (winreg.HKEY_LOCAL_MACHINE, [win32FontDirectory()]),  # System.
+            (winreg.HKEY_CURRENT_USER, MSUserFontDirectories),  # User.
     ]:
         for base_dir in base_dirs:
             for reg_path in MSFontDirectories:
                 try:
-                    with winreg.OpenKey(domain, reg_path) as local:  # type: ignore[attr-defined]
-                        for j in range(winreg.QueryInfoKey(local)[1]):  # type: ignore[attr-defined]
+                    with winreg.OpenKey(domain, reg_path) as local:
+                        for j in range(winreg.QueryInfoKey(local)[1]):
                             # value may contain the filename of the font or its
                             # absolute path.
-                            key, value, tp = winreg.EnumValue(local, j)  # type: ignore[attr-defined]
+                            key, value, tp = winreg.EnumValue(local, j)
                             if not isinstance(value, str):
                                 continue
                             try:
@@ -254,7 +253,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     available.  A list of TrueType fonts are returned by default with
     AFM fonts as an option.
     """
-    fontfiles: Set[str] = set()
+    fontfiles = set()
     fontexts = get_fontext_synonyms(fontext)
 
     if fontpaths is None:
