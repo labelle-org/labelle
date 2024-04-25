@@ -303,10 +303,10 @@ def run():
         else None
     )
 
-    is_print = not (
+    requires_device = not (
         args.preview or args.preview_inverted or args.imagemagick or args.browser
     )
-    if not is_print:
+    if not requires_device:
         device = None
     else:
         device_manager = DeviceManager()
@@ -325,7 +325,7 @@ def run():
 
     # print or show the label
     render: RenderEngine
-    if is_print:
+    if requires_device:
         render = PrintPayloadRenderEngine(
             render_engine=render_engine,
             justify=args.justify,
