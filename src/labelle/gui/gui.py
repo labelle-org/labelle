@@ -52,6 +52,7 @@ class LabelleWindow(QWidget):
 
         self._device_selector.repopulate()
         self._settings_toolbar.on_settings_changed()
+        self._label_list.populate()
         self._label_list.render_label()
 
     def _init_elements(self):
@@ -66,8 +67,6 @@ class LabelleWindow(QWidget):
             installed_tape_size=self._dymo_labeler.tape_size_mm,
             minimum_horizontal_margin_mm=self._dymo_labeler.minimum_horizontal_margin_mm,
         )
-
-        self._label_list.populate()
 
     def _init_connections(self):
         self._label_list.renderPrintPreviewSignal.connect(self._update_preview_render)
