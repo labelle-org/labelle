@@ -259,6 +259,19 @@ class UsbDevice:
     def dispose(self):
         usb.util.dispose_resources(self._dev)
 
+    def is_match(self, patterns: list[str] | None) -> bool:
+        if patterns is None:
+            return True
+        match = True
+        for pattern in patterns:
+            pattern = pattern.lower()
+            match &= (
+                pattern in self.manufacturer.lower()
+                or pattern in self.product.lower()
+                or pattern in self.serial_number.lower()
+            )
+        return match
+
     @property
     def devin(self):
         return self._devin

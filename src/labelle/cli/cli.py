@@ -200,6 +200,12 @@ def parse_args():
         action="store_true",
         help="Increase logging verbosity",
     )
+    parser.add_argument(
+        "--device",
+        nargs="+",
+        help="Device pattern to match",
+        type=str,
+    )
     return parser.parse_args()
 
 
@@ -299,7 +305,7 @@ def run():
 
     device_manager = DeviceManager()
     device_manager.scan()
-    device = device_manager.find_and_select_device()
+    device = device_manager.find_and_select_device(patterns=args.device)
     device.setup()
 
     dymo_labeler = DymoLabeler(tape_size_mm=args.tape_size_mm, device=device)

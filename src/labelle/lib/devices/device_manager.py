@@ -53,12 +53,23 @@ class DeviceManager:
         except POSSIBLE_USB_ERRORS:
             return []
 
-    def find_and_select_device(self) -> UsbDevice:
-        devices = [device for device in self.devices if device.is_supported]
+    def matching_devices(self, patterns: list[str] | None) -> list[UsbDevice]:
+        try:
+            matching = filter(
+                lambda dev: dev.is_match(patterns), self._devices.values()
+            )
+            return sorted(matching, key=lambda dev: dev.hash)
+        except POSSIBLE_USB_ERRORS:
+            return []
+
+    def find_and_select_device(self, patterns: list[str] | None = None) -> UsbDevice:
+        devices = [
+            device for device in self.matching_devices(patterns) if device.is_supported
+        ]
         if len(devices) == 0:
-            raise DeviceManagerError("No devices found")
+            raise DeviceManagerError("No matching devices found")
         if len(devices) > 1:
-            LOG.debug("Found multiple Dymo devices. Using first device")
+            LOG.debug("Found multiple matching Dymo devices. Using first device")
         else:
             LOG.debug("Found single device")
         for dev in devices:
