@@ -204,7 +204,10 @@ def parse_args():
     parser.add_argument(
         "--device",
         nargs="+",
-        help="Device pattern to match",
+        help=(
+            "Select a particular device by filtering for a given substring "
+            "in the device's manufacturer, product or serial number"
+        ),
         type=str,
     )
     return parser.parse_args()
