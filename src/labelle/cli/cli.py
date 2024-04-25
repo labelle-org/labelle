@@ -14,6 +14,8 @@ from typing import List, Optional
 
 import typer
 from PIL import Image, ImageOps
+from rich.console import Console
+from rich.table import Table
 from typing_extensions import Annotated
 
 from labelle import __version__
@@ -26,7 +28,7 @@ from labelle.lib.constants import (
     Justify,
     e_qrcode,
 )
-from labelle.lib.devices.device_manager import DeviceManager
+from labelle.lib.devices.device_manager import DeviceManager, DeviceManagerError
 from labelle.lib.devices.dymo_labeler import DymoLabeler
 from labelle.lib.env_config import is_verbose_env_vars
 from labelle.lib.font_config import NoFontFound, get_available_fonts, get_font_path
@@ -87,7 +89,32 @@ def qr_callback(qr_content: str) -> str:
     return qr_content
 
 
-def app(
+app = typer.Typer()
+
+
+@app.command()
+def list_devices():
+    device_manager = DeviceManager()
+    try:
+        device_manager.scan()
+    except DeviceManagerError as e:
+        typer.echo(e)
+        raise typer.Exit() from e
+
+    console = Console()
+    headers = ["Manufacturer", "Product", "Serial Number", "USB"]
+    table = Table(*headers, show_header=True)
+    for device in device_manager.devices:
+        table.add_row(
+            device.manufacturer, device.product, device.serial_number, device.usb_id
+        )
+    console.print(table)
+    raise typer.Exit()
+
+
+@app.callback(invoke_without_command=True)
+def default(
+    ctx: typer.Context,
     version: Annotated[
         Optional[bool],
         typer.Option("--version", callback=version_callback, is_eager=True),
@@ -179,6 +206,9 @@ def app(
         typer.Option(help="Tape size [mm]"),
     ] = None,
 ):
+    if ctx.invoked_subcommand is not None:
+        return
+
     if (not verbose) and (not is_verbose_env_vars()):
         # Neither --verbose flag nor the environment variable is set.
         set_not_verbose()
@@ -321,7 +351,7 @@ def app(
 
 def main():
     configure_logging()
-    typer.run(app)
+    app()
 
 
 if __name__ == "__main__":

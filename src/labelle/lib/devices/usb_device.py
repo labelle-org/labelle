@@ -63,8 +63,24 @@ class UsbDevice:
         return self._get_dev_attribute("serial_number")
 
     @property
+    def id_vendor(self):
+        return self._get_dev_attribute("idVendor")
+
+    @property
     def id_product(self):
         return self._get_dev_attribute("idProduct")
+
+    @property
+    def vendor_product_id(self):
+        vendor_id = int(self.id_vendor)
+        product_id = int(self.id_product)
+        return f"{vendor_id:04x}:{product_id:04x}"
+
+    @property
+    def usb_id(self):
+        bus = self._get_dev_attribute("bus")
+        address = self._get_dev_attribute("address")
+        return f"Bus {bus:03} Device {address:03}: ID {self.vendor_product_id}"
 
     @staticmethod
     def _is_supported_vendor(dev: usb.core.Device):
