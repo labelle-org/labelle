@@ -14,7 +14,7 @@ from PIL import Image, ImageOps
 
 from labelle import __version__
 from labelle.lib.constants import (
-    AVAILABLE_BARCODES,
+    BARCODE_TYPES,
     DEFAULT_MARGIN_PX,
     PIXELS_PER_MM,
     USE_QR,
@@ -165,13 +165,13 @@ def parse_args():
     parser.add_argument(
         "-c",
         "--barcode",
-        choices=AVAILABLE_BARCODES,
+        choices=BARCODE_TYPES,
         default=False,
         help="Printing the first text parameter as barcode",
     )
     parser.add_argument(
         "--barcode-text",
-        choices=AVAILABLE_BARCODES,
+        choices=BARCODE_TYPES,
         default=False,
         help="Printing the first text parameter as barcode and text under it",
     )

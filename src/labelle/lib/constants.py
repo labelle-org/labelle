@@ -69,7 +69,7 @@ PIXELS_PER_MM = DPI / MM_PER_INCH
 
 ICON_DIR = Path(labelle.resources.icons.__file__).parent
 
-AVAILABLE_BARCODES = [
+BARCODE_TYPES = [
     "code39",
     "code128",
     "ean",
