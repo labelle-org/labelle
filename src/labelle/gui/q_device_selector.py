@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import logging
-from typing import Optional
 
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import (
@@ -88,7 +89,7 @@ class QDeviceSelector(QToolBar):
         self._action_error_label = self.addWidget(self._error_label)
 
     @property
-    def selected_device(self) -> Optional[UsbDevice]:
+    def selected_device(self) -> UsbDevice | None:
         device = None
         if self._devices.currentIndex() >= 0:
             device = self.device_manager.devices[self._devices.currentIndex()]
