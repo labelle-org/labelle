@@ -20,9 +20,8 @@ from labelle.lib.constants import (
     DEFAULT_MARGIN_PX,
     PIXELS_PER_MM,
     USE_QR,
-    Align,
     BarcodeType,
-    Justify,
+    Direction,
     Output,
     e_qrcode,
 )
@@ -150,16 +149,16 @@ def default(
         ),
     ] = None,
     align: Annotated[
-        Align, typer.Option(help="Align multiline text", rich_help_panel="Design")
-    ] = Align.LEFT,
+        Direction, typer.Option(help="Align multiline text", rich_help_panel="Design")
+    ] = Direction.LEFT,
     justify: Annotated[
-        Justify,
+        Direction,
         typer.Option(
             help="Justify content of label if label content is less than the minimum or"
             " fixed length",
             rich_help_panel="Design",
         ),
-    ] = Justify.LEFT,
+    ] = Direction.LEFT,
     test_pattern: Annotated[
         Optional[int],
         typer.Option(help="Prints test pattern of a desired dot width"),

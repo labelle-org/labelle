@@ -5,7 +5,7 @@ from typing import Literal
 
 from PIL import Image
 
-from labelle.lib.constants import Justify
+from labelle.lib.constants import Direction
 from labelle.lib.env_config import is_dev_mode_no_margins
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import (
@@ -25,7 +25,7 @@ class MarginsRenderEngine(RenderEngine):
         self,
         render_engine: RenderEngine,
         mode: Literal["print", "preview"],
-        justify: Justify = Justify.CENTER,
+        justify: Direction = Direction.CENTER,
         visible_horizontal_margin_px: float = 0,
         labeler_margin_px: tuple[float, float] = (0, 0),
         max_width_px: float | None = None,
@@ -78,11 +78,11 @@ class MarginsRenderEngine(RenderEngine):
         label_width_px = self._calculate_visible_width(payload_width_px)
         padding_px = label_width_px - payload_width_px  # sum of margins from both sides
 
-        if self.justify == Justify.LEFT:
+        if self.justify == Direction.LEFT:
             horizontal_offset_px = self.visible_horizontal_margin_px
-        elif self.justify == Justify.CENTER:
+        elif self.justify == Direction.CENTER:
             horizontal_offset_px = padding_px / 2
-        elif self.justify == Justify.RIGHT:
+        elif self.justify == Direction.RIGHT:
             horizontal_offset_px = padding_px - self.visible_horizontal_margin_px
         assert horizontal_offset_px >= self.visible_horizontal_margin_px
 

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from PIL import Image, ImageFont
 
-from labelle.lib.constants import Align
+from labelle.lib.constants import Direction
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import RenderEngine
 from labelle.lib.utils import draw_image
@@ -17,7 +17,7 @@ class TextRenderEngine(RenderEngine):
         font_file_name: Path | str,
         frame_width_px: int | None,
         font_size_ratio: float = 0.9,
-        align: Align = Align.CENTER,
+        align: Direction = Direction.CENTER,
     ):
         if isinstance(text_lines, str):
             text_lines = [text_lines]

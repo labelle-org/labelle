@@ -98,13 +98,7 @@ class BarcodeType(str, Enum):
 DEFAULT_BARCODE_TYPE = BarcodeType.CODE128
 
 
-class Align(str, Enum):
-    LEFT = "left"
-    CENTER = "center"
-    RIGHT = "right"
-
-
-class Justify(str, Enum):
+class Direction(str, Enum):
     LEFT = "left"
     CENTER = "center"
     RIGHT = "right"
