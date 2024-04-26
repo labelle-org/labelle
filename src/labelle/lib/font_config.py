@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -29,6 +30,16 @@ _DEFAULT_STYLES_TO_FONT_PATH: Dict[str, Path] = {
     "italic": _DEFAULT_FONTS_DIR / "Carlito-Italic.ttf",
     "narrow": _DEFAULT_FONTS_DIR / "Carlito-BoldItalic.ttf",
 }
+
+
+class FontStyle(str, Enum):
+    REGULAR = "regular"
+    BOLD = "bold"
+    ITALIC = "italic"
+    NARROW = "narrow"
+
+
+DefaultFontStyle = FontStyle(_DEFAULT_STYLE)
 
 
 def _get_styles_to_font_path_lookup() -> Dict[str, Path]:

@@ -6,7 +6,6 @@
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
 import logging
-from enum import Enum
 from pathlib import Path
 from typing import List, Optional
 
@@ -30,7 +29,13 @@ from labelle.lib.constants import (
 from labelle.lib.devices.device_manager import DeviceManager, DeviceManagerNoDevices
 from labelle.lib.devices.dymo_labeler import DymoLabeler
 from labelle.lib.env_config import is_verbose_env_vars
-from labelle.lib.font_config import NoFontFound, get_available_fonts, get_font_path
+from labelle.lib.font_config import (
+    DefaultFontStyle,
+    FontStyle,
+    NoFontFound,
+    get_available_fonts,
+    get_font_path,
+)
 from labelle.lib.logger import configure_logging, set_not_verbose
 from labelle.lib.outputs import output_bitmap
 from labelle.lib.render_engines import (
@@ -48,13 +53,6 @@ from labelle.lib.render_engines import (
 )
 
 LOG = logging.getLogger(__name__)
-
-
-class Style(str, Enum):
-    REGULAR = "regular"
-    BOLD = "bold"
-    ITALIC = "italic"
-    NARROW = "narrow"
 
 
 def mm_to_payload_px(mm: float, margin: float):
@@ -132,7 +130,9 @@ def default(
     verbose: Annotated[
         bool, typer.Option("--verbose", "-v", help="Increase logging verbosity")
     ] = False,
-    style: Annotated[Style, typer.Option(help="Set fonts style")] = Style.REGULAR,
+    style: Annotated[
+        FontStyle, typer.Option(help="Set fonts style")
+    ] = DefaultFontStyle,
     frame_width_px: Annotated[
         Optional[int],
         typer.Option(
