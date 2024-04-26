@@ -53,18 +53,18 @@ LOG = logging.getLogger(__name__)
 
 
 class Style(str, Enum):
-    regular = "regular"
-    bold = "bold"
-    italic = "italic"
-    narrow = "narrow"
+    REGULAR = "regular"
+    BOLD = "bold"
+    ITALIC = "italic"
+    NARROW = "narrow"
 
 
 class Output(str, Enum):
-    printer = "printer"
-    console = "console"
-    console_inverted = "console_inverted"
-    browser = "browser"
-    imagemagick = "imagemagick"
+    PRINTER = "printer"
+    CONSOLE = "console"
+    CONSOLE_INVERTED = "console_inverted"
+    BROWSER = "browser"
+    IMAGEMAGICK = "imagemagick"
 
 
 def mm_to_payload_px(mm: float, margin: float):
@@ -142,7 +142,7 @@ def default(
     verbose: Annotated[
         bool, typer.Option("--verbose", "-v", help="Increase logging verbosity")
     ] = False,
-    style: Annotated[Style, typer.Option(help="Set fonts style")] = Style.regular,
+    style: Annotated[Style, typer.Option(help="Set fonts style")] = Style.REGULAR,
     frame_width_px: Annotated[
         Optional[int],
         typer.Option(
@@ -176,7 +176,7 @@ def default(
     output: Annotated[
         Output,
         typer.Option(help="Destination of the label render"),
-    ] = Output.printer,
+    ] = Output.PRINTER,
     font: Annotated[
         Optional[str],
         typer.Option(help="User font. Overrides --style parameter"),
@@ -302,7 +302,7 @@ def default(
         else None
     )
 
-    if output == Output.printer:
+    if output == Output.PRINTER:
         device_manager = get_device_manager()
         device = device_manager.find_and_select_device(patterns=device_pattern)
         device.setup()
@@ -320,7 +320,7 @@ def default(
 
     # print or show the label
     render: RenderEngine
-    if output == Output.printer:
+    if output == Output.PRINTER:
         render = PrintPayloadRenderEngine(
             render_engine=render_engine,
             justify=justify,
@@ -342,13 +342,13 @@ def default(
         )
         bitmap = render.render(render_context)
         LOG.debug("Demo mode: showing label...")
-        if output in (Output.console, Output.console_inverted):
+        if output in (Output.CONSOLE, Output.CONSOLE_INVERTED):
             label_rotated = bitmap.transpose(Image.Transpose.ROTATE_270)
-            invert = output == Output.console_inverted
+            invert = output == Output.CONSOLE_INVERTED
             typer.echo(image_to_unicode(label_rotated, invert=invert))
-        if output == Output.imagemagick:
+        if output == Output.IMAGEMAGICK:
             ImageOps.invert(bitmap).show()
-        if output == Output.browser:
+        if output == Output.BROWSER:
             with NamedTemporaryFile(suffix=".png", delete=False) as fp:
                 inverted = ImageOps.invert(bitmap.convert("RGB"))
                 ImageOps.invert(inverted).save(fp)
