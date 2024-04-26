@@ -371,12 +371,12 @@ def default(
         ),
     ] = None,
 ) -> None:
-    if ctx.invoked_subcommand is not None:
-        return
-
     if (not verbose) and (not is_verbose_env_vars()):
         # Neither --verbose flag nor the environment variable is set.
         set_not_verbose()
+
+    if ctx.invoked_subcommand is not None:
+        return
 
     # Raise informative errors with old dymoprint arguments
     if preview:
