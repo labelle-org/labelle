@@ -24,6 +24,7 @@ dependencies = [
     "pyusb",
     "PyQt6",
     "darkdetect",
+    "typer",
 ]
 classifiers = [
     "Operating System :: POSIX :: Linux",
@@ -82,13 +83,14 @@ commands =
   pip freeze
   labelle --version
   labelle --help
-  labelle --preview "single line"
-  labelle --preview-inverted "single line"
-  labelle --preview multiple lines
-  labelle --preview -qr "qr text"
-  labelle --preview -c code128 "bc txt"
-  labelle --preview -qr "qr text" qr caption
-  labelle --preview -c code128 "bc txt" barcode caption
+  labelle --output console "single line"
+  labelle --output console_inverted "inverted"
+  labelle --output console multiple lines
+  labelle --output console --barcode "Barcode" --barcode-type code128
+  labelle --output console --barcode-with-text "Barcode" --barcode-type code128 Caption
+  labelle --output console --qr QR
+  labelle --output console --qr QR Caption
+  labelle --output console --picture ./labelle.png
 
 [testenv:{clean,build}]
 description =
@@ -191,6 +193,11 @@ ignore = [
 ]
 
 [tool.mypy]
-exclude = ["_vendor"]
 check_untyped_defs = true
 install_types = true
+mypy_path = "src/"
+packages = ["labelle"]
+
+[[tool.mypy.overrides]]
+module="labelle._vendor.*"
+ignore_errors = true

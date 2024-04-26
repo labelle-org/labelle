@@ -17,7 +17,7 @@ from PyQt6.QtWidgets import (
 )
 
 from labelle.gui.common import crash_msg_box
-from labelle.lib.constants import AVAILABLE_BARCODES, ICON_DIR
+from labelle.lib.constants import ICON_DIR, BarcodeType, Direction
 from labelle.lib.env_config import is_dev_mode_no_margins
 from labelle.lib.font_config import get_available_fonts
 from labelle.lib.render_engines import (
@@ -29,6 +29,7 @@ from labelle.lib.render_engines import (
     PictureRenderEngine,
     QrRenderEngine,
     RenderContext,
+    RenderEngine,
     TextRenderEngine,
 )
 from labelle.lib.render_engines.render_engine import RenderEngineException
@@ -45,7 +46,7 @@ class FontStyle(QComboBox):
             self.setCurrentText("Carlito-Regular")
 
 
-class BaseDymoLabelWidget(QWidget):
+class BaseLabelWidget(QWidget):
     """A base class for creating Dymo label widgets.
 
     Signals:
@@ -84,7 +85,7 @@ class BaseDymoLabelWidget(QWidget):
             return EmptyRenderEngine()
 
 
-class TextDymoLabelWidget(BaseDymoLabelWidget):
+class TextDymoLabelWidget(BaseLabelWidget):
     """A widget for rendering text on a Dymo label.
 
     Args:
@@ -169,8 +170,7 @@ class TextDymoLabelWidget(BaseDymoLabelWidget):
             TextRenderEngine: The rendered engine.
 
         """
-        selected_alignment = self.align.currentText()
-        assert selected_alignment in ("left", "center", "right")
+        selected_alignment = Direction(self.align.currentText())
         return TextRenderEngine(
             text_lines=self.label.toPlainText().splitlines(),
             font_file_name=self.font_style.currentData(),
@@ -180,7 +180,7 @@ class TextDymoLabelWidget(BaseDymoLabelWidget):
         )
 
 
-class QrDymoLabelWidget(BaseDymoLabelWidget):
+class QrDymoLabelWidget(BaseLabelWidget):
     """A widget for rendering QR codes on Dymo labels.
 
     Args:
@@ -229,7 +229,7 @@ class QrDymoLabelWidget(BaseDymoLabelWidget):
             return EmptyRenderEngine()
 
 
-class BarcodeDymoLabelWidget(BaseDymoLabelWidget):
+class BarcodeDymoLabelWidget(BaseLabelWidget):
     """A widget for rendering barcode labels using the Dymo label printer.
 
     Args:
@@ -305,7 +305,7 @@ class BarcodeDymoLabelWidget(BaseDymoLabelWidget):
 
         self.barcode_type_label = QLabel("Type:")
         self.barcode_type = QComboBox()
-        self.barcode_type.addItems(AVAILABLE_BARCODES)
+        self.barcode_type.addItems(bt.value for bt in BarcodeType)
 
         # Checkbox for toggling text fields
         self.show_text_label = QLabel("Text:")
@@ -372,6 +372,7 @@ class BarcodeDymoLabelWidget(BaseDymoLabelWidget):
             BarcodeWithTextRenderEngine).
 
         """
+        render_engine: RenderEngine
         if self.show_text_checkbox.isChecked():
             render_engine = BarcodeWithTextRenderEngine(
                 content=self.label.text(),
@@ -389,7 +390,7 @@ class BarcodeDymoLabelWidget(BaseDymoLabelWidget):
         return render_engine
 
 
-class ImageDymoLabelWidget(BaseDymoLabelWidget):
+class ImageDymoLabelWidget(BaseLabelWidget):
     """A widget for rendering image-based Dymo labels.
 
     Args:

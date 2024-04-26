@@ -18,24 +18,26 @@ class DeviceManagerError(RuntimeError):
     pass
 
 
+class DeviceManagerNoDevices(DeviceManagerError):
+    pass
+
+
 class DeviceManager:
     _devices: dict[str, UsbDevice]
-    last_scan_error: DeviceManagerError | None
 
     def __init__(self):
         self._devices = {}
-        try:
-            self.scan()
-            self.last_scan_error = None
-        except DeviceManagerError as e:
-            self.last_scan_error = e
 
-    def scan(self):
+    def scan(self) -> bool:
         prev = self._devices
         try:
             cur = {dev.hash: dev for dev in UsbDevice.supported_devices() if dev.hash}
         except POSSIBLE_USB_ERRORS as e:
+            self._devices.clear()
             raise DeviceManagerError(f"Failed scanning devices: {e}") from e
+        if len(cur) == 0:
+            self._devices.clear()
+            raise DeviceManagerNoDevices("No supported devices found")
 
         prev_set = set(prev)
         cur_set = set(cur)
@@ -45,6 +47,9 @@ class DeviceManager:
         for dev in cur_set - prev_set:
             self._devices[dev] = cur[dev]
 
+        changed = prev_set != cur_set
+        return changed
+
     @property
     def devices(self) -> list[UsbDevice]:
         try:
@@ -52,12 +57,23 @@ class DeviceManager:
         except POSSIBLE_USB_ERRORS:
             return []
 
-    def find_and_select_device(self) -> UsbDevice:
-        devices = [device for device in self.devices if device.is_supported]
+    def matching_devices(self, patterns: list[str] | None) -> list[UsbDevice]:
+        try:
+            matching = filter(
+                lambda dev: dev.is_match(patterns), self._devices.values()
+            )
+            return sorted(matching, key=lambda dev: dev.hash)
+        except POSSIBLE_USB_ERRORS:
+            return []
+
+    def find_and_select_device(self, patterns: list[str] | None = None) -> UsbDevice:
+        devices = [
+            device for device in self.matching_devices(patterns) if device.is_supported
+        ]
         if len(devices) == 0:
-            raise DeviceManagerError("No devices found")
+            raise DeviceManagerError("No matching devices found")
         if len(devices) > 1:
-            LOG.debug("Found multiple Dymo devices. Using first device")
+            LOG.debug("Found multiple matching Dymo devices. Using first device")
         else:
             LOG.debug("Found single device")
         for dev in devices:

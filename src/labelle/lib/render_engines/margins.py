@@ -5,6 +5,7 @@ from typing import Literal
 
 from PIL import Image
 
+from labelle.lib.constants import Direction
 from labelle.lib.env_config import is_dev_mode_no_margins
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import (
@@ -24,11 +25,11 @@ class MarginsRenderEngine(RenderEngine):
         self,
         render_engine: RenderEngine,
         mode: Literal["print", "preview"],
-        justify: Literal["left", "center", "right"] = "center",
+        justify: Direction = Direction.CENTER,
         visible_horizontal_margin_px: float = 0,
         labeler_margin_px: tuple[float, float] = (0, 0),
         max_width_px: float | None = None,
-        min_width_px: float = 0,
+        min_width_px: float | None = 0,
     ):
         super().__init__()
         labeler_horizontal_margin_px, labeler_vertical_margin_px = labeler_margin_px
@@ -36,6 +37,8 @@ class MarginsRenderEngine(RenderEngine):
         assert labeler_horizontal_margin_px >= 0
         assert labeler_vertical_margin_px >= 0
         assert not max_width_px or max_width_px >= 0
+        if min_width_px is None:
+            min_width_px = 0
         assert min_width_px >= 0
         self.mode = mode
         self.justify = justify
@@ -53,7 +56,7 @@ class MarginsRenderEngine(RenderEngine):
 
     def _calculate_visible_width(self, payload_width_px: int) -> float:
         minimal_label_width_px = (
-            payload_width_px + self.visible_horizontal_margin_px * 2
+            payload_width_px + self.visible_horizontal_margin_px * 2.0
         )
         if self.max_width_px is not None and minimal_label_width_px > self.max_width_px:
             raise BitmapTooBigError(minimal_label_width_px, self.max_width_px)
@@ -64,17 +67,22 @@ class MarginsRenderEngine(RenderEngine):
             label_width_px = minimal_label_width_px
         return label_width_px
 
-    def render(self, context: RenderContext) -> tuple[Image.Image, dict[str, float]]:
+    def render(self, _: RenderContext) -> Image.Image:
+        raise RuntimeError("This should never be called")
+
+    def render_with_meta(
+        self, context: RenderContext
+    ) -> tuple[Image.Image, dict[str, float]]:
         payload_bitmap = self.render_engine.render(context)
         payload_width_px = payload_bitmap.width
         label_width_px = self._calculate_visible_width(payload_width_px)
         padding_px = label_width_px - payload_width_px  # sum of margins from both sides
 
-        if self.justify == "left":
+        if self.justify == Direction.LEFT:
             horizontal_offset_px = self.visible_horizontal_margin_px
-        elif self.justify == "center":
+        elif self.justify == Direction.CENTER:
             horizontal_offset_px = padding_px / 2
-        elif self.justify == "right":
+        elif self.justify == Direction.RIGHT:
             horizontal_offset_px = padding_px - self.visible_horizontal_margin_px
         assert horizontal_offset_px >= self.visible_horizontal_margin_px
 
@@ -102,10 +110,12 @@ class MarginsRenderEngine(RenderEngine):
             # print head is already in offset from label's edge under the cutter
             horizontal_offset_px -= self.labeler_horizontal_margin_px
             # no need to add vertical margins to bitmap
-            bitmap_height = payload_bitmap.height
+            bitmap_height = float(payload_bitmap.height)
         elif self.mode == "preview":
             # add vertical margins to bitmap
-            bitmap_height = payload_bitmap.height + self.labeler_vertical_margin_px * 2
+            bitmap_height = (
+                float(payload_bitmap.height) + self.labeler_vertical_margin_px * 2.0
+            )
             vertical_offset_px = self.labeler_vertical_margin_px
 
         bitmap = Image.new("1", (math.ceil(label_width_px), math.ceil(bitmap_height)))

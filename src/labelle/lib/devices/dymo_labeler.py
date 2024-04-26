@@ -235,7 +235,7 @@ class DymoLabelerFunctions:
 
 
 class DymoLabeler:
-    _device: UsbDevice
+    _device: UsbDevice | None
     tape_size_mm: int
 
     LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM = 8.1
@@ -245,22 +245,25 @@ class DymoLabeler:
 
     def __init__(
         self,
-        tape_size_mm: int = DEFAULT_TAPE_SIZE_MM,
+        tape_size_mm: int | None = None,
+        device: UsbDevice | None = None,
     ):
+        if tape_size_mm is None:
+            tape_size_mm = self.DEFAULT_TAPE_SIZE_MM
         if tape_size_mm not in self.SUPPORTED_TAPE_SIZES_MM:
             raise ValueError(
                 f"Unsupported tape size {tape_size_mm}mm. "
                 f"Supported sizes: {self.SUPPORTED_TAPE_SIZES_MM}"
             )
         self.tape_size_mm = tape_size_mm
-        self._device = None
+        self._device = device
 
     @property
     def height_px(self):
         return DymoLabelerFunctions.height_px(self.tape_size_mm)
 
     @property
-    def _functions(self):
+    def _functions(self) -> DymoLabelerFunctions:
         assert self._device is not None
         return DymoLabelerFunctions(
             devout=self._device.devout,
@@ -284,12 +287,22 @@ class DymoLabeler:
         )
 
     @property
-    def device(self) -> UsbDevice:
+    def device(self) -> UsbDevice | None:
         return self._device
 
     @device.setter
-    def device(self, device: UsbDevice):
+    def device(self, device: UsbDevice | None):
+        try:
+            if device:
+                device.setup()
+        except UsbDeviceError as e:
+            device = None
+            LOG.error(e)
         self._device = device
+
+    @property
+    def is_ready(self) -> bool:
+        return self.device is not None
 
     def print(
         self,
@@ -303,7 +316,7 @@ class DymoLabeler:
         # Convert the image to the proper matrix for the dymo labeler object so that
         # rows span the width of the label, and the first row corresponds to the left
         # edge of the label.
-        rotated_bitmap = bitmap.transpose(Image.ROTATE_270)
+        rotated_bitmap = bitmap.transpose(Image.Transpose.ROTATE_270)
 
         # Convert the image to raw bytes. Pixels along rows are chunked into groups of
         # 8 pixels, and subsequent rows are concatenated.
@@ -330,7 +343,8 @@ class DymoLabeler:
             LOG.debug("Printing label..")
             self._functions.print_label(label_matrix)
             LOG.debug("Done printing.")
-            self._device.dispose()
+            if self._device is not None:
+                self._device.dispose()
             LOG.debug("Cleaned up.")
         except POSSIBLE_USB_ERRORS as e:
             raise DymoLabelerPrintError(str(e)) from e

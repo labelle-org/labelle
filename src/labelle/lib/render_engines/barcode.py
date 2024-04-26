@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import barcode as barcode_module
 from PIL import Image
 
 from labelle.lib.barcode_writer import BarcodeImageWriter
+from labelle.lib.constants import DEFAULT_BARCODE_TYPE
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import (
     RenderEngine,
@@ -16,10 +19,10 @@ class BarcodeRenderError(RenderEngineException):
 
 
 class BarcodeRenderEngine(RenderEngine):
-    def __init__(self, content, barcode_type):
+    def __init__(self, content: str, barcode_type: str | None):
         super().__init__()
         self.content = content
-        self.barcode_type = barcode_type
+        self.barcode_type = barcode_type or DEFAULT_BARCODE_TYPE
 
     def render(self, context: RenderContext) -> Image.Image:
         code = barcode_module.get(

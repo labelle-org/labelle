@@ -13,7 +13,7 @@
 # either sysfs is unavailable or unusable by this script for some reason.
 # Please beware that DEV_NODE must be set to None when not used, else you will
 # be bitten by the NameError exception.
-
+from enum import Enum
 from pathlib import Path
 
 import labelle.resources.fonts
@@ -69,20 +69,44 @@ PIXELS_PER_MM = DPI / MM_PER_INCH
 
 ICON_DIR = Path(labelle.resources.icons.__file__).parent
 
-AVAILABLE_BARCODES = [
-    "code39",
-    "code128",
-    "ean",
-    "ean13",
-    "ean8",
-    "gs1",
-    "gtin",
-    "isbn",
-    "isbn10",
-    "isbn13",
-    "issn",
-    "jan",
-    "pzn",
-    "upc",
-    "upca",
-]
+
+class BarcodeType(str, Enum):
+    CODE128 = "code128"
+    CODE39 = "code39"
+    CODEBAR = "codebar"
+    EAN = "ean"
+    EAN13 = "ean13"
+    EAN13_GUARD = "ean13-guard"
+    EAN14 = "ean14"
+    EAN8 = "ean8"
+    EAN8_GUARD = "ean8-guard"
+    GS1 = "gs1"
+    GS1_128 = "gs1_128"
+    GTIN = "gtin"
+    ISBN = "isbn"
+    ISBN10 = "isbn10"
+    ISBN13 = "isbn13"
+    ISSN = "issn"
+    ITF = "itf"
+    JAN = "jan"
+    NW_7 = "nw-7"
+    PZN = "pzn"
+    UPC = "upc"
+    UPCA = "upca"
+
+
+DEFAULT_BARCODE_TYPE = BarcodeType.CODE128
+
+
+class Direction(str, Enum):
+    LEFT = "left"
+    CENTER = "center"
+    RIGHT = "right"
+
+
+class Output(str, Enum):
+    PRINTER = "printer"
+    CONSOLE = "console"
+    CONSOLE_INVERTED = "console_inverted"
+    BROWSER = "browser"
+    IMAGEMAGICK = "imagemagick"

@@ -1,5 +1,5 @@
 import logging
-from typing import Literal, Optional
+from typing import Optional
 
 from PIL import Image
 from PyQt6 import QtCore
@@ -7,13 +7,14 @@ from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem, QMenu
 
 from labelle.gui.common import crash_msg_box
-from labelle.gui.q_dymo_label_widgets import (
+from labelle.gui.q_label_widgets import (
     BarcodeDymoLabelWidget,
     EmptyRenderEngine,
     ImageDymoLabelWidget,
     QrDymoLabelWidget,
     TextDymoLabelWidget,
 )
+from labelle.lib.constants import Direction
 from labelle.lib.devices.dymo_labeler import DymoLabeler
 from labelle.lib.render_engines import (
     HorizontallyCombinedRenderEngine,
@@ -29,7 +30,7 @@ from labelle.lib.utils import mm_to_px
 LOG = logging.getLogger(__name__)
 
 
-class QDymoLabelList(QListWidget):
+class QLabelList(QListWidget):
     """A custom QListWidget for displaying and managing Dymo label widgets.
 
     Args:
@@ -73,22 +74,23 @@ class QDymoLabelList(QListWidget):
     )
     render_context: Optional[RenderContext]
     itemWidget: TextDymoLabelWidget
-    dymo_labeler: DymoLabeler
+    dymo_labeler: Optional[DymoLabeler]
     h_margin_mm: float
     min_label_width_mm: Optional[float]
-    justify: str
+    justify: Direction
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.dymo_labeler = None
-        self.margin_px = None
+        self.h_margin_mm = 0.0
         self.min_label_width_mm = None
-        self.justify = "center"
+        self.justify = Direction.CENTER
         self.render_context = None
         self.setAlternatingRowColors(True)
         self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
 
     def populate(self):
+        assert self.render_context is not None
         for item_widget in [TextDymoLabelWidget(self.render_context)]:
             item = QListWidgetItem(self)
             item.setSizeHint(item_widget.sizeHint())
@@ -113,7 +115,7 @@ class QDymoLabelList(QListWidget):
         h_margin_mm: float,
         min_label_width_mm: float,
         render_context: RenderContext,
-        justify: Literal["left", "center", "right"] = "center",
+        justify: Direction = Direction.CENTER,
     ):
         """Update the render context used for rendering the label.
 
@@ -148,6 +150,8 @@ class QDymoLabelList(QListWidget):
         return HorizontallyCombinedRenderEngine(render_engines=render_engines)
 
     def render_preview(self):
+        assert self.dymo_labeler is not None
+        assert self.render_context is not None
         render_engine = PrintPreviewRenderEngine(
             render_engine=self._payload_render_engine,
             justify=self.justify,
@@ -165,6 +169,8 @@ class QDymoLabelList(QListWidget):
         self.renderPrintPreviewSignal.emit(bitmap)
 
     def render_print(self):
+        assert self.dymo_labeler is not None
+        assert self.render_context is not None
         render_engine = PrintPayloadRenderEngine(
             render_engine=self._payload_render_engine,
             justify=self.justify,
@@ -174,7 +180,7 @@ class QDymoLabelList(QListWidget):
             min_width_px=mm_to_px(self.min_label_width_mm),
         )
         try:
-            bitmap, _ = render_engine.render(self.render_context)
+            bitmap, _ = render_engine.render_with_meta(self.render_context)
         except RenderEngineException as err:
             crash_msg_box(self, "Render Engine Failed!", err)
             bitmap = EmptyRenderEngine().render(self.render_context)
@@ -193,6 +199,7 @@ class QDymoLabelList(QListWidget):
             event (QContextMenuEvent): The context menu event.
 
         """
+        assert self.render_context is not None
         contextMenu = QMenu(self)
         add_text: Optional[QAction] = contextMenu.addAction("Add Text")
         add_qr: Optional[QAction] = contextMenu.addAction("Add QR")

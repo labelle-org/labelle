@@ -63,8 +63,24 @@ class UsbDevice:
         return self._get_dev_attribute("serial_number")
 
     @property
+    def id_vendor(self):
+        return self._get_dev_attribute("idVendor")
+
+    @property
     def id_product(self):
         return self._get_dev_attribute("idProduct")
+
+    @property
+    def vendor_product_id(self):
+        vendor_id = int(self.id_vendor)
+        product_id = int(self.id_product)
+        return f"{vendor_id:04x}:{product_id:04x}"
+
+    @property
+    def usb_id(self):
+        bus = self._get_dev_attribute("bus")
+        address = self._get_dev_attribute("address")
+        return f"Bus {bus:03} Device {address:03}: ID {self.vendor_product_id}"
 
     @staticmethod
     def _is_supported_vendor(dev: usb.core.Device):
@@ -197,9 +213,13 @@ class UsbDevice:
                 else:
                     raise
 
-    def setup(
-        self,
-    ):
+    def setup(self):
+        try:
+            self._setup()
+        except usb.core.USBError as e:
+            raise UsbDeviceError(f"Failed setup USB device: {e}") from e
+
+    def _setup(self):
         self._set_configuration()
         intf = usb.util.find_descriptor(
             self._dev.get_active_configuration(),
@@ -254,6 +274,19 @@ class UsbDevice:
 
     def dispose(self):
         usb.util.dispose_resources(self._dev)
+
+    def is_match(self, patterns: list[str] | None) -> bool:
+        if patterns is None:
+            return True
+        match = True
+        for pattern in patterns:
+            pattern = pattern.lower()
+            match &= (
+                pattern in self.manufacturer.lower()
+                or pattern in self.product.lower()
+                or pattern in self.serial_number.lower()
+            )
+        return match
 
     @property
     def devin(self):
