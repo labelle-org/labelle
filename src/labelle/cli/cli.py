@@ -91,7 +91,7 @@ def get_device_manager() -> DeviceManager:
 app = typer.Typer()
 
 
-@app.command(hidden=True)
+@app.command()
 def list_devices() -> NoReturn:
     device_manager = get_device_manager()
     console = Console()
@@ -130,7 +130,7 @@ def default(
     ] = None,
     text: Annotated[
         Optional[List[str]],
-        typer.Argument(
+        typer.Option(
             help="Text, each parameter gives a new line",
             rich_help_panel="Elements",
         ),
