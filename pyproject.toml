@@ -83,13 +83,13 @@ commands =
   pip freeze
   labelle --version
   labelle --help
-  labelle --output console --text "single line"
-  labelle --output console_inverted --text "inverted"
-  labelle --output console --text multiple --text lines
+  labelle --output console "single line"
+  labelle --output console_inverted "inverted"
+  labelle --output console multiple lines
   labelle --output console --barcode "Barcode" --barcode-type code128
-  labelle --output console --barcode-with-text "Barcode" --barcode-type code128 --text "Caption"
-  labelle --output console --qr "QR"
-  labelle --output console --qr "QR" --text "Caption"
+  labelle --output console --barcode-with-text "Barcode" --barcode-type code128 Caption
+  labelle --output console --qr QR
+  labelle --output console --qr QR Caption
   labelle --output console --picture ./labelle.png
 
 [testenv:{clean,build}]
