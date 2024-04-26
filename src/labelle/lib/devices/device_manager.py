@@ -18,6 +18,10 @@ class DeviceManagerError(RuntimeError):
     pass
 
 
+class DeviceManagerNoDevices(DeviceManagerError):
+    pass
+
+
 class DeviceManager:
     _devices: dict[str, UsbDevice]
 
@@ -33,7 +37,7 @@ class DeviceManager:
             raise DeviceManagerError(f"Failed scanning devices: {e}") from e
         if len(cur) == 0:
             self._devices.clear()
-            raise DeviceManagerError("No supported devices found")
+            raise DeviceManagerNoDevices("No supported devices found")
 
         prev_set = set(prev)
         cur_set = set(cur)

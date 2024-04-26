@@ -28,7 +28,7 @@ from labelle.lib.constants import (
     Justify,
     e_qrcode,
 )
-from labelle.lib.devices.device_manager import DeviceManager, DeviceManagerError
+from labelle.lib.devices.device_manager import DeviceManager, DeviceManagerNoDevices
 from labelle.lib.devices.dymo_labeler import DymoLabeler
 from labelle.lib.env_config import is_verbose_env_vars
 from labelle.lib.font_config import NoFontFound, get_available_fonts, get_font_path
@@ -89,18 +89,23 @@ def qr_callback(qr_content: str) -> str:
     return qr_content
 
 
+def get_device_manager() -> DeviceManager:
+    device_manager = DeviceManager()
+    try:
+        device_manager.scan()
+    except DeviceManagerNoDevices as e:
+        err_console = Console(stderr=True)
+        err_console.print(f"Error: {e}")
+        raise typer.Exit() from e
+    return device_manager
+
+
 app = typer.Typer()
 
 
 @app.command()
 def list_devices():
-    device_manager = DeviceManager()
-    try:
-        device_manager.scan()
-    except DeviceManagerError as e:
-        typer.echo(e)
-        raise typer.Exit() from e
-
+    device_manager = get_device_manager()
     console = Console()
     headers = ["Manufacturer", "Product", "Serial Number", "USB"]
     table = Table(*headers, show_header=True)
@@ -296,8 +301,7 @@ def default(
     )
 
     if output == Output.printer:
-        device_manager = DeviceManager()
-        device_manager.scan()
+        device_manager = get_device_manager()
         device = device_manager.find_and_select_device(patterns=device_pattern)
         device.setup()
     else:
