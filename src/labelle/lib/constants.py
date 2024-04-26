@@ -88,7 +88,7 @@ class BarcodeType(str, Enum):
     UPCA = "upca"
 
 
-DEFAULT_BARCODE_TYPE = BarcodeType.EAN
+DEFAULT_BARCODE_TYPE = BarcodeType.CODE128
 
 
 class Align(str, Enum):

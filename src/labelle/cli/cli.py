@@ -20,6 +20,7 @@ from typing_extensions import Annotated
 
 from labelle import __version__
 from labelle.lib.constants import (
+    DEFAULT_BARCODE_TYPE,
     DEFAULT_MARGIN_PX,
     PIXELS_PER_MM,
     USE_QR,
@@ -189,7 +190,8 @@ def default(
         typer.Option("--barcode", help="Barcode"),
     ] = None,
     barcode_type: Annotated[
-        Optional[BarcodeType], typer.Option(help="The barcode type")
+        Optional[BarcodeType],
+        typer.Option(help="The barcode type", show_default=DEFAULT_BARCODE_TYPE.value),
     ] = None,
     barcode_with_text_content: Annotated[
         Optional[str],
