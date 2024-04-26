@@ -238,7 +238,7 @@ The name "Labelle" is a multilingual pun by [@claui](https://github.com/computer
   for details.
 * Labelle is not affiliated, associated, authorized, endorsed by, or in any way
   officially connected with DYMO, or any of its subsidiaries or its affiliates.
-  The official DYMO website can be found at [www.dymo.com](www.dymo.com).
+  The official DYMO website can be found at [www.dymo.com](https://www.dymo.com).
   The name DYMO®, as well as related names, marks, emblems, and images, are registered
   trademarks of their respective owners. Currently, Labelle software is designed
   to support certain devices manufactured by DYMO; however, no endorsement or
