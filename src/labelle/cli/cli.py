@@ -347,7 +347,7 @@ def default(
             invert = output == Output.CONSOLE_INVERTED
             typer.echo(image_to_unicode(label_rotated, invert=invert))
         if output == Output.IMAGEMAGICK:
-            ImageOps.invert(bitmap).show()
+            ImageOps.invert(bitmap.convert("RGB")).show()
         if output == Output.BROWSER:
             with NamedTemporaryFile(suffix=".png", delete=False) as fp:
                 inverted = ImageOps.invert(bitmap.convert("RGB"))
