@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import math
 from pathlib import Path
 
@@ -15,7 +17,7 @@ class NoPictureFilePath(RenderEngineException):
 
 
 class PictureRenderEngine(RenderEngine):
-    def __init__(self, picture_path):
+    def __init__(self, picture_path: Path | str) -> None:
         super().__init__()
         if not picture_path:
             raise NoPictureFilePath()

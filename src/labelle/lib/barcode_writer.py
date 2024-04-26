@@ -6,20 +6,21 @@
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
 
-from typing import Optional
+from typing import Optional, Tuple
 
 from barcode.writer import BaseWriter
 from PIL import Image, ImageDraw
 
 
-def mm2px(mm, dpi=25.4):
+def mm2px(mm, dpi: float = 25.4) -> float:
     return (mm * dpi) / 25.4
 
 
 class BarcodeImageWriter(BaseWriter):
     _draw: Optional[ImageDraw.ImageDraw]
+    _image: Optional[Image.Image]
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(self._init, self._paint_module, None, self._finish)
         self.format = "PNG"
         self.dpi = 25.4
@@ -27,7 +28,9 @@ class BarcodeImageWriter(BaseWriter):
         self._draw = None
         self.vertical_margin = 0
 
-    def calculate_size(self, modules_per_line, number_of_lines, dpi=25.4):
+    def calculate_size(
+        self, modules_per_line: int, number_of_lines: int, dpi: float = 25.4
+    ) -> Tuple[int, int]:
         width = 2 * self.quiet_zone + modules_per_line * self.module_width
         height = self.vertical_margin * 2 + self.module_height * number_of_lines
         return int(mm2px(width, dpi)), int(mm2px(height, dpi))

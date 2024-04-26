@@ -28,16 +28,16 @@ class QActions(QWidget):
         self._init_connections()
         self._init_layout()
 
-    def _init_elements(self):
+    def _init_elements(self) -> None:
         printer_icon = QIcon.fromTheme("printer")
         self._print_button.setIcon(printer_icon)
         self._print_button.setFixedSize(64, 64)
         self._print_button.setIconSize(QSize(48, 48))
 
-    def _init_connections(self):
+    def _init_connections(self) -> None:
         self._print_button.clicked.connect(self._on_print_label)
 
-    def _init_layout(self):
+    def _init_layout(self) -> None:
         layout = QVBoxLayout(self)
         layout.addWidget(
             self._print_button, alignment=QtCore.Qt.AlignmentFlag.AlignRight
@@ -46,16 +46,16 @@ class QActions(QWidget):
             self._error_label, alignment=QtCore.Qt.AlignmentFlag.AlignCenter
         )
 
-    def _on_print_label(self):
+    def _on_print_label(self) -> None:
         self.print_label_signal.emit()
 
-    def clear_error(self):
+    def clear_error(self) -> None:
         self._error_label.setText("")
         self._last_error = None
         self._print_button.setEnabled(True)
         self._print_button.setCursor(Qt.CursorShape.ArrowCursor)
 
-    def set_error(self, error: str):
+    def set_error(self, error: str) -> None:
         if self._last_error == error:
             return
         self._last_error = error

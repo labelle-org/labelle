@@ -121,7 +121,7 @@ class LabelleWindow(QWidget):
         self._label_list.setEnabled(is_ready)
         self._render_widget.setEnabled(is_ready)
 
-    def _update_preview_render(self, preview_bitmap):
+    def _update_preview_render(self, preview_bitmap: Image.Image):
         self._render.update_preview_render(preview_bitmap)
 
     def _update_print_render(self, label_bitmap_to_print):

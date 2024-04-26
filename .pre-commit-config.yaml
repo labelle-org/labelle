@@ -38,6 +38,7 @@ repos:
     additional_dependencies:
     - types-pillow
     - types-cffi
+    - types-pygments
 
 - repo: https://github.com/igorshubovych/markdownlint-cli
   rev: v0.39.0
