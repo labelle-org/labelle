@@ -111,7 +111,12 @@ def default(
     ctx: typer.Context,
     version: Annotated[
         Optional[bool],
-        typer.Option("--version", callback=version_callback, is_eager=True),
+        typer.Option(
+            "--version",
+            callback=version_callback,
+            is_eager=True,
+            help="Show application version",
+        ),
     ] = None,
     device_pattern: Annotated[
         Optional[List[str]],
@@ -121,30 +126,38 @@ def default(
                 "Select a particular device by filtering for a given substring "
                 "in the device's manufacturer, product or serial number"
             ),
+            rich_help_panel="Device Configuration",
         ),
     ] = None,
     text: Annotated[
         Optional[List[str]],
-        typer.Option(help="Text Parameter, each parameter gives a new line"),
+        typer.Option(
+            help="Text, each parameter gives a new line",
+            rich_help_panel="Elements",
+        ),
     ] = None,
     verbose: Annotated[
         bool, typer.Option("--verbose", "-v", help="Increase logging verbosity")
     ] = False,
     style: Annotated[
-        FontStyle, typer.Option(help="Set fonts style")
+        FontStyle, typer.Option(help="Set fonts style", rich_help_panel="Design")
     ] = DefaultFontStyle,
     frame_width_px: Annotated[
         Optional[int],
         typer.Option(
-            help="Draw frame around the text, more arguments for thicker frame"
+            help="Draw frame around the text, more arguments for thicker frame",
+            rich_help_panel="Design",
         ),
     ] = None,
-    align: Annotated[Align, typer.Option(help="Align multiline text")] = Align.LEFT,
+    align: Annotated[
+        Align, typer.Option(help="Align multiline text", rich_help_panel="Design")
+    ] = Align.LEFT,
     justify: Annotated[
         Justify,
         typer.Option(
             help="Justify content of label if label content is less than the minimum or"
-            " fixed length"
+            " fixed length",
+            rich_help_panel="Design",
         ),
     ] = Justify.LEFT,
     test_pattern: Annotated[
@@ -153,15 +166,23 @@ def default(
     ] = None,
     min_length: Annotated[
         Optional[float],
-        typer.Option(help="Minimum label length [mm]"),
+        typer.Option(
+            help="Minimum label length [mm]", rich_help_panel="Label Dimensions"
+        ),
     ] = None,
     max_length: Annotated[
         Optional[float],
-        typer.Option(help="Maximum label length [mm], error if the label won't fit"),
+        typer.Option(
+            help="Maximum label length [mm], error if the label won't fit",
+            rich_help_panel="Label Dimensions",
+        ),
     ] = None,
     fixed_length: Annotated[
         Optional[float],
-        typer.Option(help="Fixed label length [mm], error if the label won't fit"),
+        typer.Option(
+            help="Fixed label length [mm], error if the label won't fit",
+            rich_help_panel="Label Dimensions",
+        ),
     ] = None,
     output: Annotated[
         Output,
@@ -169,38 +190,50 @@ def default(
     ] = Output.PRINTER,
     font: Annotated[
         Optional[str],
-        typer.Option(help="User font. Overrides --style parameter"),
+        typer.Option(
+            help="User font. Overrides --style parameter", rich_help_panel="Design"
+        ),
     ] = None,
     qr_content: Annotated[
         Optional[str],
-        typer.Option("--qr", callback=qr_callback, help="QR code"),
+        typer.Option(
+            "--qr", callback=qr_callback, help="QR code", rich_help_panel="Elements"
+        ),
     ] = None,
     barcode_content: Annotated[
         Optional[str],
-        typer.Option("--barcode", help="Barcode"),
+        typer.Option("--barcode", help="Barcode", rich_help_panel="Elements"),
     ] = None,
     barcode_type: Annotated[
         Optional[BarcodeType],
-        typer.Option(help="The barcode type", show_default=DEFAULT_BARCODE_TYPE.value),
+        typer.Option(
+            help="Barcode type",
+            show_default=DEFAULT_BARCODE_TYPE.value,
+            rich_help_panel="Elements",
+        ),
     ] = None,
     barcode_with_text_content: Annotated[
         Optional[str],
-        typer.Option("--barcode-with-text", help="Barcode with text"),
+        typer.Option(
+            "--barcode-with-text", help="Barcode with text", rich_help_panel="Elements"
+        ),
     ] = None,
     picture: Annotated[
-        Optional[Path], typer.Option(help="Print the specified picture")
+        Optional[Path], typer.Option(help="Picture", rich_help_panel="Elements")
     ] = None,
     margin_px: Annotated[
         float,
-        typer.Option(help="Horizontal margins [px]"),
+        typer.Option(
+            help="Horizontal margins [px]", rich_help_panel="Label Dimensions"
+        ),
     ] = DEFAULT_MARGIN_PX,
     font_scale: Annotated[
         float,
-        typer.Option(help="Scaling font factor, [0,100] [%]"),
+        typer.Option(help="Scaling font factor, [0,100] [%]", rich_help_panel="Design"),
     ] = 90,
     tape_size_mm: Annotated[
         Optional[int],
-        typer.Option(help="Tape size [mm]"),
+        typer.Option(help="Tape size [mm]", rich_help_panel="Device Configuration"),
     ] = None,
 ):
     if ctx.invoked_subcommand is not None:
