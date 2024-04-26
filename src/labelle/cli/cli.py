@@ -206,7 +206,7 @@ def default(
     ] = DEFAULT_MARGIN_PX,
     font_scale: Annotated[
         float,
-        typer.Option(help="Scaling font factor, [0,100] [%%]"),
+        typer.Option(help="Scaling font factor, [0,100] [%]"),
     ] = 90,
     tape_size_mm: Annotated[
         Optional[int],
