@@ -101,3 +101,11 @@ class Justify(str, Enum):
     LEFT = "left"
     CENTER = "center"
     RIGHT = "right"
+
+
+class Output(str, Enum):
+    PRINTER = "printer"
+    CONSOLE = "console"
+    CONSOLE_INVERTED = "console_inverted"
+    BROWSER = "browser"
+    IMAGEMAGICK = "imagemagick"

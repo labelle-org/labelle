@@ -6,14 +6,11 @@
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
 import logging
-import webbrowser
 from enum import Enum
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 from typing import List, Optional
 
 import typer
-from PIL import Image, ImageOps
 from rich.console import Console
 from rich.table import Table
 from typing_extensions import Annotated
@@ -27,6 +24,7 @@ from labelle.lib.constants import (
     Align,
     BarcodeType,
     Justify,
+    Output,
     e_qrcode,
 )
 from labelle.lib.devices.device_manager import DeviceManager, DeviceManagerNoDevices
@@ -34,6 +32,7 @@ from labelle.lib.devices.dymo_labeler import DymoLabeler
 from labelle.lib.env_config import is_verbose_env_vars
 from labelle.lib.font_config import NoFontFound, get_available_fonts, get_font_path
 from labelle.lib.logger import configure_logging, set_not_verbose
+from labelle.lib.outputs import output_bitmap
 from labelle.lib.render_engines import (
     BarcodeRenderEngine,
     BarcodeWithTextRenderEngine,
@@ -47,7 +46,6 @@ from labelle.lib.render_engines import (
     TestPatternRenderEngine,
     TextRenderEngine,
 )
-from labelle.lib.unicode_blocks import image_to_unicode
 
 LOG = logging.getLogger(__name__)
 
@@ -57,14 +55,6 @@ class Style(str, Enum):
     BOLD = "bold"
     ITALIC = "italic"
     NARROW = "narrow"
-
-
-class Output(str, Enum):
-    PRINTER = "printer"
-    CONSOLE = "console"
-    CONSOLE_INVERTED = "console_inverted"
-    BROWSER = "browser"
-    IMAGEMAGICK = "imagemagick"
 
 
 def mm_to_payload_px(mm: float, margin: float):
@@ -341,18 +331,7 @@ def default(
             min_width_px=min_payload_len_px,
         )
         bitmap = render.render(render_context)
-        LOG.debug("Demo mode: showing label...")
-        if output in (Output.CONSOLE, Output.CONSOLE_INVERTED):
-            label_rotated = bitmap.transpose(Image.Transpose.ROTATE_270)
-            invert = output == Output.CONSOLE_INVERTED
-            typer.echo(image_to_unicode(label_rotated, invert=invert))
-        if output == Output.IMAGEMAGICK:
-            ImageOps.invert(bitmap.convert("RGB")).show()
-        if output == Output.BROWSER:
-            with NamedTemporaryFile(suffix=".png", delete=False) as fp:
-                inverted = ImageOps.invert(bitmap.convert("RGB"))
-                ImageOps.invert(inverted).save(fp)
-                webbrowser.open(f"file://{fp.name}")
+        output_bitmap(bitmap, output)
 
 
 def main():
