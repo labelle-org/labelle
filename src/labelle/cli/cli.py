@@ -91,7 +91,7 @@ def get_device_manager() -> DeviceManager:
 app = typer.Typer()
 
 
-@app.command()
+@app.command(hidden=True)
 def list_devices():
     device_manager = get_device_manager()
     console = Console()
