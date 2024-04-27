@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import List, Optional
 
 from PIL import Image
 from PyQt6 import QtCore
@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem, QMe
 from labelle.gui.common import crash_msg_box
 from labelle.gui.q_label_widgets import (
     BarcodeDymoLabelWidget,
+    BaseLabelWidget,
     EmptyRenderEngine,
     ImageDymoLabelWidget,
     QrDymoLabelWidget,
@@ -23,6 +24,7 @@ from labelle.lib.render_engines import (
     RenderContext,
 )
 from labelle.lib.render_engines.render_engine import (
+    RenderEngine,
     RenderEngineException,
 )
 from labelle.lib.utils import mm_to_px
@@ -73,7 +75,6 @@ class QLabelList(QListWidget):
         Image.Image, name="renderPrintPayloadSignal"
     )
     render_context: Optional[RenderContext]
-    itemWidget: TextDymoLabelWidget
     dymo_labeler: Optional[DymoLabeler]
     h_margin_mm: float
     min_label_width_mm: Optional[float]
@@ -135,18 +136,22 @@ class QLabelList(QListWidget):
         self.render_context = render_context
         for i in range(self.count()):
             item_widget = self.itemWidget(self.item(i))
+            assert isinstance(item_widget, BaseLabelWidget)
             item_widget.render_context = render_context
         self.render_label()
 
     @property
     def _payload_render_engine(self):
-        render_engines = []
+        render_engines: List[RenderEngine] = []
         for i in range(self.count()):
             item = self.item(i)
             item_widget = self.itemWidget(self.item(i))
             if item_widget and item:
                 item.setSizeHint(item_widget.sizeHint())
-                render_engines.append(item_widget.render_engine)
+                assert isinstance(item_widget, BaseLabelWidget)
+                render_engine = item_widget.render_engine
+                if render_engine is not None:
+                    render_engines.append(render_engine)
         return HorizontallyCombinedRenderEngine(render_engines=render_engines)
 
     def render_preview(self) -> None:
