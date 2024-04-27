@@ -47,16 +47,7 @@ class BarcodeRenderEngine(RenderEngine):
             code = barcode_module.get(
                 self.barcode_type, self.content, writer=BarcodeImageWriter()
             )
-            bitmap = code.render(
-                {
-                    "font_size": 0,
-                    "vertical_margin": 8,
-                    "module_height": context.height_px - 16,
-                    "module_width": 2,
-                    "background": "black",
-                    "foreground": "white",
-                }
-            )
+            bitmap = code.render({"module_height": context.height_px - 16})
         except BaseException as e:
             raise BarcodeRenderError from e
         return bitmap

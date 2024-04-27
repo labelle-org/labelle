@@ -6,7 +6,7 @@
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
 
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 from barcode.writer import BaseWriter
 from PIL import Image, ImageDraw
@@ -32,10 +32,6 @@ def _calculate_size(
 
 
 class BarcodeImageWriter(BaseWriter):
-    def __init__(self) -> None:
-        super().__init__(None, None, None, None)
-        self.vertical_margin: Optional[float] = None
-
     def render(self, code: List[str]) -> Image.Image:
         """Render the barcode.
 
@@ -48,12 +44,11 @@ class BarcodeImageWriter(BaseWriter):
         """
         quiet_zone = self.quiet_zone
         module_height = self.module_height
-        module_width = self.module_width
-        background = self.background
-        foreground = self.foreground
-        vertical_margin = self.vertical_margin
-        assert vertical_margin is not None
 
+        module_width = 2
+        background = "black"
+        foreground = "white"
+        vertical_margin = 8
         dpi = 25.4
 
         width, height = _calculate_size(
