@@ -6,7 +6,7 @@
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
 
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from PIL import Image, ImageDraw
 
@@ -57,8 +57,6 @@ def convert_binary_string_to_barcode_image(
     line: A string of 0s and 1s representing the barcode.
     """
     module_width = 2
-    background = "black"
-    foreground = "white"
     vertical_margin = 8
     dpi = 25.4
 
@@ -70,7 +68,7 @@ def convert_binary_string_to_barcode_image(
         module_height=module_height,
         vertical_margin=vertical_margin,
     )
-    image = Image.new("1", (width, height), background)
+    image = Image.new("1", (width, height), 0)
     draw = ImageDraw.Draw(image)
 
     ypos = vertical_margin
@@ -79,9 +77,9 @@ def convert_binary_string_to_barcode_image(
     xpos = quiet_zone
     for mod in mlist:
         if mod < 1:
-            color = background
+            color = 0
         else:
-            color = foreground
+            color = 1
         # remove painting for background colored tiles?
         _paint_module(
             xpos=xpos,
@@ -93,7 +91,7 @@ def convert_binary_string_to_barcode_image(
             draw=draw,
         )
         xpos += module_width * abs(mod)
-    return _finish(image)
+    return image
 
 
 def _paint_module(
@@ -101,7 +99,7 @@ def _paint_module(
     xpos: float,
     ypos: float,
     width: float,
-    color: str,
+    color: Union[int, str],
     dpi: float,
     module_height: float,
     draw: ImageDraw.ImageDraw,
@@ -114,8 +112,3 @@ def _paint_module(
         ),
     )
     draw.rectangle(size, outline=color, fill=color)
-
-
-def _finish(image: Image.Image) -> Image.Image:
-    # although Image mode set to "1", draw function writes white as 255
-    return image.point(lambda x: 1 if x > 0 else 0, mode="1")
