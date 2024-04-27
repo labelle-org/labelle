@@ -6,18 +6,19 @@
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
 
-from typing import Optional
+from typing import List, Optional, Tuple
 
 from barcode.writer import BaseWriter
 from PIL import Image, ImageDraw
 
 
-def mm2px(mm, dpi=25.4):
+def mm2px(mm: float, dpi: float = 25.4) -> float:
     return (mm * dpi) / 25.4
 
 
 class BarcodeImageWriter(BaseWriter):
     _draw: Optional[ImageDraw.ImageDraw]
+    _image: Optional[Image.Image]
 
     def __init__(self):
         super().__init__(self._init, self._paint_module, None, self._finish)
@@ -27,12 +28,14 @@ class BarcodeImageWriter(BaseWriter):
         self._draw = None
         self.vertical_margin = 0
 
-    def calculate_size(self, modules_per_line, number_of_lines, dpi=25.4):
+    def calculate_size(
+        self, modules_per_line: int, number_of_lines: int, dpi: float = 25.4
+    ) -> Tuple[int, int]:
         width = 2 * self.quiet_zone + modules_per_line * self.module_width
         height = self.vertical_margin * 2 + self.module_height * number_of_lines
         return int(mm2px(width, dpi)), int(mm2px(height, dpi))
 
-    def render(self, code):
+    def render(self, code: List[str]) -> Image.Image:
         """Render the barcode.
 
         Uses whichever inheriting writer is provided via the registered callbacks.
@@ -83,12 +86,12 @@ class BarcodeImageWriter(BaseWriter):
             ypos += self.module_height
         return self._callbacks["finish"]()
 
-    def _init(self, code):
+    def _init(self, code: List[str]) -> None:
         size = self.calculate_size(len(code[0]), len(code), self.dpi)
         self._image = Image.new("1", size, self.background)
         self._draw = ImageDraw.Draw(self._image)
 
-    def _paint_module(self, xpos, ypos, width, color):
+    def _paint_module(self, xpos: float, ypos: float, width: float, color) -> None:
         size = (
             (mm2px(xpos, self.dpi), mm2px(ypos, self.dpi)),
             (
@@ -99,7 +102,7 @@ class BarcodeImageWriter(BaseWriter):
         assert self._draw is not None
         self._draw.rectangle(size, outline=color, fill=color)
 
-    def _finish(self):
+    def _finish(self) -> Image.Image:
         # although Image mode set to "1", draw function writes white as 255
         assert self._image is not None
         self._image = self._image.point(lambda x: 1 if x > 0 else 0, mode="1")
