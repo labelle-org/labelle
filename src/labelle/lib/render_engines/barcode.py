@@ -25,10 +25,10 @@ class BarcodeRenderEngine(RenderEngine):
         self.barcode_type = barcode_type or DEFAULT_BARCODE_TYPE
 
     def render(self, context: RenderContext) -> Image.Image:
-        code = barcode_module.get(
-            self.barcode_type, self.content, writer=BarcodeImageWriter()
-        )
         try:
+            code = barcode_module.get(
+                self.barcode_type, self.content, writer=BarcodeImageWriter()
+            )
             bitmap = code.render(
                 {
                     "font_size": 0,
