@@ -6,17 +6,26 @@
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
 
-from typing import List, Tuple
+from typing import List, NewType, Tuple
 
 from barcode.writer import BaseWriter
 from PIL import Image, ImageDraw
+
+BinaryString = NewType("BinaryString", str)
+"""A string that's been validated to contain only '0's and '1's."""
+
+
+def _validate_string_as_binary(s: str) -> BinaryString:
+    if not all(c in ("0", "1") for c in s):
+        raise ValueError("Barcode can only contain 0 and 1")
+    return BinaryString(s)
 
 
 def _mm2px(mm: float, dpi: float = 25.4) -> float:
     return (mm * dpi) / 25.4
 
 
-def _list_of_runs(line: str) -> List[int]:
+def _list_of_runs(line: BinaryString) -> List[int]:
     # Pack line to list give better gfx result, otherwise in can
     # result in aliasing gaps
     # '11010111' -> [2, -1, 1, -1, 3]
@@ -51,60 +60,63 @@ def _calculate_size(
 
 class BarcodeImageWriter(BaseWriter):
     def render(self, code: List[str]) -> Image.Image:
-        """Render the barcode.
-
-        Uses whichever inheriting writer is provided via the registered callbacks.
-
-        :parameters:
-            code : List
-                List of strings matching the writer spec
-                (only contain 0 or 1).
-        """
-        quiet_zone = self.quiet_zone
-        module_height = self.module_height
-
-        module_width = 2
-        background = "black"
-        foreground = "white"
-        vertical_margin = 8
-        dpi = 25.4
-
-        width, height = _calculate_size(
-            modules_per_line=len(code[0]),
-            number_of_lines=len(code),
-            dpi=dpi,
-            quiet_zone=quiet_zone,
-            module_width=module_width,
-            module_height=module_height,
-            vertical_margin=vertical_margin,
-        )
-        image = Image.new("1", (width, height), background)
-        draw = ImageDraw.Draw(image)
-
-        ypos = vertical_margin
+        """Extract the barcode string from the code and render it into an image."""
         if len(code) != 1:
             raise ValueError("Barcode expected to have only one line")
-        line = code[0]
-        mlist = _list_of_runs(line)
-        # Left quiet zone is x startposition
-        xpos = quiet_zone
-        for mod in mlist:
-            if mod < 1:
-                color = background
-            else:
-                color = foreground
-            # remove painting for background colored tiles?
-            _paint_module(
-                xpos=xpos,
-                ypos=ypos,
-                width=module_width * abs(mod),
-                color=color,
-                dpi=dpi,
-                module_height=module_height,
-                draw=draw,
-            )
-            xpos += module_width * abs(mod)
-        return _finish(image)
+        line = _validate_string_as_binary(code[0])
+        return convert_binary_string_to_barcode_image(
+            line=line,
+            quiet_zone=self.quiet_zone,
+            module_height=self.module_height,
+        )
+
+
+def convert_binary_string_to_barcode_image(
+    line: BinaryString, quiet_zone: float, module_height: float
+) -> Image.Image:
+    """Render a barcode string into an image.
+
+    line: A string of 0s and 1s representing the barcode.
+    """
+    module_width = 2
+    background = "black"
+    foreground = "white"
+    vertical_margin = 8
+    dpi = 25.4
+
+    width, height = _calculate_size(
+        modules_per_line=len(line),
+        number_of_lines=1,
+        dpi=dpi,
+        quiet_zone=quiet_zone,
+        module_width=module_width,
+        module_height=module_height,
+        vertical_margin=vertical_margin,
+    )
+    image = Image.new("1", (width, height), background)
+    draw = ImageDraw.Draw(image)
+
+    ypos = vertical_margin
+    mlist = _list_of_runs(line)
+    # Left quiet zone is x startposition
+    xpos = quiet_zone
+    for mod in mlist:
+        if mod < 1:
+            color = background
+        else:
+            color = foreground
+        # remove painting for background colored tiles?
+        _paint_module(
+            xpos=xpos,
+            ypos=ypos,
+            width=module_width * abs(mod),
+            color=color,
+            dpi=dpi,
+            module_height=module_height,
+            draw=draw,
+        )
+        xpos += module_width * abs(mod)
+    return _finish(image)
 
 
 def _paint_module(
