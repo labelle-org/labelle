@@ -73,7 +73,7 @@ ICON_DIR = Path(labelle.resources.icons.__file__).parent
 class BarcodeType(str, Enum):
     CODE128 = "code128"
     CODE39 = "code39"
-    CODEBAR = "codebar"
+    CODABAR = "codabar"
     EAN = "ean"
     EAN13 = "ean13"
     EAN13_GUARD = "ean13-guard"
