@@ -3,16 +3,11 @@ from __future__ import annotations
 import barcode as barcode_module
 from PIL import Image
 
-from labelle.lib.barcode_writer import (
-    SimpleBarcodeWriter,
-    convert_binary_string_to_barcode_image,
-)
+from labelle.lib.barcode_to_image import convert_binary_string_to_barcode_image
+from labelle.lib.barcode_writer import SimpleBarcodeWriter
 from labelle.lib.constants import DEFAULT_BARCODE_TYPE, BarcodeType
 from labelle.lib.render_engines.render_context import RenderContext
-from labelle.lib.render_engines.render_engine import (
-    RenderEngine,
-    RenderEngineException,
-)
+from labelle.lib.render_engines.render_engine import RenderEngine, RenderEngineException
 
 if DEFAULT_BARCODE_TYPE != BarcodeType.CODE128:
     # Ensure that we fail fast if the default barcode type is adjusted
