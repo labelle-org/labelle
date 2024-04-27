@@ -38,7 +38,6 @@ def _list_of_runs(line: BinaryString) -> List[int]:
 def _calculate_size(
     *,
     modules_per_line: int,
-    number_of_lines: int,
     quiet_zone: float,
     module_width: float,
     module_height: float,
@@ -46,7 +45,7 @@ def _calculate_size(
     dpi: float = 25.4,
 ) -> Tuple[int, int]:
     width = 2 * quiet_zone + modules_per_line * module_width
-    height = vertical_margin * 2 + module_height * number_of_lines
+    height = vertical_margin * 2 + module_height
     return int(_mm2px(width, dpi)), int(_mm2px(height, dpi))
 
 
@@ -65,7 +64,6 @@ def convert_binary_string_to_barcode_image(
 
     width, height = _calculate_size(
         modules_per_line=len(line),
-        number_of_lines=1,
         dpi=dpi,
         quiet_zone=quiet_zone,
         module_width=module_width,
