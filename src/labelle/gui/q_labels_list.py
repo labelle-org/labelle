@@ -215,35 +215,35 @@ class QLabelList(QListWidget):
 
         if menu_click == add_text:
             item = QListWidgetItem(self)
-            item_widget = TextDymoLabelWidget(self.render_context)
-            item.setSizeHint(item_widget.sizeHint())
+            text_item_widget = TextDymoLabelWidget(self.render_context)
+            item.setSizeHint(text_item_widget.sizeHint())
             self.addItem(item)
-            self.setItemWidget(item, item_widget)
-            item_widget.itemRenderSignal.connect(self.render_label)
+            self.setItemWidget(item, text_item_widget)
+            text_item_widget.itemRenderSignal.connect(self.render_label)
 
         if menu_click == add_qr:
             item = QListWidgetItem(self)
-            item_widget = QrDymoLabelWidget(self.render_context)
-            item.setSizeHint(item_widget.sizeHint())
+            qr_item_widget = QrDymoLabelWidget(self.render_context)
+            item.setSizeHint(qr_item_widget.sizeHint())
             self.addItem(item)
-            self.setItemWidget(item, item_widget)
-            item_widget.itemRenderSignal.connect(self.render_label)
+            self.setItemWidget(item, qr_item_widget)
+            qr_item_widget.itemRenderSignal.connect(self.render_label)
 
         if menu_click == add_barcode:
             item = QListWidgetItem(self)
-            item_widget = BarcodeDymoLabelWidget(self.render_context)
-            item.setSizeHint(item_widget.sizeHint())
+            barcode_item_widget = BarcodeDymoLabelWidget(self.render_context)
+            item.setSizeHint(barcode_item_widget.sizeHint())
             self.addItem(item)
-            self.setItemWidget(item, item_widget)
-            item_widget.itemRenderSignal.connect(self.render_label)
+            self.setItemWidget(item, barcode_item_widget)
+            barcode_item_widget.itemRenderSignal.connect(self.render_label)
 
         if menu_click == add_img:
             item = QListWidgetItem(self)
-            item_widget = ImageDymoLabelWidget(self.render_context)
-            item.setSizeHint(item_widget.sizeHint())
+            image_item_widget = ImageDymoLabelWidget(self.render_context)
+            item.setSizeHint(image_item_widget.sizeHint())
             self.addItem(item)
-            self.setItemWidget(item, item_widget)
-            item_widget.itemRenderSignal.connect(self.render_label)
+            self.setItemWidget(item, image_item_widget)
+            image_item_widget.itemRenderSignal.connect(self.render_label)
         if menu_click == delete:
             try:
                 item_to_delete = self.itemAt(event.pos())
