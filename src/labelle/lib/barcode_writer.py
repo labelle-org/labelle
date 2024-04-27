@@ -6,7 +6,7 @@
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
 
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from barcode.writer import BaseWriter
 from PIL import Image, ImageDraw
@@ -34,9 +34,7 @@ def _calculate_size(
 class BarcodeImageWriter(BaseWriter):
     def __init__(self) -> None:
         super().__init__(None, None, None, None)
-        self.format = "PNG"
-        self.dpi = 25.4
-        self.vertical_margin = 0
+        self.vertical_margin: Optional[float] = None
 
     def render(self, code: List[str]) -> Image.Image:
         """Render the barcode.
@@ -48,19 +46,29 @@ class BarcodeImageWriter(BaseWriter):
                 List of strings matching the writer spec
                 (only contain 0 or 1).
         """
+        quiet_zone = self.quiet_zone
+        module_height = self.module_height
+        module_width = self.module_width
+        background = self.background
+        foreground = self.foreground
+        vertical_margin = self.vertical_margin
+        assert vertical_margin is not None
+
+        dpi = 25.4
+
         width, height = _calculate_size(
             modules_per_line=len(code[0]),
             number_of_lines=len(code),
-            dpi=self.dpi,
-            quiet_zone=self.quiet_zone,
-            module_width=self.module_width,
-            module_height=self.module_height,
-            vertical_margin=self.vertical_margin,
+            dpi=dpi,
+            quiet_zone=quiet_zone,
+            module_width=module_width,
+            module_height=module_height,
+            vertical_margin=vertical_margin,
         )
-        image = Image.new("1", (width, height), self.background)
+        image = Image.new("1", (width, height), background)
         draw = ImageDraw.Draw(image)
 
-        ypos = self.vertical_margin
+        ypos = vertical_margin
         for cc, line in enumerate(code):
             # Pack line to list give better gfx result, otherwise in can
             # result in aliasing gaps
@@ -78,23 +86,23 @@ class BarcodeImageWriter(BaseWriter):
                         mlist.append(-c)
                     c = 1
             # Left quiet zone is x startposition
-            xpos = self.quiet_zone
+            xpos = quiet_zone
             for mod in mlist:
                 if mod < 1:
-                    color = self.background
+                    color = background
                 else:
-                    color = self.foreground
+                    color = foreground
                 # remove painting for background colored tiles?
                 _paint_module(
                     xpos=xpos,
                     ypos=ypos,
-                    width=self.module_width * abs(mod),
+                    width=module_width * abs(mod),
                     color=color,
-                    dpi=self.dpi,
-                    module_height=self.module_height,
+                    dpi=dpi,
+                    module_height=module_height,
                     draw=draw,
                 )
-                xpos += self.module_width * abs(mod)
+                xpos += module_width * abs(mod)
             # Add right quiet zone to every line, except last line,
             # quiet zone already provided with background,
             # should it be removed complety?
@@ -102,13 +110,13 @@ class BarcodeImageWriter(BaseWriter):
                 _paint_module(
                     xpos=xpos,
                     ypos=ypos,
-                    width=self.quiet_zone,
-                    color=self.background,
-                    dpi=self.dpi,
-                    module_height=self.module_height,
+                    width=quiet_zone,
+                    color=background,
+                    dpi=dpi,
+                    module_height=module_height,
                     draw=draw,
                 )
-            ypos += self.module_height
+            ypos += module_height
         return _finish(image)
 
 
