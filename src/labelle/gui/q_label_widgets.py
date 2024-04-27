@@ -380,7 +380,7 @@ class BarcodeDymoLabelWidget(BaseLabelWidget):
                 font_file_name=self.font_style.currentData(),
                 frame_width_px=self.frame_width_px.value(),
                 font_size_ratio=self.font_size.value() / 100.0,
-                align=self.align.currentText(),
+                align=Direction(self.align.currentText()),
             )
         else:
             render_engine = BarcodeRenderEngine(
