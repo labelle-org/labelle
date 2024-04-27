@@ -20,11 +20,10 @@ def _list_of_runs(line: str) -> List[int]:
     # Pack line to list give better gfx result, otherwise in can
     # result in aliasing gaps
     # '11010111' -> [2, -1, 1, -1, 3]
-    line += " "
     c = 1
     mlist = []
-    for i in range(0, len(line) - 1):
-        if line[i] == line[i + 1]:
+    for i in range(0, len(line)):
+        if i + 1 < len(line) and line[i] == line[i + 1]:
             c += 1
         else:
             if line[i] == "1":
