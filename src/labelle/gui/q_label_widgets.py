@@ -77,7 +77,7 @@ class BaseLabelWidget(QWidget):
         pass
 
     @property
-    def render_engine(self) -> RenderEngine | None:
+    def render_engine(self) -> Optional[RenderEngine]:
         try:
             return self.render_engine_impl
         except RenderEngineException as err:
