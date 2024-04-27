@@ -53,7 +53,18 @@ class BarcodeImageWriter(BaseWriter):
                 List of strings matching the writer spec
                 (only contain 0 or 1).
         """
-        self._init(code)
+        width, height = _calculate_size(
+            modules_per_line=len(code[0]),
+            number_of_lines=len(code),
+            dpi=self.dpi,
+            quiet_zone=self.quiet_zone,
+            module_width=self.module_width,
+            module_height=self.module_height,
+            vertical_margin=self.vertical_margin,
+        )
+        self._image = Image.new("1", (width, height), self.background)
+        self._draw = ImageDraw.Draw(self._image)
+
         ypos = self.vertical_margin
         for cc, line in enumerate(code):
             # Pack line to list give better gfx result, otherwise in can
@@ -88,19 +99,6 @@ class BarcodeImageWriter(BaseWriter):
                 self._paint_module(xpos, ypos, self.quiet_zone, self.background)
             ypos += self.module_height
         return self._finish()
-
-    def _init(self, code: List[str]) -> None:
-        size = _calculate_size(
-            modules_per_line=len(code[0]),
-            number_of_lines=len(code),
-            dpi=self.dpi,
-            quiet_zone=self.quiet_zone,
-            module_width=self.module_width,
-            module_height=self.module_height,
-            vertical_margin=self.vertical_margin,
-        )
-        self._image = Image.new("1", size, self.background)
-        self._draw = ImageDraw.Draw(self._image)
 
     def _paint_module(self, xpos: float, ypos: float, width: float, color) -> None:
         size = (
