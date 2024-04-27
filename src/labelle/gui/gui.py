@@ -32,7 +32,7 @@ class LabelleWindow(QWidget):
     _render_context: RenderContext
     _render_widget: QWidget
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._label_bitmap_to_print = None
         self._detected_device = None
@@ -55,7 +55,7 @@ class LabelleWindow(QWidget):
         self._label_list.populate()
         self._label_list.render_label()
 
-    def _init_elements(self):
+    def _init_elements(self) -> None:
         self.setWindowTitle("Labelle GUI")
         self.setWindowIcon(QIcon(str(ICON_DIR / "logo_small.png")))
         self.setGeometry(200, 200, 1100, 400)
@@ -68,7 +68,7 @@ class LabelleWindow(QWidget):
             minimum_horizontal_margin_mm=self._dymo_labeler.minimum_horizontal_margin_mm,
         )
 
-    def _init_connections(self):
+    def _init_connections(self) -> None:
         self._label_list.renderPrintPreviewSignal.connect(self._update_preview_render)
         self._label_list.renderPrintPayloadSignal.connect(self._update_print_render)
         self._actions.print_label_signal.connect(self._on_print_label)
@@ -79,7 +79,7 @@ class LabelleWindow(QWidget):
             self._on_device_selected
         )
 
-    def _init_layout(self):
+    def _init_layout(self) -> None:
         self._actions.setParent(self._render_widget)
         self._render.setParent(self._render_widget)
 
@@ -97,7 +97,7 @@ class LabelleWindow(QWidget):
         self._window_layout.addWidget(self._render_widget)
         self.setLayout(self._window_layout)
 
-    def _on_settings_changed(self, settings: Settings):
+    def _on_settings_changed(self, settings: Settings) -> None:
         assert self._dymo_labeler is not None
         self._dymo_labeler.tape_size_mm = settings.tape_size_mm
 
@@ -121,13 +121,13 @@ class LabelleWindow(QWidget):
         self._label_list.setEnabled(is_ready)
         self._render_widget.setEnabled(is_ready)
 
-    def _update_preview_render(self, preview_bitmap: Image.Image):
+    def _update_preview_render(self, preview_bitmap: Image.Image) -> None:
         self._render.update_preview_render(preview_bitmap)
 
-    def _update_print_render(self, label_bitmap_to_print):
+    def _update_print_render(self, label_bitmap_to_print) -> None:
         self._label_bitmap_to_print = label_bitmap_to_print
 
-    def _on_print_label(self):
+    def _on_print_label(self) -> None:
         try:
             if self._label_bitmap_to_print is None:
                 raise RuntimeError("No label to print! Call update_label_render first.")
@@ -136,12 +136,12 @@ class LabelleWindow(QWidget):
         except DymoLabelerPrintError as err:
             crash_msg_box(self, "Printing Failed!", err)
 
-    def _on_device_selected(self):
+    def _on_device_selected(self) -> None:
         self._dymo_labeler.device = self._device_selector.selected_device
         self._settings_toolbar.on_settings_changed()
 
 
-def parse(app):
+def parse(app) -> None:
     """Parse the arguments and options of the given app object."""
     parser = QCommandLineParser()
     parser.addHelpOption()
@@ -156,7 +156,7 @@ def parse(app):
         set_not_verbose()
 
 
-def main():
+def main() -> None:
     configure_logging()
     with system_run():
         app = QApplication(sys.argv)

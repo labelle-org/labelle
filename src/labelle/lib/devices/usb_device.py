@@ -197,7 +197,7 @@ class UsbDevice:
         LOG.error(msg)
         raise UsbDeviceError("Insufficient access to the device")
 
-    def _set_configuration(self):
+    def _set_configuration(self) -> None:
         try:
             self._dev.get_active_configuration()
             LOG.debug("Active device configuration already found.")
@@ -213,7 +213,7 @@ class UsbDevice:
                 else:
                     raise
 
-    def setup(self):
+    def setup(self) -> None:
         try:
             self._setup()
         except usb.core.USBError as e:
@@ -272,7 +272,7 @@ class UsbDevice:
         self._devin = devin
         self._devout = devout
 
-    def dispose(self):
+    def dispose(self) -> None:
         usb.util.dispose_resources(self._dev)
 
     def is_match(self, patterns: list[str] | None) -> bool:

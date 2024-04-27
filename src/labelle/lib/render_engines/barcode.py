@@ -13,13 +13,13 @@ from labelle.lib.render_engines.render_engine import (
 
 
 class BarcodeRenderError(RenderEngineException):
-    def __init__(self):
+    def __init__(self) -> None:
         msg = "Barcode render error"
         super().__init__(msg)
 
 
 class BarcodeRenderEngine(RenderEngine):
-    def __init__(self, content: str, barcode_type: str | None):
+    def __init__(self, content: str, barcode_type: str | None) -> None:
         super().__init__()
         self.content = content
         self.barcode_type = barcode_type or DEFAULT_BARCODE_TYPE

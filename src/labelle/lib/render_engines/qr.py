@@ -10,7 +10,7 @@ from labelle.lib.utils import draw_image, scaling
 
 
 class QrTooBigError(RenderEngineException):
-    def __init__(self):
+    def __init__(self) -> None:
         msg = "Too much information to store in the QR code"
         super().__init__(msg)
 

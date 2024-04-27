@@ -36,7 +36,7 @@ from labelle.lib.render_engines.render_engine import RenderEngineException
 
 
 class FontStyle(QComboBox):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         # Populate font_style
         for font_path in get_available_fonts():
@@ -67,17 +67,17 @@ class BaseLabelWidget(QWidget):
 
     itemRenderSignal = QtCore.pyqtSignal(name="itemRenderSignal")
 
-    def content_changed(self):
+    def content_changed(self) -> None:
         """Emit the itemRenderSignal when the content of the label is changed."""
         self.itemRenderSignal.emit()
 
     @property
-    def render_engine_impl(self):
+    def render_engine_impl(self) -> None:
         """Abstract method for getting the render engine of the label."""
         pass
 
     @property
-    def render_engine(self):
+    def render_engine(self) -> RenderEngine | None:
         try:
             return self.render_engine_impl
         except RenderEngineException as err:
@@ -151,7 +151,7 @@ class TextDymoLabelWidget(BaseLabelWidget):
         self.align.currentTextChanged.connect(self.content_changed)
         self.setLayout(layout)
 
-    def content_changed(self):
+    def content_changed(self) -> None:
         """Manage changes to the label contents.
 
         In particular, update the height of the label and emit the itemRenderSignal
@@ -357,7 +357,7 @@ class BarcodeDymoLabelWidget(BaseLabelWidget):
                 QIcon(str(ICON_DIR / "barcode_icon.png")).pixmap(32, 32)
             )
 
-    def toggle_text_fields_and_rerender(self):
+    def toggle_text_fields_and_rerender(self) -> None:
         is_checked = self.show_text_checkbox.isChecked()
         self.set_text_fields_visibility(is_checked)
         self.content_changed()  # Trigger rerender

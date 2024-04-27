@@ -89,7 +89,7 @@ class QLabelList(QListWidget):
         self.setAlternatingRowColors(True)
         self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
 
-    def populate(self):
+    def populate(self) -> None:
         assert self.render_context is not None
         for item_widget in [TextDymoLabelWidget(self.render_context)]:
             item = QListWidgetItem(self)
@@ -149,7 +149,7 @@ class QLabelList(QListWidget):
                 render_engines.append(item_widget.render_engine)
         return HorizontallyCombinedRenderEngine(render_engines=render_engines)
 
-    def render_preview(self):
+    def render_preview(self) -> None:
         assert self.dymo_labeler is not None
         assert self.render_context is not None
         render_engine = PrintPreviewRenderEngine(
@@ -168,7 +168,7 @@ class QLabelList(QListWidget):
 
         self.renderPrintPreviewSignal.emit(bitmap)
 
-    def render_print(self):
+    def render_print(self) -> None:
         assert self.dymo_labeler is not None
         assert self.render_context is not None
         render_engine = PrintPayloadRenderEngine(
@@ -187,11 +187,11 @@ class QLabelList(QListWidget):
 
         self.renderPrintPayloadSignal.emit(bitmap)
 
-    def render_label(self):
+    def render_label(self) -> None:
         self.render_preview()
         self.render_print()
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, event) -> None:
         """Override the default context menu event to add or delete label widgets.
 
         Args:
