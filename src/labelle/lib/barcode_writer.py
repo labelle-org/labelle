@@ -12,8 +12,23 @@ from barcode.writer import BaseWriter
 from PIL import Image, ImageDraw
 
 
-def mm2px(mm: float, dpi: float = 25.4) -> float:
+def _mm2px(mm: float, dpi: float = 25.4) -> float:
     return (mm * dpi) / 25.4
+
+
+def _calculate_size(
+    *,
+    modules_per_line: int,
+    number_of_lines: int,
+    quiet_zone: float,
+    module_width: float,
+    module_height: float,
+    vertical_margin: float,
+    dpi: float = 25.4,
+) -> Tuple[int, int]:
+    width = 2 * quiet_zone + modules_per_line * module_width
+    height = vertical_margin * 2 + module_height * number_of_lines
+    return int(_mm2px(width, dpi)), int(_mm2px(height, dpi))
 
 
 class BarcodeImageWriter(BaseWriter):
@@ -27,13 +42,6 @@ class BarcodeImageWriter(BaseWriter):
         self._image = None
         self._draw = None
         self.vertical_margin = 0
-
-    def calculate_size(
-        self, modules_per_line: int, number_of_lines: int, dpi: float = 25.4
-    ) -> Tuple[int, int]:
-        width = 2 * self.quiet_zone + modules_per_line * self.module_width
-        height = self.vertical_margin * 2 + self.module_height * number_of_lines
-        return int(mm2px(width, dpi)), int(mm2px(height, dpi))
 
     def render(self, code: List[str]) -> Image.Image:
         """Render the barcode.
@@ -82,16 +90,24 @@ class BarcodeImageWriter(BaseWriter):
         return self._finish()
 
     def _init(self, code: List[str]) -> None:
-        size = self.calculate_size(len(code[0]), len(code), self.dpi)
+        size = _calculate_size(
+            modules_per_line=len(code[0]),
+            number_of_lines=len(code),
+            dpi=self.dpi,
+            quiet_zone=self.quiet_zone,
+            module_width=self.module_width,
+            module_height=self.module_height,
+            vertical_margin=self.vertical_margin,
+        )
         self._image = Image.new("1", size, self.background)
         self._draw = ImageDraw.Draw(self._image)
 
     def _paint_module(self, xpos: float, ypos: float, width: float, color) -> None:
         size = (
-            (mm2px(xpos, self.dpi), mm2px(ypos, self.dpi)),
+            (_mm2px(xpos, self.dpi), _mm2px(ypos, self.dpi)),
             (
-                mm2px(xpos + width, self.dpi),
-                mm2px(ypos + self.module_height, self.dpi),
+                _mm2px(xpos + width, self.dpi),
+                _mm2px(ypos + self.module_height, self.dpi),
             ),
         )
         assert self._draw is not None
