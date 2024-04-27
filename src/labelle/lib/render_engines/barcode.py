@@ -25,6 +25,11 @@ class BarcodeRenderEngine(RenderEngine):
         self.barcode_type = barcode_type or DEFAULT_BARCODE_TYPE
 
     def render(self, context: RenderContext) -> Image.Image:
+        if self.barcode_type == "code128" and self.content == "":
+            # An exception is raised on the empty string. Since this is
+            # the default code, we really don't want to trigger a popup
+            # in the GUI before the user entered a barcode.
+            self.content = " "
         try:
             code = barcode_module.get(
                 self.barcode_type, self.content, writer=BarcodeImageWriter()
