@@ -6,7 +6,7 @@
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
 
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 from barcode.writer import BaseWriter
 from PIL import Image, ImageDraw
@@ -32,15 +32,10 @@ def _calculate_size(
 
 
 class BarcodeImageWriter(BaseWriter):
-    _draw: Optional[ImageDraw.ImageDraw]
-    _image: Optional[Image.Image]
-
     def __init__(self) -> None:
         super().__init__(None, None, None, None)
         self.format = "PNG"
         self.dpi = 25.4
-        self._image = None
-        self._draw = None
         self.vertical_margin = 0
 
     def render(self, code: List[str]) -> Image.Image:
@@ -62,8 +57,8 @@ class BarcodeImageWriter(BaseWriter):
             module_height=self.module_height,
             vertical_margin=self.vertical_margin,
         )
-        self._image = Image.new("1", (width, height), self.background)
-        self._draw = ImageDraw.Draw(self._image)
+        image = Image.new("1", (width, height), self.background)
+        draw = ImageDraw.Draw(image)
 
         ypos = self.vertical_margin
         for cc, line in enumerate(code):
@@ -97,7 +92,7 @@ class BarcodeImageWriter(BaseWriter):
                     color=color,
                     dpi=self.dpi,
                     module_height=self.module_height,
-                    draw=self._draw,
+                    draw=draw,
                 )
                 xpos += self.module_width * abs(mod)
             # Add right quiet zone to every line, except last line,
@@ -111,10 +106,10 @@ class BarcodeImageWriter(BaseWriter):
                     color=self.background,
                     dpi=self.dpi,
                     module_height=self.module_height,
-                    draw=self._draw,
+                    draw=draw,
                 )
             ypos += self.module_height
-        return _finish(self._image)
+        return _finish(image)
 
 
 def _paint_module(
