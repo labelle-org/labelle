@@ -107,8 +107,3 @@ class BarcodeImageWriter(BaseWriter):
         assert self._image is not None
         self._image = self._image.point(lambda x: 1 if x > 0 else 0, mode="1")
         return self._image
-
-    def save(self, filename, output):
-        filename = f"{filename}.{self.format.lower()}"
-        output.save(filename, self.format.upper())
-        return filename
