@@ -16,6 +16,25 @@ def _mm2px(mm: float, dpi: float = 25.4) -> float:
     return (mm * dpi) / 25.4
 
 
+def _list_of_runs(line: str) -> List[int]:
+    # Pack line to list give better gfx result, otherwise in can
+    # result in aliasing gaps
+    # '11010111' -> [2, -1, 1, -1, 3]
+    line += " "
+    c = 1
+    mlist = []
+    for i in range(0, len(line) - 1):
+        if line[i] == line[i + 1]:
+            c += 1
+        else:
+            if line[i] == "1":
+                mlist.append(c)
+            else:
+                mlist.append(-c)
+            c = 1
+    return mlist
+
+
 def _calculate_size(
     *,
     modules_per_line: int,
@@ -65,21 +84,7 @@ class BarcodeImageWriter(BaseWriter):
 
         ypos = vertical_margin
         for cc, line in enumerate(code):
-            # Pack line to list give better gfx result, otherwise in can
-            # result in aliasing gaps
-            # '11010111' -> [2, -1, 1, -1, 3]
-            line += " "
-            c = 1
-            mlist = []
-            for i in range(0, len(line) - 1):
-                if line[i] == line[i + 1]:
-                    c += 1
-                else:
-                    if line[i] == "1":
-                        mlist.append(c)
-                    else:
-                        mlist.append(-c)
-                    c = 1
+            mlist = _list_of_runs(line)
             # Left quiet zone is x startposition
             xpos = quiet_zone
             for mod in mlist:
