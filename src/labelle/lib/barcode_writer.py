@@ -20,8 +20,8 @@ class BarcodeImageWriter(BaseWriter):
     _draw: Optional[ImageDraw.ImageDraw]
     _image: Optional[Image.Image]
 
-    def __init__(self):
-        super().__init__(self._init, self._paint_module, None, self._finish)
+    def __init__(self) -> None:
+        super().__init__(None, None, None, None)
         self.format = "PNG"
         self.dpi = 25.4
         self._image = None
@@ -45,8 +45,7 @@ class BarcodeImageWriter(BaseWriter):
                 List of strings matching the writer spec
                 (only contain 0 or 1).
         """
-        if self._callbacks["initialize"] is not None:
-            self._callbacks["initialize"](code)
+        self._init(code)
         ypos = self.vertical_margin
         for cc, line in enumerate(code):
             # Pack line to list give better gfx result, otherwise in can
@@ -72,19 +71,15 @@ class BarcodeImageWriter(BaseWriter):
                 else:
                     color = self.foreground
                 # remove painting for background colored tiles?
-                self._callbacks["paint_module"](
-                    xpos, ypos, self.module_width * abs(mod), color
-                )
+                self._paint_module(xpos, ypos, self.module_width * abs(mod), color)
                 xpos += self.module_width * abs(mod)
             # Add right quiet zone to every line, except last line,
             # quiet zone already provided with background,
             # should it be removed complety?
             if (cc + 1) != len(code):
-                self._callbacks["paint_module"](
-                    xpos, ypos, self.quiet_zone, self.background
-                )
+                self._paint_module(xpos, ypos, self.quiet_zone, self.background)
             ypos += self.module_height
-        return self._callbacks["finish"]()
+        return self._finish()
 
     def _init(self, code: List[str]) -> None:
         size = self.calculate_size(len(code[0]), len(code), self.dpi)
