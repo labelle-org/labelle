@@ -39,6 +39,10 @@ repos:
     - types-pillow
     - types-cffi
     - types-pygments
+    - pyqt6
+    - typer
+    - platformdirs
+    - darkdetect
 
 - repo: https://github.com/igorshubovych/markdownlint-cli
   rev: v0.39.0
