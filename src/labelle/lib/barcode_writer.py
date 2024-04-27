@@ -6,7 +6,7 @@
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
 
-from typing import List, NewType, Tuple
+from typing import List, NamedTuple, NewType, Tuple
 
 from barcode.writer import BaseWriter
 from PIL import Image, ImageDraw
@@ -58,17 +58,18 @@ def _calculate_size(
     return int(_mm2px(width, dpi)), int(_mm2px(height, dpi))
 
 
-class BarcodeImageWriter(BaseWriter):
-    def render(self, code: List[str]) -> Image.Image:
+class BarcodeResult(NamedTuple):
+    line: BinaryString
+    quiet_zone: float
+
+
+class SimpleBarcodeWriter(BaseWriter):
+    def render(self, code: List[str]) -> BarcodeResult:
         """Extract the barcode string from the code and render it into an image."""
         if len(code) != 1:
             raise ValueError("Barcode expected to have only one line")
         line = _validate_string_as_binary(code[0])
-        return convert_binary_string_to_barcode_image(
-            line=line,
-            quiet_zone=self.quiet_zone,
-            module_height=self.module_height,
-        )
+        return BarcodeResult(line=line, quiet_zone=self.quiet_zone)
 
 
 def convert_binary_string_to_barcode_image(
