@@ -90,26 +90,51 @@ class BarcodeImageWriter(BaseWriter):
                 else:
                     color = self.foreground
                 # remove painting for background colored tiles?
-                self._paint_module(xpos, ypos, self.module_width * abs(mod), color)
+                _paint_module(
+                    xpos=xpos,
+                    ypos=ypos,
+                    width=self.module_width * abs(mod),
+                    color=color,
+                    dpi=self.dpi,
+                    module_height=self.module_height,
+                    draw=self._draw,
+                )
                 xpos += self.module_width * abs(mod)
             # Add right quiet zone to every line, except last line,
             # quiet zone already provided with background,
             # should it be removed complety?
             if (cc + 1) != len(code):
-                self._paint_module(xpos, ypos, self.quiet_zone, self.background)
+                _paint_module(
+                    xpos=xpos,
+                    ypos=ypos,
+                    width=self.quiet_zone,
+                    color=self.background,
+                    dpi=self.dpi,
+                    module_height=self.module_height,
+                    draw=self._draw,
+                )
             ypos += self.module_height
         return _finish(self._image)
 
-    def _paint_module(self, xpos: float, ypos: float, width: float, color) -> None:
-        size = (
-            (_mm2px(xpos, self.dpi), _mm2px(ypos, self.dpi)),
-            (
-                _mm2px(xpos + width, self.dpi),
-                _mm2px(ypos + self.module_height, self.dpi),
-            ),
-        )
-        assert self._draw is not None
-        self._draw.rectangle(size, outline=color, fill=color)
+
+def _paint_module(
+    *,
+    xpos: float,
+    ypos: float,
+    width: float,
+    color: str,
+    dpi: float,
+    module_height: float,
+    draw: ImageDraw.ImageDraw,
+) -> None:
+    size = (
+        (_mm2px(xpos, dpi), _mm2px(ypos, dpi)),
+        (
+            _mm2px(xpos + width, dpi),
+            _mm2px(ypos + module_height, dpi),
+        ),
+    )
+    draw.rectangle(size, outline=color, fill=color)
 
 
 def _finish(image: Image.Image) -> Image.Image:
