@@ -82,40 +82,28 @@ class BarcodeImageWriter(BaseWriter):
         draw = ImageDraw.Draw(image)
 
         ypos = vertical_margin
-        for cc, line in enumerate(code):
-            mlist = _list_of_runs(line)
-            # Left quiet zone is x startposition
-            xpos = quiet_zone
-            for mod in mlist:
-                if mod < 1:
-                    color = background
-                else:
-                    color = foreground
-                # remove painting for background colored tiles?
-                _paint_module(
-                    xpos=xpos,
-                    ypos=ypos,
-                    width=module_width * abs(mod),
-                    color=color,
-                    dpi=dpi,
-                    module_height=module_height,
-                    draw=draw,
-                )
-                xpos += module_width * abs(mod)
-            # Add right quiet zone to every line, except last line,
-            # quiet zone already provided with background,
-            # should it be removed complety?
-            if (cc + 1) != len(code):
-                _paint_module(
-                    xpos=xpos,
-                    ypos=ypos,
-                    width=quiet_zone,
-                    color=background,
-                    dpi=dpi,
-                    module_height=module_height,
-                    draw=draw,
-                )
-            ypos += module_height
+        if len(code) != 1:
+            raise ValueError("Barcode expected to have only one line")
+        line = code[0]
+        mlist = _list_of_runs(line)
+        # Left quiet zone is x startposition
+        xpos = quiet_zone
+        for mod in mlist:
+            if mod < 1:
+                color = background
+            else:
+                color = foreground
+            # remove painting for background colored tiles?
+            _paint_module(
+                xpos=xpos,
+                ypos=ypos,
+                width=module_width * abs(mod),
+                color=color,
+                dpi=dpi,
+                module_height=module_height,
+                draw=draw,
+            )
+            xpos += module_width * abs(mod)
         return _finish(image)
 
 
