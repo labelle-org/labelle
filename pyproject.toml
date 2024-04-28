@@ -83,6 +83,7 @@ commands =
   pip freeze
   labelle --version
   labelle --help
+  python -c "import labelle.gui.gui; print('GUI import succeeded')"
   labelle --output console "single line"
   labelle --output console_inverted "inverted"
   labelle --output console multiple lines
