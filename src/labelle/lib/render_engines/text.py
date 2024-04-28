@@ -15,7 +15,7 @@ class TextRenderEngine(RenderEngine):
         self,
         text_lines: str | list[str],
         font_file_name: Path | str,
-        frame_width_px: int | None,
+        frame_width_px: int | None = None,
         font_size_ratio: float = 0.9,
         align: Direction = Direction.CENTER,
     ):
