@@ -25,7 +25,7 @@ class DeviceManagerNoDevices(DeviceManagerError):
 class DeviceManager:
     _devices: dict[str, UsbDevice]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._devices = {}
 
     def scan(self) -> bool:

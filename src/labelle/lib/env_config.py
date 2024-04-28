@@ -6,7 +6,7 @@ def is_env_var_true(env_var: str) -> bool:
     return val is not None and val.lower() in ("1", "true")
 
 
-def is_dev_mode_no_margins():
+def is_dev_mode_no_margins() -> bool:
     return is_env_var_true("LABELLE_DEV_MODE_NO_MARGINS")
 
 

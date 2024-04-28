@@ -133,7 +133,7 @@ class DymoLabelerFunctions:
         response = array.array("B", responseBin).tolist()
         return response
 
-    def _reset_command(self):
+    def _reset_command(self) -> None:
         """Remove a partially built command (MLF)."""
         self._cmd = []
         self._response = False
@@ -142,13 +142,13 @@ class DymoLabelerFunctions:
         """Add the next instruction to the command (MLF)."""
         self._cmd += cmd
 
-    def _status_request(self):
+    def _status_request(self) -> None:
         """Set instruction to get the device's status (MLF)."""
         cmd = [ESC, ord("A")]
         self._build_command(cmd)
         self._response = True
 
-    def _dot_tab(self, value, tape_size_mm: int):
+    def _dot_tab(self, value, tape_size_mm: int) -> None:
         """Set the bias text height, in bytes (MLF)."""
         if value < 0 or value > self._max_bytes_per_line(tape_size_mm):
             raise ValueError
@@ -172,24 +172,24 @@ class DymoLabelerFunctions:
         self._build_command(cmd)
         self._bytesPerLine = value
 
-    def _cut(self):
+    def _cut(self) -> None:
         """Set instruction to trigger cutting of the tape (MLF)."""
         cmd = [ESC, ord("E")]
         self._build_command(cmd)
 
-    def _line(self, value):
+    def _line(self, value) -> None:
         """Set next printed line (MLF)."""
         self._bytes_per_line(len(value))
         cmd = [SYN, *value]
         self._build_command(cmd)
 
-    def _chain_mark(self, tape_size_mm: int):
+    def _chain_mark(self, tape_size_mm: int) -> None:
         """Set Chain Mark (MLF)."""
         self._dot_tab(0, tape_size_mm)
         self._bytes_per_line(self._max_bytes_per_line(tape_size_mm))
         self._line([0x99] * self._max_bytes_per_line(tape_size_mm))
 
-    def _skip_lines(self, value):
+    def _skip_lines(self, value) -> None:
         """Set number of lines of white to print (MLF)."""
         if value <= 0:
             raise ValueError
@@ -197,7 +197,7 @@ class DymoLabelerFunctions:
         cmd = [SYN] * value
         self._build_command(cmd)
 
-    def _init_label(self):
+    def _init_label(self) -> None:
         """Set the label initialization sequence (MLF).
 
         This was in the original dymoprint by S. Bronner but was never invoked.

@@ -6,7 +6,7 @@ LOG = logging.getLogger("labelle")
 VERBOSE_NOTICE = "Run with --verbose for more information"
 
 
-def _update_log_level():
+def _update_log_level() -> None:
     LOG.setLevel(logging.DEBUG if _IS_VERBOSE else logging.INFO)
 
 
@@ -20,7 +20,7 @@ def is_verbose() -> bool:
     return _IS_VERBOSE
 
 
-def configure_logging():
+def configure_logging() -> None:
     handler = logging.StreamHandler(sys.stderr)
     formatter = logging.Formatter("[%(levelname)s] %(message)s")
     handler.setFormatter(formatter)

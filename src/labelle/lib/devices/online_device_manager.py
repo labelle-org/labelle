@@ -23,13 +23,13 @@ class OnlineDeviceManager(QWidget):
     )
     devices_changed_signal = QtCore.pyqtSignal(name="devicesChangedSignal")
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._device_manager = DeviceManager()
         self._last_scan_error = None
         self._init_timers()
 
-    def _refresh_devices(self):
+    def _refresh_devices(self) -> None:
         prev = self._last_scan_error
         try:
             changed = self._device_manager.scan()
@@ -43,7 +43,7 @@ class OnlineDeviceManager(QWidget):
             self.devices_changed_signal.emit()
             self.last_scan_error_changed_signal.emit()
 
-    def _init_timers(self):
+    def _init_timers(self) -> None:
         self._status_time = QTimer()
         self._status_time.timeout.connect(self._refresh_devices)
         self._status_time.start(2000)

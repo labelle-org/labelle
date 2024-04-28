@@ -37,17 +37,17 @@ class QDeviceSelector(QToolBar):
         self._last_scan_error_changed()
         self.selectedDeviceChangedSignal.emit()
 
-    def _init_elements(self):
+    def _init_elements(self) -> None:
         self.device_manager = OnlineDeviceManager()
 
-    def _init_connections(self):
+    def _init_connections(self) -> None:
         self.device_manager.devices_changed_signal.connect(self.repopulate)
         self.device_manager.last_scan_error_changed_signal.connect(
             self._last_scan_error_changed
         )
         self._devices.currentIndexChanged.connect(self._index_changed)
 
-    def repopulate(self):
+    def repopulate(self) -> None:
         old_hashes = {device.hash for device in self.device_manager.devices}
         self._devices.clear()
         for idx, device in enumerate(self.device_manager.devices):
@@ -71,19 +71,19 @@ class QDeviceSelector(QToolBar):
         if new_hashes != old_hashes:
             self.selectedDeviceChangedSignal.emit()
 
-    def _index_changed(self, index):
+    def _index_changed(self, index) -> None:
         if index >= 0:
             self._selected_device = self.device_manager.devices[index]
         else:
             self._selected_device = None
         self.selectedDeviceChangedSignal.emit()
 
-    def _last_scan_error_changed(self):
+    def _last_scan_error_changed(self) -> None:
         last_scan_error = self.device_manager.last_scan_error or ""
         self._error_label.setText(str(last_scan_error))
         self.repopulate()
 
-    def _init_layout(self):
+    def _init_layout(self) -> None:
         self._devices.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._action_devices = self.addWidget(self._devices)
         self._action_error_label = self.addWidget(self._error_label)

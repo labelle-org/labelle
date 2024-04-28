@@ -47,7 +47,7 @@ class QSettingsToolbar(QToolBar):
         self._init_layout()
         self.on_settings_changed()
 
-    def _init_elements(self):
+    def _init_elements(self) -> None:
         self._horizontal_margin_mm.setMaximum(HORIZONTAL_MARGIN_MM__MAX_VALUE)
         self._min_label_width_mm.setMaximum(MIN_LABEL_WIDTH_MM__MIN_VALUE)
         self._justify.addItems(d.value for d in Direction)
@@ -60,7 +60,7 @@ class QSettingsToolbar(QToolBar):
         supported_tape_sizes: tuple[int, ...],
         installed_tape_size: int,
         minimum_horizontal_margin_mm: float,
-    ):
+    ) -> None:
         for tape_size_mm in supported_tape_sizes:
             self._tape_size_mm.addItem(str(tape_size_mm), tape_size_mm)
         tape_size_index = supported_tape_sizes.index(installed_tape_size)
@@ -72,7 +72,7 @@ class QSettingsToolbar(QToolBar):
             self._horizontal_margin_mm.setValue(h_margins_mm)
         self._min_label_width_mm.setMinimum(h_margins_mm * 2)
 
-    def _init_connections(self):
+    def _init_connections(self) -> None:
         self._background_color.currentTextChanged.connect(self.on_settings_changed)
         self._foreground_color.currentTextChanged.connect(self.on_settings_changed)
         self._horizontal_margin_mm.valueChanged.connect(self.on_settings_changed)
@@ -81,7 +81,7 @@ class QSettingsToolbar(QToolBar):
         self._preview_show_margins.stateChanged.connect(self.on_settings_changed)
         self._tape_size_mm.currentTextChanged.connect(self.on_settings_changed)
 
-    def _init_layout(self):
+    def _init_layout(self) -> None:
         self.addWidget(QLabel("Margin [mm]:"))
         self.addWidget(self._horizontal_margin_mm)
         self.addSeparator()
@@ -102,7 +102,7 @@ class QSettingsToolbar(QToolBar):
         self.addWidget(self._preview_show_margins)
 
     @property
-    def settings(self):
+    def settings(self) -> Settings:
         return Settings(
             background_color=self._background_color.currentText(),
             foreground_color=self._foreground_color.currentText(),
@@ -113,5 +113,5 @@ class QSettingsToolbar(QToolBar):
             tape_size_mm=self._tape_size_mm.currentData(),
         )
 
-    def on_settings_changed(self):
+    def on_settings_changed(self) -> None:
         self.settings_changed_signal.emit(self.settings)

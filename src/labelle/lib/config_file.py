@@ -34,7 +34,7 @@ def get_config() -> ConfigParser:
     return config_parser
 
 
-def get_config_section(section_name) -> Optional[Dict[str, Any]]:
+def get_config_section(section_name: str) -> Optional[Dict[str, Any]]:
     config = get_config()
     if section_name not in config:
         return None

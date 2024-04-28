@@ -7,7 +7,7 @@
 # === END LICENSE STATEMENT ===
 import logging
 from pathlib import Path
-from typing import List, Optional
+from typing import List, NoReturn, Optional
 
 import typer
 from rich.console import Console
@@ -54,7 +54,7 @@ from labelle.lib.render_engines import (
 LOG = logging.getLogger(__name__)
 
 
-def mm_to_payload_px(mm: float, margin: float):
+def mm_to_payload_px(mm: float, margin: float) -> float:
     """Convert a length in mm to a number of pixels of payload.
 
     The print resolution is 7 pixels/mm, and margin is subtracted from each side.
@@ -62,7 +62,7 @@ def mm_to_payload_px(mm: float, margin: float):
     return max(0, (mm * PIXELS_PER_MM) - margin * 2)
 
 
-def version_callback(value: bool):
+def version_callback(value: bool) -> None:
     if value:
         typer.echo(f"Labelle: {__version__}")
         raise typer.Exit()
@@ -92,7 +92,7 @@ app = typer.Typer()
 
 
 @app.command(hidden=True)
-def list_devices():
+def list_devices() -> NoReturn:
     device_manager = get_device_manager()
     console = Console()
     headers = ["Manufacturer", "Product", "Serial Number", "USB"]
@@ -123,7 +123,8 @@ def default(
             "--device",
             help=(
                 "Select a particular device by filtering for a given substring "
-                "in the device's manufacturer, product or serial number"
+                "in the device's manufacturer, product or serial number. Call "
+                "with 'list' to list all available devices."
             ),
             rich_help_panel="Device Configuration",
         ),
@@ -234,13 +235,16 @@ def default(
         Optional[int],
         typer.Option(help="Tape size [mm]", rich_help_panel="Device Configuration"),
     ] = None,
-):
+) -> None:
     if ctx.invoked_subcommand is not None:
         return
 
     if (not verbose) and (not is_verbose_env_vars()):
         # Neither --verbose flag nor the environment variable is set.
         set_not_verbose()
+
+    if device_pattern == ["list"]:
+        list_devices()
 
     # read config file
     try:
@@ -366,7 +370,7 @@ def default(
         output_bitmap(bitmap, output)
 
 
-def main():
+def main() -> None:
     configure_logging()
     app()
 

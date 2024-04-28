@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import List, Optional
 
 from PIL import Image
 from PyQt6 import QtCore
@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem, QMe
 from labelle.gui.common import crash_msg_box
 from labelle.gui.q_label_widgets import (
     BarcodeDymoLabelWidget,
+    BaseLabelWidget,
     EmptyRenderEngine,
     ImageDymoLabelWidget,
     QrDymoLabelWidget,
@@ -23,6 +24,7 @@ from labelle.lib.render_engines import (
     RenderContext,
 )
 from labelle.lib.render_engines.render_engine import (
+    RenderEngine,
     RenderEngineException,
 )
 from labelle.lib.utils import mm_to_px
@@ -73,7 +75,6 @@ class QLabelList(QListWidget):
         Image.Image, name="renderPrintPayloadSignal"
     )
     render_context: Optional[RenderContext]
-    itemWidget: TextDymoLabelWidget
     dymo_labeler: Optional[DymoLabeler]
     h_margin_mm: float
     min_label_width_mm: Optional[float]
@@ -89,7 +90,7 @@ class QLabelList(QListWidget):
         self.setAlternatingRowColors(True)
         self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
 
-    def populate(self):
+    def populate(self) -> None:
         assert self.render_context is not None
         for item_widget in [TextDymoLabelWidget(self.render_context)]:
             item = QListWidgetItem(self)
@@ -135,21 +136,25 @@ class QLabelList(QListWidget):
         self.render_context = render_context
         for i in range(self.count()):
             item_widget = self.itemWidget(self.item(i))
+            assert isinstance(item_widget, BaseLabelWidget)
             item_widget.render_context = render_context
         self.render_label()
 
     @property
     def _payload_render_engine(self):
-        render_engines = []
+        render_engines: List[RenderEngine] = []
         for i in range(self.count()):
             item = self.item(i)
             item_widget = self.itemWidget(self.item(i))
             if item_widget and item:
                 item.setSizeHint(item_widget.sizeHint())
-                render_engines.append(item_widget.render_engine)
+                assert isinstance(item_widget, BaseLabelWidget)
+                render_engine = item_widget.render_engine
+                if render_engine is not None:
+                    render_engines.append(render_engine)
         return HorizontallyCombinedRenderEngine(render_engines=render_engines)
 
-    def render_preview(self):
+    def render_preview(self) -> None:
         assert self.dymo_labeler is not None
         assert self.render_context is not None
         render_engine = PrintPreviewRenderEngine(
@@ -168,7 +173,7 @@ class QLabelList(QListWidget):
 
         self.renderPrintPreviewSignal.emit(bitmap)
 
-    def render_print(self):
+    def render_print(self) -> None:
         assert self.dymo_labeler is not None
         assert self.render_context is not None
         render_engine = PrintPayloadRenderEngine(
@@ -187,11 +192,11 @@ class QLabelList(QListWidget):
 
         self.renderPrintPayloadSignal.emit(bitmap)
 
-    def render_label(self):
+    def render_label(self) -> None:
         self.render_preview()
         self.render_print()
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, event) -> None:
         """Override the default context menu event to add or delete label widgets.
 
         Args:
@@ -210,35 +215,35 @@ class QLabelList(QListWidget):
 
         if menu_click == add_text:
             item = QListWidgetItem(self)
-            item_widget = TextDymoLabelWidget(self.render_context)
-            item.setSizeHint(item_widget.sizeHint())
+            text_item_widget = TextDymoLabelWidget(self.render_context)
+            item.setSizeHint(text_item_widget.sizeHint())
             self.addItem(item)
-            self.setItemWidget(item, item_widget)
-            item_widget.itemRenderSignal.connect(self.render_label)
+            self.setItemWidget(item, text_item_widget)
+            text_item_widget.itemRenderSignal.connect(self.render_label)
 
         if menu_click == add_qr:
             item = QListWidgetItem(self)
-            item_widget = QrDymoLabelWidget(self.render_context)
-            item.setSizeHint(item_widget.sizeHint())
+            qr_item_widget = QrDymoLabelWidget(self.render_context)
+            item.setSizeHint(qr_item_widget.sizeHint())
             self.addItem(item)
-            self.setItemWidget(item, item_widget)
-            item_widget.itemRenderSignal.connect(self.render_label)
+            self.setItemWidget(item, qr_item_widget)
+            qr_item_widget.itemRenderSignal.connect(self.render_label)
 
         if menu_click == add_barcode:
             item = QListWidgetItem(self)
-            item_widget = BarcodeDymoLabelWidget(self.render_context)
-            item.setSizeHint(item_widget.sizeHint())
+            barcode_item_widget = BarcodeDymoLabelWidget(self.render_context)
+            item.setSizeHint(barcode_item_widget.sizeHint())
             self.addItem(item)
-            self.setItemWidget(item, item_widget)
-            item_widget.itemRenderSignal.connect(self.render_label)
+            self.setItemWidget(item, barcode_item_widget)
+            barcode_item_widget.itemRenderSignal.connect(self.render_label)
 
         if menu_click == add_img:
             item = QListWidgetItem(self)
-            item_widget = ImageDymoLabelWidget(self.render_context)
-            item.setSizeHint(item_widget.sizeHint())
+            image_item_widget = ImageDymoLabelWidget(self.render_context)
+            item.setSizeHint(image_item_widget.sizeHint())
             self.addItem(item)
-            self.setItemWidget(item, item_widget)
-            item_widget.itemRenderSignal.connect(self.render_label)
+            self.setItemWidget(item, image_item_widget)
+            image_item_widget.itemRenderSignal.connect(self.render_label)
         if menu_click == delete:
             try:
                 item_to_delete = self.itemAt(event.pos())
