@@ -144,7 +144,7 @@ def default(
     frame_width_px: Annotated[
         Optional[int],
         typer.Option(
-            help="Draw frame around the text, more arguments for thicker frame",
+            help="Draw frame of given width [px] around text",
             rich_help_panel="Design",
         ),
     ] = None,
@@ -166,7 +166,8 @@ def default(
     min_length: Annotated[
         Optional[float],
         typer.Option(
-            help="Minimum label length [mm]", rich_help_panel="Label Dimensions"
+            help="Minimum label length [mm], add whitespace if smaller",
+            rich_help_panel="Label Dimensions",
         ),
     ] = None,
     max_length: Annotated[
@@ -179,7 +180,7 @@ def default(
     fixed_length: Annotated[
         Optional[float],
         typer.Option(
-            help="Fixed label length [mm], error if the label won't fit",
+            help="Fixed label length [mm], set both minimum and maximum length",
             rich_help_panel="Label Dimensions",
         ),
     ] = None,
