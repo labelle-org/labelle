@@ -88,10 +88,6 @@ def get_device_manager() -> DeviceManager:
     return device_manager
 
 
-app = typer.Typer()
-
-
-@app.command(hidden=True)
 def list_devices() -> NoReturn:
     device_manager = get_device_manager()
     console = Console()
@@ -103,6 +99,9 @@ def list_devices() -> NoReturn:
         )
     console.print(table)
     raise typer.Exit()
+
+
+app = typer.Typer()
 
 
 @app.callback(invoke_without_command=True)
@@ -123,7 +122,8 @@ def default(
             "--device",
             help=(
                 "Select a particular device by filtering for a given substring "
-                "in the device's manufacturer, product or serial number"
+                "in the device's manufacturer, product or serial number. "
+                'Use "--device list" to list all available devices.'
             ),
             rich_help_panel="Device Configuration",
         ),
@@ -377,6 +377,9 @@ def default(
     if (not verbose) and (not is_verbose_env_vars()):
         # Neither --verbose flag nor the environment variable is set.
         set_not_verbose()
+
+    if device_pattern == ["list"]:
+        list_devices()
 
     # Raise informative errors with old dymoprint arguments
     if preview:
