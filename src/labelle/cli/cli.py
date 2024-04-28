@@ -123,8 +123,7 @@ def default(
             "--device",
             help=(
                 "Select a particular device by filtering for a given substring "
-                "in the device's manufacturer, product or serial number. Call "
-                "with 'list' to list all available devices."
+                "in the device's manufacturer, product or serial number"
             ),
             rich_help_panel="Device Configuration",
         ),
@@ -242,9 +241,6 @@ def default(
     if (not verbose) and (not is_verbose_env_vars()):
         # Neither --verbose flag nor the environment variable is set.
         set_not_verbose()
-
-    if device_pattern == ["list"]:
-        list_devices()
 
     # read config file
     try:
