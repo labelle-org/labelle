@@ -130,7 +130,7 @@ def default(
     ] = None,
     text: Annotated[
         Optional[List[str]],
-        typer.Argument(
+        typer.Option(
             help="Text, each parameter gives a new line",
             rich_help_panel="Elements",
         ),
