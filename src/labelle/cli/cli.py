@@ -47,7 +47,7 @@ from labelle.lib.render_engines import (
     QrRenderEngine,
     RenderContext,
     RenderEngine,
-    TestPatternRenderEngine,
+    SamplePatternRenderEngine,
     TextRenderEngine,
 )
 
@@ -159,7 +159,7 @@ def default(
             rich_help_panel="Design",
         ),
     ] = Direction.LEFT,
-    test_pattern: Annotated[
+    sample_pattern: Annotated[
         Optional[int],
         typer.Option(help="Prints test pattern of a desired dot width"),
     ] = None,
@@ -454,8 +454,8 @@ def default(
 
     render_engines: list[RenderEngine] = []
 
-    if test_pattern:
-        render_engines.append(TestPatternRenderEngine(test_pattern))
+    if sample_pattern:
+        render_engines.append(SamplePatternRenderEngine(sample_pattern))
 
     if qr_content:
         render_engines.append(QrRenderEngine(qr_content))
