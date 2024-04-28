@@ -36,13 +36,16 @@ repos:
   hooks:
   - id: mypy
     additional_dependencies:
+    - darkdetect
+    - platformdirs
+    # This is a hack to get type checking for PyQt6 but to stay under
+    # pre-commit.ci's 250MiB limit.
+    # <https://github.com/maresb/pyqt6-without-qt>
+    - pyqt6-without-qt
+    - typer
     - types-pillow
     - types-cffi
     - types-pygments
-    - pyqt6
-    - typer
-    - platformdirs
-    - darkdetect
 
 - repo: https://github.com/igorshubovych/markdownlint-cli
   rev: v0.39.0
