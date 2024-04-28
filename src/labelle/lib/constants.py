@@ -105,9 +105,9 @@ class Direction(str, Enum):
 
 
 class Output(str, Enum):
-    PRINTER = "printer"
+    BROWSER = "browser"
     CONSOLE = "console"
     CONSOLE_INVERTED = "console-inverted"
-    BROWSER = "browser"
     IMAGEMAGICK = "imagemagick"
     PNG = "png"
+    PRINTER = "printer"
