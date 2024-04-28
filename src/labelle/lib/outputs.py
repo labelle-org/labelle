@@ -20,3 +20,6 @@ def output_bitmap(bitmap: Image.Image, output: Output):
             inverted = ImageOps.invert(bitmap.convert("RGB"))
             ImageOps.invert(inverted).save(fp)
             webbrowser.open(f"file://{fp.name}")
+    if output == Output.PNG:
+        bitmap.save("output.png")
+        typer.echo("Saved output.png")

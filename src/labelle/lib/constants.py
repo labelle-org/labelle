@@ -110,3 +110,4 @@ class Output(str, Enum):
     CONSOLE_INVERTED = "console-inverted"
     BROWSER = "browser"
     IMAGEMAGICK = "imagemagick"
+    PNG = "png"
