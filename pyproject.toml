@@ -85,7 +85,7 @@ commands =
   labelle --help
   python -c "import labelle.gui.gui; print('GUI import succeeded')"
   labelle --output console "single line"
-  labelle --output console_inverted "inverted"
+  labelle --output console-inverted "inverted"
   labelle --output console multiple lines
   labelle --output console --barcode "Barcode" --barcode-type code128
   labelle --output console --barcode-with-text "Barcode" --barcode-type code128 Caption
