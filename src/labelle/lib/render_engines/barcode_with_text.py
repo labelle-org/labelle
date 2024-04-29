@@ -45,11 +45,11 @@ class BarcodeWithTextRenderEngine(RenderEngine):
         # Define the x and y of the upper-left corner of the text
         # to be pasted onto the barcode
         text_offset_x = bitmap.height - text_bitmap.height - 1
-        if self.align == "left":
+        if self.align == Direction.LEFT:
             text_offset_y = 0
-        elif self.align == "center":
+        elif self.align == Direction.CENTER:
             text_offset_y = bitmap.width // 2 - text_bitmap.width // 2
-        elif self.align == "right":
+        elif self.align == Direction.RIGHT:
             text_offset_y = bitmap.width - text_bitmap.width
         else:
             raise RenderEngineException(f"Invalid align value: {self.align}")
