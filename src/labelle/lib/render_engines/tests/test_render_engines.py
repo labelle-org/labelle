@@ -9,6 +9,8 @@ from labelle.lib.render_engines import (
     BarcodeRenderError,
     BarcodeWithTextRenderEngine,
     EmptyRenderEngine,
+    PicturePathDoesNotExist,
+    PictureRenderEngine,
     RenderContext,
     TextRenderEngine,
 )
@@ -118,6 +120,23 @@ def test_empty_render_engine(request, image_diff, width_px):
     )
     image = render_engine.render(RENDER_CONTEXT)
     verify_image(request, image_diff, image)
+
+
+#######################
+# PictureRenderEngine #
+#######################
+
+
+def test_picture_render_engine(request, image_diff):
+    render_engine = PictureRenderEngine(picture_path="labelle.png")
+    image = render_engine.render(RENDER_CONTEXT)
+    verify_image(request, image_diff, image)
+
+
+def test_picture_render_engine_bad_path():
+    with pytest.raises(PicturePathDoesNotExist) as exc_info:
+        PictureRenderEngine(picture_path="non_existent.png")
+    assert str(exc_info.value) == "Picture path does not exist: non_existent.png"
 
 
 ####################
