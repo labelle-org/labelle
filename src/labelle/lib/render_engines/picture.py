@@ -12,18 +12,18 @@ from labelle.lib.render_engines.render_engine import (
 )
 
 
-class NoPictureFilePath(RenderEngineException):
+class PicturePathDoesNotExist(RenderEngineException):
     pass
 
 
 class PictureRenderEngine(RenderEngine):
     def __init__(self, picture_path: Path | str) -> None:
         super().__init__()
-        if not picture_path:
-            raise NoPictureFilePath()
         self.picture_path = Path(picture_path)
         if not self.picture_path.is_file():
-            raise RenderEngineException(f"Picture path does not exist: {picture_path}")
+            raise PicturePathDoesNotExist(
+                f"Picture path does not exist: {picture_path}"
+            )
 
     def render(self, context: RenderContext) -> Image.Image:
         height_px = context.height_px

@@ -5,7 +5,10 @@ from labelle.lib.render_engines.horizontally_combined import (
     HorizontallyCombinedRenderEngine,
 )
 from labelle.lib.render_engines.margins import MarginsRenderEngine
-from labelle.lib.render_engines.picture import NoPictureFilePath, PictureRenderEngine
+from labelle.lib.render_engines.picture import (
+    PicturePathDoesNotExist,
+    PictureRenderEngine,
+)
 from labelle.lib.render_engines.print_payload import PrintPayloadRenderEngine
 from labelle.lib.render_engines.print_preview import PrintPreviewRenderEngine
 from labelle.lib.render_engines.qr import NoContentError, QrRenderEngine
@@ -22,7 +25,7 @@ __all__ = [
     "HorizontallyCombinedRenderEngine",
     "MarginsRenderEngine",
     "NoContentError",
-    "NoPictureFilePath",
+    "PicturePathDoesNotExist",
     "PictureRenderEngine",
     "PrintPayloadRenderEngine",
     "PrintPreviewRenderEngine",
