@@ -1,6 +1,7 @@
 from PIL import Image
 
 from labelle.lib.constants import QRCode
+from labelle.lib.render_engines import NoContentError
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import (
     RenderEngine,
@@ -13,10 +14,6 @@ class QrTooBigError(RenderEngineException):
     def __init__(self) -> None:
         msg = "Too much information to store in the QR code"
         super().__init__(msg)
-
-
-class NoContentError(RenderEngineException):
-    pass
 
 
 class QrRenderEngine(RenderEngine):

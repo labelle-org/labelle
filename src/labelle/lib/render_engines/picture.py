@@ -5,6 +5,7 @@ from pathlib import Path
 
 from PIL import Image, ImageOps, UnidentifiedImageError
 
+from labelle.lib.render_engines import NoContentError
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import (
     RenderEngine,
@@ -24,6 +25,8 @@ class UnidentifiedImageFileError(RenderEngineException):
 class PictureRenderEngine(RenderEngine):
     def __init__(self, picture_path: Path | str) -> None:
         super().__init__()
+        if picture_path == "":
+            raise NoContentError()
         self.picture_path = Path(picture_path)
         if not self.picture_path.is_file():
             raise PicturePathDoesNotExist(

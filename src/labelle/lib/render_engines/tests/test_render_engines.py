@@ -143,6 +143,11 @@ def test_picture_render_engine_bad_path():
     assert str(exc_info.value) == "Picture path does not exist: non_existent.png"
 
 
+def test_picture_render_engine_empty_path():
+    with pytest.raises(NoContentError):
+        PictureRenderEngine(picture_path="")
+
+
 def test_picture_render_engine_bad_image_file():
     render_engine = PictureRenderEngine(picture_path="README.md")
     with pytest.raises(UnidentifiedImageFileError) as exc_info:
