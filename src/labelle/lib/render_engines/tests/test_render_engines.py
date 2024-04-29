@@ -9,8 +9,11 @@ from labelle.lib.render_engines import (
     BarcodeRenderError,
     BarcodeWithTextRenderEngine,
     EmptyRenderEngine,
+    NoContentError,
     PicturePathDoesNotExist,
     PictureRenderEngine,
+    QrRenderEngine,
+    QrTooBigError,
     RenderContext,
     TextRenderEngine,
 )
@@ -137,6 +140,29 @@ def test_picture_render_engine_bad_path():
     with pytest.raises(PicturePathDoesNotExist) as exc_info:
         PictureRenderEngine(picture_path="non_existent.png")
     assert str(exc_info.value) == "Picture path does not exist: non_existent.png"
+
+
+##################
+# QrRenderEngine #
+##################
+
+
+def test_qr_render_engine(request, image_diff):
+    render_engine = QrRenderEngine(content="Hello, World!")
+    image = render_engine.render(RENDER_CONTEXT)
+    verify_image(request, image_diff, image)
+
+
+def test_qr_render_engine_no_content():
+    with pytest.raises(NoContentError):
+        QrRenderEngine(content="")
+
+
+def test_qr_render_engine_too_big():
+    render_engine = QrRenderEngine(content="Hello, World!" * 100)
+    with pytest.raises(QrTooBigError) as exc_info:
+        render_engine.render(RENDER_CONTEXT)
+    assert str(exc_info.value) == "Too much information to store in the QR code"
 
 
 ####################
