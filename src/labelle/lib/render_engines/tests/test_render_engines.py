@@ -16,6 +16,7 @@ from labelle.lib.render_engines import (
     QrTooBigError,
     RenderContext,
     TextRenderEngine,
+    UnidentifiedImageFileError,
 )
 
 RENDER_CONTEXT = RenderContext(height_px=100)
@@ -140,6 +141,13 @@ def test_picture_render_engine_bad_path():
     with pytest.raises(PicturePathDoesNotExist) as exc_info:
         PictureRenderEngine(picture_path="non_existent.png")
     assert str(exc_info.value) == "Picture path does not exist: non_existent.png"
+
+
+def test_picture_render_engine_bad_image_file():
+    render_engine = PictureRenderEngine(picture_path="README.md")
+    with pytest.raises(UnidentifiedImageFileError) as exc_info:
+        render_engine.render(RENDER_CONTEXT)
+    assert str(exc_info.value).startswith("cannot identify image file")
 
 
 ##################

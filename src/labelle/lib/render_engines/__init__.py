@@ -8,6 +8,7 @@ from labelle.lib.render_engines.margins import MarginsRenderEngine
 from labelle.lib.render_engines.picture import (
     PicturePathDoesNotExist,
     PictureRenderEngine,
+    UnidentifiedImageFileError,
 )
 from labelle.lib.render_engines.print_payload import PrintPayloadRenderEngine
 from labelle.lib.render_engines.print_preview import PrintPreviewRenderEngine
@@ -35,4 +36,5 @@ __all__ = [
     "RenderEngine",
     "SamplePatternRenderEngine",
     "TextRenderEngine",
+    "UnidentifiedImageFileError",
 ]
