@@ -235,6 +235,135 @@ def default(
         Optional[int],
         typer.Option(help="Tape size [mm]", rich_help_panel="Device Configuration"),
     ] = None,
+    # Old dymoprint arguments
+    preview: Annotated[
+        bool,
+        typer.Option(
+            "--preview",
+            "-n",
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = False,
+    preview_inverted: Annotated[
+        bool,
+        typer.Option(
+            "--preview-inverted",
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = False,
+    imagemagick: Annotated[
+        bool,
+        typer.Option(
+            "--imagemagick",
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = False,
+    old_help: Annotated[
+        bool,
+        typer.Option(
+            "-h",
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = False,
+    old_frame: Annotated[
+        bool,
+        typer.Option(
+            "-f",
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = False,
+    old_style: Annotated[
+        Optional[str],
+        typer.Option(
+            "-s",
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = None,
+    old_align: Annotated[
+        Optional[str],
+        typer.Option(
+            "-a",
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = None,
+    old_font: Annotated[
+        Optional[str],
+        typer.Option(
+            "-u",
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = None,
+    old_barcode: Annotated[
+        Optional[str],
+        typer.Option(
+            "-c",
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = None,
+    barcode_text: Annotated[
+        Optional[str],
+        typer.Option(
+            "--barcode-text",
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = None,
+    old_picture: Annotated[
+        Optional[str],
+        typer.Option(
+            "-p",
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = None,
+    old_margin: Annotated[
+        Optional[int],
+        typer.Option(
+            "-m",
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = None,
+    scale: Annotated[
+        Optional[float],
+        typer.Option(
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = None,
+    old_tape_size: Annotated[
+        Optional[int],
+        typer.Option(
+            "-t",
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = None,
+    old_min_length: Annotated[
+        Optional[float],
+        typer.Option(
+            "-l",
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = None,
+    old_justify: Annotated[
+        Optional[str],
+        typer.Option(
+            "-j",
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = None,
 ) -> None:
     if ctx.invoked_subcommand is not None:
         return
@@ -242,6 +371,55 @@ def default(
     if (not verbose) and (not is_verbose_env_vars()):
         # Neither --verbose flag nor the environment variable is set.
         set_not_verbose()
+
+    # Raise informative errors with old dymoprint arguments
+    if preview:
+        raise typer.BadParameter(
+            "The --preview / -n flag is deprecated. Use --output=console instead."
+        )
+    if preview_inverted:
+        raise typer.BadParameter(
+            "The --preview-inverted flag is deprecated. Use "
+            "--output=console-inverted instead."
+        )
+    if imagemagick:
+        raise typer.BadParameter(
+            "The --imagemagick flag is deprecated. Use --output=imagemagick instead."
+        )
+    if old_help:
+        raise typer.BadParameter("The -h flag is deprecated. Use --help instead.")
+    if old_frame:
+        raise typer.BadParameter(
+            "The -f flag is deprecated. Use --frame-width-px instead."
+        )
+    if old_style is not None:
+        raise typer.BadParameter("The -s flag is deprecated. Use --style instead.")
+    if old_align is not None:
+        raise typer.BadParameter("The -a flag is deprecated. Use --align instead.")
+    if old_font is not None:
+        raise typer.BadParameter("The -u flag is deprecated. Use --font instead.")
+    if old_barcode is not None:
+        raise typer.BadParameter("The -c flag is deprecated. Use --barcode instead.")
+    if barcode_text is not None:
+        raise typer.BadParameter(
+            "The --barcode-text flag is deprecated. Use --barcode-with-text instead."
+        )
+    if old_picture is not None:
+        raise typer.BadParameter("The -p flag is deprecated. Use --picture instead.")
+    if old_margin is not None:
+        raise typer.BadParameter("The -m flag is deprecated. Use --margin-px instead.")
+    if scale is not None:
+        raise typer.BadParameter(
+            "The --scale flag is deprecated. Use --font-scale instead."
+        )
+    if old_tape_size is not None:
+        raise typer.BadParameter(
+            "The -t flag is deprecated. Use --tape-size-mm instead."
+        )
+    if old_min_length is not None:
+        raise typer.BadParameter("The -l flag is deprecated. Use --min-length instead.")
+    if old_justify is not None:
+        raise typer.BadParameter("The -j flag is deprecated. Use --justify instead.")
 
     # read config file
     try:
