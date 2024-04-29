@@ -24,6 +24,7 @@ dependencies = [
     "PyQt6",
     "darkdetect",
     "typer",
+    "pytest-cov",
     "pytest-image-diff",
 ]
 classifiers = [
@@ -81,6 +82,7 @@ python =
 commands =
   pip check
   pip freeze
+  pytest --cov=src/labelle --cov-report html:{work_dir}/{env_name}/htmlcov --cov-fail-under=45
   labelle --version
   labelle --help
   python -c "import labelle.gui.gui; print('GUI import succeeded')"
