@@ -21,8 +21,8 @@ if DEFAULT_BARCODE_TYPE != BarcodeType.CODE128:
 
 
 class BarcodeRenderError(RenderEngineException):
-    def __init__(self) -> None:
-        msg = "Barcode render error"
+    def __init__(self, exception) -> None:
+        msg = f"Barcode render error: {exception}"
         super().__init__(msg)
 
 
@@ -47,7 +47,7 @@ class BarcodeRenderEngine(RenderEngine):
             )
             result = code_obj.render()
         except BaseException as e:
-            raise BarcodeRenderError from e
+            raise BarcodeRenderError(e) from e
         bitmap = convert_binary_string_to_barcode_image(
             line=result.line,
             quiet_zone=result.quiet_zone,

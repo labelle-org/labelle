@@ -1,4 +1,4 @@
-from labelle.lib.render_engines.barcode import BarcodeRenderEngine
+from labelle.lib.render_engines.barcode import BarcodeRenderEngine, BarcodeRenderError
 from labelle.lib.render_engines.barcode_with_text import BarcodeWithTextRenderEngine
 from labelle.lib.render_engines.empty import EmptyRenderEngine
 from labelle.lib.render_engines.horizontally_combined import (
@@ -16,6 +16,7 @@ from labelle.lib.render_engines.text import TextRenderEngine
 
 __all__ = [
     "BarcodeRenderEngine",
+    "BarcodeRenderError",
     "BarcodeWithTextRenderEngine",
     "EmptyRenderEngine",
     "HorizontallyCombinedRenderEngine",
