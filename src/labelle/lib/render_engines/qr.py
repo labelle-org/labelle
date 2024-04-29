@@ -22,7 +22,7 @@ class NoContentError(RenderEngineException):
 class QrRenderEngine(RenderEngine):
     _content: str
 
-    def __init__(self, content):
+    def __init__(self, content: str):
         super().__init__()
         if not len(content):
             raise NoContentError()
