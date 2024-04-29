@@ -3,8 +3,10 @@ from pathlib import Path
 import PIL.ImageOps
 import pytest
 
-from labelle.lib.constants import Direction
+from labelle.lib.constants import BarcodeType, Direction
 from labelle.lib.render_engines import (
+    BarcodeRenderEngine,
+    BarcodeRenderError,
     BarcodeWithTextRenderEngine,
     RenderContext,
     TextRenderEngine,
@@ -62,6 +64,45 @@ def test_barcode_with_text_render_engine_(request, image_diff, font_size_ratio):
     )
     image = render_engine.render(RENDER_CONTEXT)
     verify_image(request, image_diff, image)
+
+
+#######################
+# BarcodeRenderEngine #
+#######################
+
+
+def test_barcode_render_engine(request, image_diff):
+    render_engine = BarcodeRenderEngine(
+        content="hello, world!",
+    )
+    image = render_engine.render(RENDER_CONTEXT)
+    verify_image(request, image_diff, image)
+
+
+@pytest.mark.parametrize(
+    "barcode_type,content",
+    [
+        (BarcodeType.EAN, "123456789012"),
+        (BarcodeType.UPC, "12345678901"),
+        (BarcodeType.CODE39, "123"),
+    ],
+)
+def test_barcode_render_engine_barcode_type(request, image_diff, barcode_type, content):
+    render_engine = BarcodeRenderEngine(content=content, barcode_type=barcode_type)
+    image = render_engine.render(RENDER_CONTEXT)
+    verify_image(request, image_diff, image)
+
+
+def test_barcode_render_engine_internal_error(request, image_diff):
+    render_engine = BarcodeRenderEngine(
+        content="No alphabet allowed", barcode_type=BarcodeType.EAN
+    )
+    with pytest.raises(BarcodeRenderError) as exc_info:
+        render_engine.render(RENDER_CONTEXT)
+    assert (
+        str(exc_info.value)
+        == "Barcode render error: EAN code can only contain numbers."
+    )
 
 
 ####################
