@@ -8,6 +8,7 @@ from labelle.lib.render_engines import (
     BarcodeRenderEngine,
     BarcodeRenderError,
     BarcodeWithTextRenderEngine,
+    EmptyRenderEngine,
     RenderContext,
     TextRenderEngine,
 )
@@ -103,6 +104,20 @@ def test_barcode_render_engine_internal_error(request, image_diff):
         str(exc_info.value)
         == "Barcode render error: EAN code can only contain numbers."
     )
+
+
+#####################
+# EmptyRenderEngine #
+#####################
+
+
+@pytest.mark.parametrize("width_px", [1, 10, 100])
+def test_empty_render_engine(request, image_diff, width_px):
+    render_engine = EmptyRenderEngine(
+        width_px=width_px,
+    )
+    image = render_engine.render(RENDER_CONTEXT)
+    verify_image(request, image_diff, image)
 
 
 ####################
