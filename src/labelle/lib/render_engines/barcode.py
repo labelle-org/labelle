@@ -27,7 +27,7 @@ class BarcodeRenderError(RenderEngineException):
 
 
 class BarcodeRenderEngine(RenderEngine):
-    def __init__(self, content: str, barcode_type: str | None = None) -> None:
+    def __init__(self, content: str, barcode_type: BarcodeType | None = None) -> None:
         super().__init__()
         self.content = content
         self.barcode_type = barcode_type or DEFAULT_BARCODE_TYPE
