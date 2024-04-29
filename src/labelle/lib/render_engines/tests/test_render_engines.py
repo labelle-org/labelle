@@ -15,6 +15,7 @@ from labelle.lib.render_engines import (
     QrRenderEngine,
     QrTooBigError,
     RenderContext,
+    SamplePatternRenderEngine,
     TextRenderEngine,
     UnidentifiedImageFileError,
 )
@@ -176,6 +177,18 @@ def test_qr_render_engine_too_big():
     with pytest.raises(QrTooBigError) as exc_info:
         render_engine.render(RENDER_CONTEXT)
     assert str(exc_info.value) == "Too much information to store in the QR code"
+
+
+#############################
+# SamplePatternRenderEngine #
+#############################
+
+
+@pytest.mark.parametrize("width", [10, 100, 1000])
+def test_sample_pattern_render_engine(request, image_diff, width):
+    render_engine = SamplePatternRenderEngine(width=width)
+    image = render_engine.render(RENDER_CONTEXT)
+    verify_image(request, image_diff, image)
 
 
 ####################
