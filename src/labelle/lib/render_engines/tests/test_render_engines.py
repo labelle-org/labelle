@@ -3,7 +3,7 @@ from pathlib import Path
 import PIL.ImageOps
 import pytest
 
-from labelle.lib.constants import BarcodeType, Direction
+from labelle.lib.constants import DEFAULT_BARCODE_TYPE, BarcodeType, Direction
 from labelle.lib.render_engines import (
     BarcodeRenderEngine,
     BarcodeRenderError,
@@ -96,13 +96,30 @@ def test_barcode_render_engine(request, image_diff):
         (BarcodeType.EAN, "123456789012"),
         (BarcodeType.UPC, "12345678901"),
         (BarcodeType.CODE39, "123"),
-        (BarcodeType.CODE128, ""),
+        (DEFAULT_BARCODE_TYPE, " "),
+        # Empty string in default type should be replaced with a space
+        (DEFAULT_BARCODE_TYPE, ""),
     ],
 )
 def test_barcode_render_engine_barcode_type(request, image_diff, barcode_type, content):
     render_engine = BarcodeRenderEngine(content=content, barcode_type=barcode_type)
     image = render_engine.render(RENDER_CONTEXT)
     verify_image(request, image_diff, image)
+
+
+def test_barcode_render_engine_default_barcode_type():
+    """Test default type handling.
+
+    Test our mechanism of replacing an empty string with a space for the default
+    barcode type, to prevent an error.
+    """
+    images = [
+        BarcodeRenderEngine(content=content, barcode_type=DEFAULT_BARCODE_TYPE).render(
+            RENDER_CONTEXT
+        )
+        for content in ["", " "]
+    ]
+    assert images[0].tobytes() == images[1].tobytes()
 
 
 def test_barcode_render_engine_internal_error():
