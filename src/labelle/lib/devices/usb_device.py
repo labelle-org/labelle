@@ -167,8 +167,8 @@ class UsbDevice:
             [
                 'ACTION=="add"',
                 'SUBSYSTEMS=="usb"',
-                f'ATTRS{{idVendor}}=="{self._dev.idVendor:04x}"',
-                f'ATTRS{{idProduct}}=="{self._dev.idProduct:04x}"',
+                f'ATTRS{{idVendor}}=="{self.id_vendor:04x}"',
+                f'ATTRS{{idProduct}}=="{self.id_product:04x}"',
                 'MODE="0666"',
             ]
         )
