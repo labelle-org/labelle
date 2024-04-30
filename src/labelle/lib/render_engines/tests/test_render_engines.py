@@ -65,7 +65,9 @@ def test_barcode_with_text_render_engine_alignment(request, image_diff, align):
 
 
 @pytest.mark.parametrize("font_size_ratio", [x / 10 for x in range(2, 11, 2)])
-def test_barcode_with_text_render_engine_(request, image_diff, font_size_ratio):
+def test_barcode_with_text_render_engine_font_size_ratio(
+    request, image_diff, font_size_ratio
+):
     render_engine = BarcodeWithTextRenderEngine(
         content="hello, world!",
         font_file_name=FONT_FILE_NAME,
