@@ -9,6 +9,7 @@ from labelle.lib.render_engines import (
     BarcodeRenderError,
     BarcodeWithTextRenderEngine,
     EmptyRenderEngine,
+    HorizontallyCombinedRenderEngine,
     NoContentError,
     PicturePathDoesNotExist,
     PictureRenderEngine,
@@ -124,6 +125,44 @@ def test_empty_render_engine(request, image_diff, width_px):
     render_engine = EmptyRenderEngine(
         width_px=width_px,
     )
+    image = render_engine.render(RENDER_CONTEXT)
+    verify_image(request, image_diff, image)
+
+
+####################################
+# HorizontallyCombinedRenderEngine #
+####################################
+
+
+def test_horizontally_combined_render_engine_single(request, image_diff):
+    inner_render_engine = TextRenderEngine(
+        text_lines=["Hello, World!"],
+        font_file_name=FONT_FILE_NAME,
+    )
+    render_engine = HorizontallyCombinedRenderEngine(
+        render_engines=[inner_render_engine]
+    )
+    image = render_engine.render(RENDER_CONTEXT)
+    verify_image(request, image_diff, image)
+
+
+def test_horizontally_combined_render_engine_multiple(request, image_diff):
+    inner_render_engines = [
+        TextRenderEngine(
+            text_lines=[f"Render #{i}"],
+            font_file_name=FONT_FILE_NAME,
+        )
+        for i in range(1, 4)
+    ]
+    render_engine = HorizontallyCombinedRenderEngine(
+        render_engines=inner_render_engines
+    )
+    image = render_engine.render(RENDER_CONTEXT)
+    verify_image(request, image_diff, image)
+
+
+def test_horizontally_combined_render_engine_empty(request, image_diff):
+    render_engine = HorizontallyCombinedRenderEngine(render_engines=[])
     image = render_engine.render(RENDER_CONTEXT)
     verify_image(request, image_diff, image)
 
