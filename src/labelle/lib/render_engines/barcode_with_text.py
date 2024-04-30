@@ -7,10 +7,7 @@ from PIL import Image
 from labelle.lib.constants import BarcodeType, Direction
 from labelle.lib.render_engines.barcode import BarcodeRenderEngine
 from labelle.lib.render_engines.render_context import RenderContext
-from labelle.lib.render_engines.render_engine import (
-    RenderEngine,
-    RenderEngineException,
-)
+from labelle.lib.render_engines.render_engine import RenderEngine
 from labelle.lib.render_engines.text import TextRenderEngine
 
 
@@ -51,8 +48,6 @@ class BarcodeWithTextRenderEngine(RenderEngine):
             text_offset_y = bitmap.width // 2 - text_bitmap.width // 2
         elif self.align == Direction.RIGHT:
             text_offset_y = bitmap.width - text_bitmap.width
-        else:
-            raise RenderEngineException(f"Invalid align value: {self.align}")
 
         bitmap.paste(text_bitmap, (text_offset_y, text_offset_x))
         return bitmap
