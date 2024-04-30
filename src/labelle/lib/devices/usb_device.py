@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import platform
+from textwrap import dedent
 from typing import Any, NoReturn
 
 import usb
@@ -163,7 +164,7 @@ class UsbDevice:
         # else:
         #     restart_udev_command = None
 
-        udev_rule = ", ".join(
+        udev_rule = ",'\\\n                     '".join(
             [
                 'ACTION=="add"',
                 'SUBSYSTEMS=="usb"',
@@ -174,15 +175,17 @@ class UsbDevice:
         )
 
         msg = f"""
+
             You do not have sufficient access to the device. You probably want to add the a udev
             rule in /etc/udev/rules.d with the following command:
 
-            echo '{udev_rule}' | sudo tee /etc/udev/rules.d/91-labelle-{self._dev.idProduct:x}.rules
+                echo '{udev_rule}' \\
+                  | sudo tee /etc/udev/rules.d/91-labelle-{self.id_vendor:04x}-{self.id_product:04x}.rules
 
             Next, refresh udev with:
 
-            sudo udevadm control --reload-rules
-            sudo udevadm trigger --attr-match=idVendor="0922"
+                sudo udevadm control --reload-rules
+                sudo udevadm trigger --attr-match=idVendor="0922"
 
             Finally, turn your device off and back on again to activate the new permissions.
 
@@ -192,8 +195,8 @@ class UsbDevice:
             In case you still cannot connect, or if you have any information or ideas, please
             post them at that link.
         """  # noqa: E501
-        LOG.error(msg)
-        raise UsbDeviceError("Insufficient access to the device")
+        msg = dedent(msg)
+        raise UsbDeviceError(msg)
 
     def _set_configuration(self) -> None:
         try:
