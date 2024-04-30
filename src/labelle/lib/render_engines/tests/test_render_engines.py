@@ -93,6 +93,7 @@ def test_barcode_render_engine(request, image_diff):
         (BarcodeType.EAN, "123456789012"),
         (BarcodeType.UPC, "12345678901"),
         (BarcodeType.CODE39, "123"),
+        (BarcodeType.CODE128, ""),
     ],
 )
 def test_barcode_render_engine_barcode_type(request, image_diff, barcode_type, content):

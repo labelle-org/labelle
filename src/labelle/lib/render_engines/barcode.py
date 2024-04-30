@@ -9,7 +9,7 @@ from labelle.lib.constants import DEFAULT_BARCODE_TYPE, BarcodeType
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import RenderEngine, RenderEngineException
 
-if DEFAULT_BARCODE_TYPE != BarcodeType.CODE128:
+if DEFAULT_BARCODE_TYPE != BarcodeType.CODE128:  # pragma: no cover
     # Ensure that we fail fast if the default barcode type is adjusted
     # and the code below hasn't been updated.
     raise RuntimeError(

@@ -24,7 +24,7 @@ try:
 
     USE_QR = True
     e_qrcode = None
-except ImportError as error:
+except ImportError as error:  # pragma: no cover
     e_qrcode = error
     USE_QR = False
     QRCode = None
