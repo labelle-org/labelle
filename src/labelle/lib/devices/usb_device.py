@@ -36,13 +36,7 @@ class UsbDevice:
 
     @property
     def hash(self):
-        try:
-            return (
-                f"<{self._dev.manufacturer}|{self._dev.product}"
-                f"|{self._dev.serial_number}>"
-            )
-        except (ValueError, usb.core.USBError):
-            return None
+        return self.usb_id
 
     def _get_dev_attribute(self, attr):
         try:
