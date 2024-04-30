@@ -35,6 +35,8 @@ def verify_image(request, image_diff, image):
     inverted = PIL.ImageOps.invert(image.convert("RGB"))
     inverted.save(actual)
     expected = EXPECTED_RENDERS_DIR.joinpath(filename)
+    # Note: threshold should be omitted in the future
+    # (CI bitmaps are different than development machine)
     image_diff(expected, actual, threshold=0.15)
     actual.unlink()
 
