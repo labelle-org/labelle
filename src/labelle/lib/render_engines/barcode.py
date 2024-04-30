@@ -21,8 +21,8 @@ if DEFAULT_BARCODE_TYPE != BarcodeType.CODE128:  # pragma: no cover
 
 
 class BarcodeRenderError(RenderEngineException):
-    def __init__(self, exception) -> None:
-        msg = f"Barcode render error: {exception}"
+    def __init__(self, exception: BaseException) -> None:
+        msg = f"Barcode render error: {exception!r}"
         super().__init__(msg)
 
 

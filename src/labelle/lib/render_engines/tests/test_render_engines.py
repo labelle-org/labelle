@@ -105,15 +105,15 @@ def test_barcode_render_engine_barcode_type(request, image_diff, barcode_type, c
     verify_image(request, image_diff, image)
 
 
-def test_barcode_render_engine_internal_error(request, image_diff):
+def test_barcode_render_engine_internal_error():
     render_engine = BarcodeRenderEngine(
         content="No alphabet allowed", barcode_type=BarcodeType.EAN
     )
     with pytest.raises(BarcodeRenderError) as exc_info:
         render_engine.render(RENDER_CONTEXT)
     assert (
-        str(exc_info.value)
-        == "Barcode render error: EAN code can only contain numbers."
+        str(exc_info.value) == "Barcode render error: IllegalCharacterError("
+        "'EAN code can only contain numbers.')"
     )
 
 
