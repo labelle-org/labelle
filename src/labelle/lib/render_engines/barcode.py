@@ -57,6 +57,6 @@ class BarcodeRenderEngine(RenderEngine):
                     "foreground": "white",
                 }
             )
-        except BaseException as e:  # noqa
+        except BaseException as e:
             raise BarcodeRenderError from e
         return bitmap
