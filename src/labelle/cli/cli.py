@@ -511,6 +511,8 @@ def default(
         device = None
 
     dymo_labeler = DymoLabeler(tape_size_mm=tape_size_mm, device=device)
+    if not render_engines:
+        raise typer.BadParameter("No elements to print")
     render_engine = HorizontallyCombinedRenderEngine(render_engines)
     render_context = RenderContext(
         background_color="white",
