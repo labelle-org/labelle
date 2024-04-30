@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import platform
-from typing import NoReturn
+from typing import Any, NoReturn
 
 import usb
 
@@ -35,53 +35,57 @@ class UsbDevice:
         self._devout = None
 
     @property
-    def hash(self):
+    def hash(self) -> str:
         return self.usb_id
 
-    def _get_dev_attribute(self, attr):
+    def _get_dev_attribute(self, attr: str) -> Any:
         try:
             return getattr(self._dev, attr)
         except (ValueError, usb.core.USBError):
             return None
 
     @property
-    def manufacturer(self):
+    def manufacturer(self) -> str | None:
         return self._get_dev_attribute("manufacturer")
 
     @property
-    def product(self):
+    def product(self) -> str | None:
         return self._get_dev_attribute("product")
 
     @property
-    def serial_number(self):
+    def serial_number(self) -> str | None:
         return self._get_dev_attribute("serial_number")
 
     @property
-    def id_vendor(self):
-        return self._get_dev_attribute("idVendor")
+    def id_vendor(self) -> int:
+        id_ = self._get_dev_attribute("idVendor")
+        if id_ is None:
+            raise UsbDeviceError("Could not get idVendor")
+        return id_
 
     @property
-    def id_product(self):
-        return self._get_dev_attribute("idProduct")
+    def id_product(self) -> int:
+        id_ = self._get_dev_attribute("idProduct")
+        if id_ is None:
+            raise UsbDeviceError("Could not get idProduct")
+        return id_
 
     @property
-    def vendor_product_id(self):
-        vendor_id = int(self.id_vendor)
-        product_id = int(self.id_product)
-        return f"{vendor_id:04x}:{product_id:04x}"
+    def vendor_product_id(self) -> str:
+        return f"{self.id_vendor:04x}:{self.id_product:04x}"
 
     @property
-    def usb_id(self):
+    def usb_id(self) -> str:
         bus = self._get_dev_attribute("bus")
         address = self._get_dev_attribute("address")
         return f"Bus {bus:03} Device {address:03}: ID {self.vendor_product_id}"
 
     @staticmethod
-    def _is_supported_vendor(dev: usb.core.Device):
+    def _is_supported_vendor(dev: usb.core.Device) -> bool:
         return dev.idVendor == DEV_VENDOR
 
     @property
-    def is_supported(self):
+    def is_supported(self) -> bool:
         return (
             self._is_supported_vendor(self._dev)
             and self.id_product in SUPPORTED_PRODUCTS
@@ -276,9 +280,9 @@ class UsbDevice:
         for pattern in patterns:
             pattern = pattern.lower()
             match &= (
-                pattern in self.manufacturer.lower()
-                or pattern in self.product.lower()
-                or pattern in self.serial_number.lower()
+                pattern in (self.manufacturer or "").lower()
+                or pattern in (self.product or "").lower()
+                or pattern in (self.serial_number or "").lower()
             )
         return match
 
