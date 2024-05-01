@@ -364,6 +364,13 @@ def default(
             hidden=True,
         ),
     ] = None,
+    test_pattern: Annotated[
+        Optional[int],
+        typer.Option(
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = None,
 ) -> None:
     if ctx.invoked_subcommand is not None:
         return
@@ -420,6 +427,10 @@ def default(
         raise typer.BadParameter("The -l flag is deprecated. Use --min-length instead.")
     if old_justify is not None:
         raise typer.BadParameter("The -j flag is deprecated. Use --justify instead.")
+    if test_pattern is not None:
+        raise typer.BadParameter(
+            "The --test-pattern flag is deprecated. Use --sample-pattern instead."
+        )
 
     # read config file
     try:
