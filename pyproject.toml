@@ -16,7 +16,6 @@ maintainers = [
 license = "Apache-2.0"
 license-file = "LICENSE"
 dependencies = [
-    "importlib-metadata; python_version<'3.8'",
     "platformdirs",
     "Pillow>=8.1.2,<11",
     "PyQRCode>=1.2.1,<2",
