@@ -4,7 +4,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from labelle.lib.constants import BarcodeType, Direction
+from labelle.lib.constants import DEFAULT_BARCODE_TYPE, BarcodeType, Direction
 from labelle.lib.render_engines.barcode import BarcodeRenderEngine
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import RenderEngine
@@ -18,7 +18,7 @@ class BarcodeWithTextRenderEngine(RenderEngine):
         self,
         content: str,
         font_file_name: Path | str,
-        barcode_type: BarcodeType | None = None,
+        barcode_type: BarcodeType = DEFAULT_BARCODE_TYPE,
         frame_width_px: int | None = None,
         font_size_ratio: float = 0.9,
         align: Direction = Direction.CENTER,

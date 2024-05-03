@@ -205,13 +205,12 @@ def default(
         typer.Option("--barcode", help="Barcode", rich_help_panel="Elements"),
     ] = None,
     barcode_type: Annotated[
-        Optional[BarcodeType],
+        BarcodeType,
         typer.Option(
             help="Barcode type",
-            show_default=DEFAULT_BARCODE_TYPE.value,
             rich_help_panel="Elements",
         ),
-    ] = None,
+    ] = DEFAULT_BARCODE_TYPE,
     barcode_with_text_content: Annotated[
         Optional[str],
         typer.Option(
@@ -439,9 +438,6 @@ def default(
         valid_font_names = [f.stem for f in get_available_fonts()]
         msg = f"{e}. Valid fonts are: {', '.join(valid_font_names)}"
         raise typer.BadParameter(msg) from None
-
-    if barcode_type and not (barcode_content or barcode_with_text_content):
-        raise typer.BadParameter("Cannot specify barcode type without a barcode value")
 
     if barcode_with_text_content and barcode_content:
         raise typer.BadParameter(
