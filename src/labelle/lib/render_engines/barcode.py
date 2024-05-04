@@ -3,13 +3,11 @@ from __future__ import annotations
 import barcode as barcode_module
 from PIL import Image
 
-from labelle.lib.barcode_writer import BarcodeImageWriter
+from labelle.lib.barcode_to_image import convert_binary_string_to_barcode_image
+from labelle.lib.barcode_writer import SimpleBarcodeWriter
 from labelle.lib.constants import DEFAULT_BARCODE_TYPE, BarcodeType
 from labelle.lib.render_engines.render_context import RenderContext
-from labelle.lib.render_engines.render_engine import (
-    RenderEngine,
-    RenderEngineException,
-)
+from labelle.lib.render_engines.render_engine import RenderEngine, RenderEngineException
 
 if DEFAULT_BARCODE_TYPE != BarcodeType.CODE128:
     # Ensure that we fail fast if the default barcode type is adjusted
@@ -44,19 +42,15 @@ class BarcodeRenderEngine(RenderEngine):
             # in the GUI before the user entered a barcode.
             self.content = " "
         try:
-            code = barcode_module.get(
-                self.barcode_type, self.content, writer=BarcodeImageWriter()
+            code_obj = barcode_module.get(
+                self.barcode_type, self.content, writer=SimpleBarcodeWriter()
             )
-            bitmap = code.render(
-                {
-                    "font_size": 0,
-                    "vertical_margin": 8,
-                    "module_height": context.height_px - 16,
-                    "module_width": 2,
-                    "background": "black",
-                    "foreground": "white",
-                }
-            )
+            result = code_obj.render()
         except BaseException as e:
             raise BarcodeRenderError from e
+        bitmap = convert_binary_string_to_barcode_image(
+            line=result.line,
+            quiet_zone=result.quiet_zone,
+            module_height=context.height_px - 16,
+        )
         return bitmap
