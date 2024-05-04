@@ -27,7 +27,7 @@ class TextRenderEngine(RenderEngine):
 
         self.text_lines = text_lines
         self.font_file_name = font_file_name
-        self.frame_width_px = frame_width_px or 0
+        self.frame_width_px = frame_width_px
         self.font_size_ratio = font_size_ratio
         self.align = align
 
