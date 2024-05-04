@@ -27,6 +27,14 @@ from labelle.lib.constants import (
 )
 from labelle.lib.devices.device_manager import DeviceManager, DeviceManagerNoDevices
 from labelle.lib.devices.dymo_labeler import DymoLabeler
+from labelle.lib.devices.dymo_labeler_550_command_with_response import (
+    CommandGetSkuInformation,
+    CommandPrintEngineStatus,
+    CommandPrintEngineVersion,
+    DymoLabeler550PrintEngineStatus,
+    DymoLabeler550PrintEngineVersion,
+    DymoLabeler550SkuInformation,
+)
 from labelle.lib.env_config import is_verbose_env_vars
 from labelle.lib.font_config import (
     DefaultFontStyle,
@@ -103,6 +111,45 @@ def list_devices() -> NoReturn:
         )
     console.print(table)
     raise typer.Exit()
+
+
+@app.command()
+def status(
+    device_pattern: Annotated[
+        Optional[List[str]],
+        typer.Option(
+            "--device",
+            help=(
+                "Select a particular device by filtering for a given substring "
+                "in the device's manufacturer, product or serial number"
+            ),
+            rich_help_panel="Device Configuration",
+        ),
+    ] = None,
+) -> None:
+    device_manager = get_device_manager()
+    device = device_manager.find_and_select_device(patterns=device_pattern)
+    device.setup()
+    print_engine_version: DymoLabeler550PrintEngineVersion = (
+        CommandPrintEngineVersion.execute(
+            devin=device._devin,  # type: ignore[arg-type]
+            devout=device._devout,  # type: ignore[arg-type]
+        )
+    )
+    print_engine_version.dump()
+    print_engine_status: DymoLabeler550PrintEngineStatus = (
+        CommandPrintEngineStatus.execute(
+            devin=device._devin,  # type: ignore[arg-type]
+            devout=device._devout,  # type: ignore[arg-type]
+        )
+    )
+    print_engine_status.dump()
+    sku_information: DymoLabeler550SkuInformation = CommandGetSkuInformation.execute(
+        devin=device._devin,  # type: ignore[arg-type]
+        devout=device._devout,  # type: ignore[arg-type]
+    )
+    sku_information.dump()
+    device.dispose()
 
 
 @app.callback(invoke_without_command=True)
