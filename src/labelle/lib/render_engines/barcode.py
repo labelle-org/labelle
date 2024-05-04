@@ -9,7 +9,7 @@ from labelle.lib.constants import DEFAULT_BARCODE_TYPE, BarcodeType
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import RenderEngine, RenderEngineException
 
-if DEFAULT_BARCODE_TYPE != BarcodeType.CODE128:
+if DEFAULT_BARCODE_TYPE != BarcodeType.CODE128:  # pragma: no cover
     # Ensure that we fail fast if the default barcode type is adjusted
     # and the code below hasn't been updated.
     raise RuntimeError(
@@ -21,16 +21,18 @@ if DEFAULT_BARCODE_TYPE != BarcodeType.CODE128:
 
 
 class BarcodeRenderError(RenderEngineException):
-    def __init__(self) -> None:
-        msg = "Barcode render error"
+    def __init__(self, exception: BaseException) -> None:
+        msg = f"Barcode render error: {exception!r}"
         super().__init__(msg)
 
 
 class BarcodeRenderEngine(RenderEngine):
-    def __init__(self, content: str, barcode_type: str | None) -> None:
+    def __init__(
+        self, content: str, barcode_type: BarcodeType = DEFAULT_BARCODE_TYPE
+    ) -> None:
         super().__init__()
         self.content = content
-        self.barcode_type = barcode_type or DEFAULT_BARCODE_TYPE
+        self.barcode_type = barcode_type
 
     def render(self, context: RenderContext) -> Image.Image:
         if (
@@ -47,7 +49,7 @@ class BarcodeRenderEngine(RenderEngine):
             )
             result = code_obj.render()
         except BaseException as e:
-            raise BarcodeRenderError from e
+            raise BarcodeRenderError(e) from e
         bitmap = convert_binary_string_to_barcode_image(
             line=result.line,
             quiet_zone=result.quiet_zone,

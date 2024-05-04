@@ -47,7 +47,7 @@ from labelle.lib.render_engines import (
     QrRenderEngine,
     RenderContext,
     RenderEngine,
-    TestPatternRenderEngine,
+    SamplePatternRenderEngine,
     TextRenderEngine,
 )
 
@@ -142,12 +142,12 @@ def default(
         FontStyle, typer.Option(help="Set fonts style", rich_help_panel="Design")
     ] = DefaultFontStyle,
     frame_width_px: Annotated[
-        Optional[int],
+        int,
         typer.Option(
             help="Draw frame of given width [px] around text",
             rich_help_panel="Design",
         ),
-    ] = None,
+    ] = 0,
     align: Annotated[
         Direction, typer.Option(help="Align multiline text", rich_help_panel="Design")
     ] = Direction.LEFT,
@@ -159,7 +159,7 @@ def default(
             rich_help_panel="Design",
         ),
     ] = Direction.LEFT,
-    test_pattern: Annotated[
+    sample_pattern: Annotated[
         Optional[int],
         typer.Option(help="Prints test pattern of a desired dot width"),
     ] = None,
@@ -205,13 +205,12 @@ def default(
         typer.Option("--barcode", help="Barcode", rich_help_panel="Elements"),
     ] = None,
     barcode_type: Annotated[
-        Optional[BarcodeType],
+        BarcodeType,
         typer.Option(
             help="Barcode type",
-            show_default=DEFAULT_BARCODE_TYPE.value,
             rich_help_panel="Elements",
         ),
-    ] = None,
+    ] = DEFAULT_BARCODE_TYPE,
     barcode_with_text_content: Annotated[
         Optional[str],
         typer.Option(
@@ -364,6 +363,13 @@ def default(
             hidden=True,
         ),
     ] = None,
+    test_pattern: Annotated[
+        Optional[int],
+        typer.Option(
+            help="DEPRECATED",
+            hidden=True,
+        ),
+    ] = None,
 ) -> None:
     if ctx.invoked_subcommand is not None:
         return
@@ -420,6 +426,10 @@ def default(
         raise typer.BadParameter("The -l flag is deprecated. Use --min-length instead.")
     if old_justify is not None:
         raise typer.BadParameter("The -j flag is deprecated. Use --justify instead.")
+    if test_pattern is not None:
+        raise typer.BadParameter(
+            "The --test-pattern flag is deprecated. Use --sample-pattern instead."
+        )
 
     # read config file
     try:
@@ -428,9 +438,6 @@ def default(
         valid_font_names = [f.stem for f in get_available_fonts()]
         msg = f"{e}. Valid fonts are: {', '.join(valid_font_names)}"
         raise typer.BadParameter(msg) from None
-
-    if barcode_type and not (barcode_content or barcode_with_text_content):
-        raise typer.BadParameter("Cannot specify barcode type without a barcode value")
 
     if barcode_with_text_content and barcode_content:
         raise typer.BadParameter(
@@ -454,8 +461,8 @@ def default(
 
     render_engines: list[RenderEngine] = []
 
-    if test_pattern:
-        render_engines.append(TestPatternRenderEngine(test_pattern))
+    if sample_pattern:
+        render_engines.append(SamplePatternRenderEngine(sample_pattern))
 
     if qr_content:
         render_engines.append(QrRenderEngine(qr_content))
@@ -511,6 +518,8 @@ def default(
         device = None
 
     dymo_labeler = DymoLabeler(tape_size_mm=tape_size_mm, device=device)
+    if not render_engines:
+        raise typer.BadParameter("No elements to print")
     render_engine = HorizontallyCombinedRenderEngine(render_engines)
     render_context = RenderContext(
         background_color="white",

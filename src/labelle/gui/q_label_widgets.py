@@ -25,7 +25,7 @@ from labelle.lib.render_engines import (
     BarcodeWithTextRenderEngine,
     EmptyRenderEngine,
     NoContentError,
-    NoPictureFilePath,
+    PicturePathDoesNotExist,
     PictureRenderEngine,
     QrRenderEngine,
     RenderContext,
@@ -445,5 +445,5 @@ class ImageDymoLabelWidget(BaseLabelWidget):
         """
         try:
             return PictureRenderEngine(picture_path=self.label.text())
-        except NoPictureFilePath:
+        except PicturePathDoesNotExist:
             return EmptyRenderEngine()

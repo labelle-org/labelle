@@ -4,13 +4,10 @@ from pathlib import Path
 
 from PIL import Image
 
-from labelle.lib.constants import Direction
+from labelle.lib.constants import DEFAULT_BARCODE_TYPE, BarcodeType, Direction
 from labelle.lib.render_engines.barcode import BarcodeRenderEngine
 from labelle.lib.render_engines.render_context import RenderContext
-from labelle.lib.render_engines.render_engine import (
-    RenderEngine,
-    RenderEngineException,
-)
+from labelle.lib.render_engines.render_engine import RenderEngine
 from labelle.lib.render_engines.text import TextRenderEngine
 
 
@@ -20,9 +17,9 @@ class BarcodeWithTextRenderEngine(RenderEngine):
     def __init__(
         self,
         content: str,
-        barcode_type: str | None,
         font_file_name: Path | str,
-        frame_width_px: int | None,
+        barcode_type: BarcodeType = DEFAULT_BARCODE_TYPE,
+        frame_width_px: int = 0,
         font_size_ratio: float = 0.9,
         align: Direction = Direction.CENTER,
     ):
@@ -45,14 +42,12 @@ class BarcodeWithTextRenderEngine(RenderEngine):
         # Define the x and y of the upper-left corner of the text
         # to be pasted onto the barcode
         text_offset_x = bitmap.height - text_bitmap.height - 1
-        if self.align == "left":
+        if self.align == Direction.LEFT:
             text_offset_y = 0
-        elif self.align == "center":
+        elif self.align == Direction.CENTER:
             text_offset_y = bitmap.width // 2 - text_bitmap.width // 2
-        elif self.align == "right":
+        elif self.align == Direction.RIGHT:
             text_offset_y = bitmap.width - text_bitmap.width
-        else:
-            raise RenderEngineException(f"Invalid align value: {self.align}")
 
         bitmap.paste(text_bitmap, (text_offset_y, text_offset_x))
         return bitmap

@@ -5,7 +5,7 @@ from PIL import Image
 from labelle.lib.render_engines import RenderContext, RenderEngine
 
 
-class TestPatternRenderEngine(RenderEngine):
+class SamplePatternRenderEngine(RenderEngine):
     def __init__(self, width: int = 100):
         super().__init__()
         self.width = width

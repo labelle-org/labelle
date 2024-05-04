@@ -24,7 +24,7 @@ try:
 
     USE_QR = True
     e_qrcode = None
-except ImportError as error:
+except ImportError as error:  # pragma: no cover
     e_qrcode = error
     USE_QR = False
     QRCode = None
@@ -105,8 +105,9 @@ class Direction(str, Enum):
 
 
 class Output(str, Enum):
-    PRINTER = "printer"
+    BROWSER = "browser"
     CONSOLE = "console"
     CONSOLE_INVERTED = "console-inverted"
-    BROWSER = "browser"
     IMAGEMAGICK = "imagemagick"
+    PNG = "png"
+    PRINTER = "printer"

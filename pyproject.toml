@@ -38,6 +38,12 @@ classifiers = [
 dynamic = ["version"]
 requires-python = ">=3.8,<4"
 
+[project.optional-dependencies]
+test = [
+    "pytest-cov",
+    "pytest-image-diff"
+]
+
 [project.urls]
 Homepage = "https://github.com/labelle-org/labelle"
 source = "https://github.com/labelle-org/labelle"
@@ -77,9 +83,12 @@ python =
     3.12: py312
 
 [testenv]
+deps =
+  .[test]
 commands =
   pip check
   pip freeze
+  pytest --cov=src/labelle --cov-report html:{work_dir}/{env_name}/htmlcov --cov-fail-under=45
   labelle --version
   labelle --help
   python -c "import labelle.gui.gui; print('GUI import succeeded')"
