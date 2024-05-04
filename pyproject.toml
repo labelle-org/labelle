@@ -41,7 +41,9 @@ requires-python = ">=3.8,<4"
 [project.optional-dependencies]
 test = [
     "pytest-cov",
-    "pytest-image-diff"
+    "pytest-image-diff",
+    "pytest-qt",
+    "pytest-xvfb",
 ]
 
 [project.urls]
