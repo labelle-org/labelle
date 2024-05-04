@@ -24,8 +24,6 @@ dependencies = [
     "PyQt6",
     "darkdetect",
     "typer",
-    "pytest-cov",
-    "pytest-image-diff",
 ]
 classifiers = [
     "Operating System :: POSIX :: Linux",
