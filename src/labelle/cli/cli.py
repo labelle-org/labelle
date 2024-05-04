@@ -142,12 +142,12 @@ def default(
         FontStyle, typer.Option(help="Set fonts style", rich_help_panel="Design")
     ] = DefaultFontStyle,
     frame_width_px: Annotated[
-        Optional[int],
+        int,
         typer.Option(
             help="Draw frame of given width [px] around text",
             rich_help_panel="Design",
         ),
-    ] = None,
+    ] = 0,
     align: Annotated[
         Direction, typer.Option(help="Align multiline text", rich_help_panel="Design")
     ] = Direction.LEFT,
