@@ -23,6 +23,7 @@ dependencies = [
     "pyusb",
     "PyQt6",
     "darkdetect",
+    "retry",
     "typer",
 ]
 classifiers = [
