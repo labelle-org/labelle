@@ -6,12 +6,16 @@
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
 import logging
+import sys
 from pathlib import Path
 from typing import List, NoReturn, Optional
 
 import typer
+from click.exceptions import ClickException
+from click.exceptions import UsageError as ClickUsageError
 from rich.console import Console
 from rich.table import Table
+from typer.rich_utils import rich_format_error
 from typing_extensions import Annotated
 
 from labelle import __version__
@@ -554,9 +558,35 @@ def default(
         output_bitmap(bitmap, output)
 
 
+def add_hint_about_text_option(e: ClickException) -> None:
+    """Insert a suggestion to use the --text flag when a command is not found.
+
+    In dymoprint the --text option was implicit. If labelle is invoked without
+    --text, it presents as a ClickUsageError with the message "No such command..."
+    We append to this error message a hint to use the --text flag.
+    """
+    if isinstance(e, ClickUsageError):
+        # Enhance the error message for dymoprint users who are
+        # not used to the --text flag being mandatory.
+        if e.message.startswith("No such command '") and e.message.endswith("'."):
+            command = e.message[17:-2]
+            if " " in command:
+                command = f'"{command}"'
+            e.message += f""" Did you mean --text {command} ?"""
+
+
 def main() -> None:
     configure_logging()
-    app()
+    try:
+        app(standalone_mode=False)
+    except ClickException as e:
+        # Use standalone mode to avoid typer's default error handling here:
+        # <https://github.com/tiangolo/typer/blob/773927208fbf03d30d50fc39fe2a1a18b7bd93cb/typer/core.py#L207-L216>
+        # This allows us to add the following hint:
+        add_hint_about_text_option(e)
+
+        rich_format_error(e)
+        sys.exit(e.exit_code)
 
 
 if __name__ == "__main__":
