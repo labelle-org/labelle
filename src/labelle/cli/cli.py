@@ -510,6 +510,8 @@ def default(
         else None
     )
 
+    if not render_engines:
+        raise typer.BadParameter("No elements to print")
     if output == Output.PRINTER:
         device_manager = get_device_manager()
         device = device_manager.find_and_select_device(patterns=device_pattern)
@@ -518,8 +520,6 @@ def default(
         device = None
 
     dymo_labeler = DymoLabeler(tape_size_mm=tape_size_mm, device=device)
-    if not render_engines:
-        raise typer.BadParameter("No elements to print")
     render_engine = HorizontallyCombinedRenderEngine(render_engines)
     render_context = RenderContext(
         background_color="white",
