@@ -159,6 +159,8 @@ To save tape, you can preview the label without printing it
 labelle --output=console --text Hi
 ```
 
+![Hi](doc/hi.png)
+
 ### Text
 
 If your text includes whitespace or any other characters like `<` or `$` that are
@@ -168,11 +170,15 @@ interpreted by your shell, then the text must be quoted.
 labelle --text 'Price: $3.50'
 ```
 
+![Price: $3.50](doc/3-50.png)
+
 Multiple text arguments will stack on top of each other as separate lines
 
 ```bash
 labelle --text "first line" --text "second line"
 ```
+
+![first line second line](doc/two-lines.png)
 
 ### Print Codes and Text
 
@@ -182,6 +188,8 @@ Just add a text after your qr or barcode text
 labelle --qr "QR Content" --text "Cleartext printed"
 ```
 
+![QR Content Cleartext printed](doc/qr-with-text.png)
+
 ### Picture printing
 
 Any commonly-supported raster image may be printed.
@@ -189,6 +197,8 @@ Any commonly-supported raster image may be printed.
 ```bash
 labelle --picture labelle.png
 ```
+
+![labelle.png](doc/labelle-label.png)
 
 ## GUI
 
