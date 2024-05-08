@@ -6,6 +6,7 @@
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
 import logging
+import shlex
 import sys
 from pathlib import Path
 from typing import List, NoReturn, Optional
@@ -570,9 +571,7 @@ def add_hint_about_text_option(e: ClickException) -> None:
         # not used to the --text flag being mandatory.
         if e.message.startswith("No such command '") and e.message.endswith("'."):
             command = e.message[17:-2]
-            if " " in command:
-                command = f'"{command}"'
-            e.message += f""" Did you mean --text {command} ?"""
+            e.message += f""" Did you mean {shlex.join(['--text', command])} ?"""
 
 
 def main() -> None:

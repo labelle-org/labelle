@@ -20,6 +20,6 @@ def test_text_hint(monkeypatch):
             sys.stdout.flush()
             stdout = outstreams[0].getvalue()
     assert (
-        b"""No such command 'hello world'. Did you mean --text "hello world" ?"""
+        b"""No such command 'hello world'. Did you mean --text 'hello world' ?"""
         in stdout
     )
