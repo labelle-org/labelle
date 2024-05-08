@@ -170,7 +170,9 @@ labelle --text 'Price: $3.50'
 
 Multiple text arguments will stack on top of each other as separate lines
 
-```labelle --text "first line" --text "second line"```
+```bash
+labelle --text "first line" --text "second line"
+```
 
 ### Print Codes and Text
 
