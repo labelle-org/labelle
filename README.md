@@ -145,31 +145,43 @@ Labelle includes the Carlito font, licensed under the
 
 ### Print text
 
-```labelle --text MyText```
+```bash
+labelle --text MyText
+```
 
 Multilines will be generated on whitespace
 
-```labelle --text MyLine --text MySecondLine  # Will print two lines```
+```bash
+labelle --text MyLine --text MySecondLine  # Will print two lines
+```
 
 If you want whitespaces just enclose in " "
 
-```labelle --text "prints a single line"```
+```bash
+labelle --text "prints a single line"
+```
 
 ### Print QRCodes and Barcodes
 
-```labelle --help```
+```bash
+labelle --help
+```
 
 ### Print Codes and Text
 
 Just add a text after your qr or barcode text
 
-```labelle -qr "QR Content" --text "Cleartext printed"```
+```bash
+labelle -qr "QR Content" --text "Cleartext printed"
+```
 
 ### Picture printing
 
 Any picture with JPEG standard may be printed. Beware it will be downsized to tape.
 
-```labelle -p mypic.jpg ""```
+```bash
+labelle -p mypic.jpg ""
+```
 
 Take care of the trailing "" - you may enter text here which gets printed in
 front of the image
@@ -178,7 +190,9 @@ front of the image
 
 ### Run Labelle GUI
 
-```labelle-gui```
+```bash
+labelle-gui
+```
 
 ### GUI App Features
 
