@@ -145,15 +145,15 @@ Labelle includes the Carlito font, licensed under the
 
 ### Print text
 
-```labelle MyText```
+```labelle --text MyText```
 
 Multilines will be generated on whitespace
 
-```labelle MyLine MySecondLine # Will print two Lines```
+```labelle --text MyLine --text MySecondLine  # Will print two lines```
 
 If you want whitespaces just enclose in " "
 
-```labelle "prints a single line"```
+```labelle --text "prints a single line"```
 
 ### Print QRCodes and Barcodes
 
@@ -163,7 +163,7 @@ If you want whitespaces just enclose in " "
 
 Just add a text after your qr or barcode text
 
-```labelle -qr "QR Content" "Cleartext printed"```
+```labelle -qr "QR Content" --text "Cleartext printed"```
 
 ### Picture printing
 
