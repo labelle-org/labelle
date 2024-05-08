@@ -177,7 +177,7 @@ Multiple text arguments will stack on top of each other as separate lines
 Just add a text after your qr or barcode text
 
 ```bash
-labelle -qr "QR Content" --text "Cleartext printed"
+labelle --qr "QR Content" --text "Cleartext printed"
 ```
 
 ### Picture printing
