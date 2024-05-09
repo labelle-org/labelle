@@ -1,5 +1,6 @@
 import logging
-import sys
+
+from rich.logging import RichHandler
 
 _IS_VERBOSE = True
 LOG = logging.getLogger("labelle")
@@ -21,12 +22,8 @@ def is_verbose() -> bool:
 
 
 def configure_logging() -> None:
-    handler = logging.StreamHandler(sys.stderr)
-    formatter = logging.Formatter("[%(levelname)s] %(message)s")
-    handler.setFormatter(formatter)
-
     _update_log_level()
-    LOG.addHandler(handler)
+    LOG.addHandler(RichHandler())
 
 
 def print_exception(e: Exception) -> None:
