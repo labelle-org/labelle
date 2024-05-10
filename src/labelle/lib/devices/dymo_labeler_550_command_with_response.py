@@ -130,6 +130,17 @@ class DymoLabeler550FirmwareVersion(Enum):
     FWBL = 1
 
 
+class LockInterface(Enum):
+    # No lock, it could be sent by host through heartbeat or query printer's status
+    # during printer error case, or last label's status query withing a print job
+    NO_LOCK = 0
+    # Lock interface for printing
+    LOCK_FOR_PRINTING = 1
+    # Status Query between multiple label's printing between labels.
+    # Host does not wait for printer's response before send next label's print data
+    STATUS_QUERY = 2
+
+
 def val_or_msg(val: int, msg: str) -> str:
     return str(val) if val else msg
 
@@ -339,8 +350,8 @@ class CommandWithResponse(ABC):
         )
 
     @classmethod
-    def _execute(cls, devin: BinaryIO, devout: BinaryIO) -> Any:
-        command = cls._request()
+    def _execute(cls, devin: BinaryIO, devout: BinaryIO, *kargs, **kwargs) -> Any:
+        command = cls._request(*kargs, **kwargs)
         devout.write(command.payload)
         response_payload = devin.read(cls.expected_response_length)
         response_payload = bytes(response_payload)  # convert from array.array to bytes
@@ -353,7 +364,7 @@ class CommandWithResponse(ABC):
 
     @staticmethod
     @abstractmethod
-    def _request() -> Command:
+    def _request(*kargs, **kwargs) -> Command:
         raise NotImplementedError
 
     @staticmethod
@@ -366,13 +377,13 @@ class CommandPrintEngineStatus(CommandWithResponse):
     expected_response_length = 32
 
     @staticmethod
-    def _request() -> Command:
+    def _request(lock: LockInterface = LockInterface.NO_LOCK) -> Command:
         """ESC A Request Print Engine Status
         1B 41
         """  # noqa: D205, D400
         return Command(
             "Request Print Engine Status",
-            struct.pack("<BBB", ESC, ord("A"), LOCK),
+            struct.pack("<BBB", ESC, ord("A"), lock.value),
         )
 
     @staticmethod
