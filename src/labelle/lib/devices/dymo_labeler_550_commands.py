@@ -175,13 +175,16 @@ class DymoLabeler550Command:
 
     @staticmethod
     def restart_print_engine() -> Command:
-        """ESC @ Restart Print Engine
-        1B 40
+        """ESC * Restart Print Engine
+        1B 2A
         Reboots the print engine.
+
+        Note: there seem to be a typo in the reference document,
+        which says ESC @ (0x1B40)
         """  # noqa: D205
         return Command(
             "Reboot the print engine",
-            struct.pack("<BB", ESC, ord("@")),
+            struct.pack("<BB", ESC, ord("*")),
         )
 
     @staticmethod
