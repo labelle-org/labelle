@@ -377,9 +377,6 @@ class CommandPrintEngineStatus(CommandWithResponse):
 
     @staticmethod
     def _response(response: bytes) -> DymoLabeler550PrintEngineStatus:
-        """ESC A Request Print Engine Status
-        1B 41
-        """  # noqa: D205, D400
         (
             print_status,
             print_job_id,
@@ -429,10 +426,6 @@ class CommandGetSkuInformation(CommandWithResponse):
 
     @staticmethod
     def _response(response: bytes) -> DymoLabeler550SkuInformation:
-        """ESC U Get SKU Information
-        1B 55
-        Used to retrieve the inserted LW550 Consumable SKU information from NFC.
-        """  # noqa: D205
         (
             magic_number,
             version,
