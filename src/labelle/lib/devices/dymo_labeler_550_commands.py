@@ -66,7 +66,7 @@ class DymoLabeler550Command:
         speed_mode: DymoLabeler550SpeedMode = DymoLabeler550SpeedMode.NORMAL_SPEED,
     ) -> Command:
         """ESC T Content Type
-        1B 74
+        1B 54
         Byte
         Note: there seem to be a typo in the reference document,
               the correct command is 1B 54, not 1B 74.
