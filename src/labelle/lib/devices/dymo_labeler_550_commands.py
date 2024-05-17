@@ -5,14 +5,9 @@ import struct
 from enum import Enum
 
 from labelle.lib.constants import ESC
+from labelle.lib.devices.command_executor import Command, CommandExecutor
 
 LOG = logging.getLogger(__name__)
-
-
-class Command:
-    def __init__(self, description: str, payload: bytes) -> None:
-        self.description: str = description
-        self.payload: bytes = payload
 
 
 class DymoLabeler550SpeedMode(Enum):
@@ -20,9 +15,10 @@ class DymoLabeler550SpeedMode(Enum):
     HIGH_SPEED = 0x20
 
 
-class DymoLabeler550Command:
+class DymoLabeler550Command(CommandExecutor):
     """Reference: https://download.dymo.com/dymo/user-guides/LabelWriter/LW550Series/LW%20550%20Technical%20Reference.pdf."""
 
+    @CommandExecutor.command
     @staticmethod
     def start_of_print_job(job_id: int = 0) -> Command:
         """ESC s Start of Print Job
@@ -34,6 +30,7 @@ class DymoLabeler550Command:
             struct.pack("<BBI", ESC, ord("s"), job_id),
         )
 
+    @CommandExecutor.command
     @staticmethod
     def set_maximum_label_length() -> Command:
         """ESC L Set Maximum Label Length
@@ -43,6 +40,7 @@ class DymoLabeler550Command:
         """  # noqa: D205, E501
         return Command("Set Maximum Label Length", struct.pack("<BB", ESC, ord("L")))
 
+    @CommandExecutor.command
     @staticmethod
     def select_text_output_mode() -> Command:
         """ESC h Select Text Output Mode
@@ -52,6 +50,7 @@ class DymoLabeler550Command:
         """  # noqa: D205, E501
         return Command("Select Text Output Mode", struct.pack("<BB", ESC, ord("h")))
 
+    @CommandExecutor.command
     @staticmethod
     def select_graphics_output_mode() -> Command:
         """ESC i Select Graphics Output Mode
@@ -61,6 +60,7 @@ class DymoLabeler550Command:
         """  # noqa: D205, E501
         return Command("Select Graphics Output Mode", struct.pack("<BB", ESC, ord("i")))
 
+    @CommandExecutor.command
     @staticmethod
     def content_type(
         speed_mode: DymoLabeler550SpeedMode = DymoLabeler550SpeedMode.NORMAL_SPEED,
@@ -76,6 +76,7 @@ class DymoLabeler550Command:
             struct.pack("<BBB", ESC, ord("T"), speed_mode.value),
         )
 
+    @CommandExecutor.command
     @staticmethod
     def set_label_index(label_index: int = 0) -> Command:
         """ESC n Set Label Index
@@ -88,6 +89,7 @@ class DymoLabeler550Command:
             struct.pack("<BBH", ESC, ord("n"), label_index),
         )
 
+    @CommandExecutor.command
     @staticmethod
     def label_print_data(width: int, height: int, print_data: bytes) -> Command:
         """ESC D Start of Label Print Data & Label Print Data
@@ -114,6 +116,7 @@ class DymoLabeler550Command:
         )
         return Command(f"Label Print Data (Width {width}, Height {height})", payload)
 
+    @CommandExecutor.command
     @staticmethod
     def feed_to_print_head() -> Command:
         """ESC G Feed to Print Head (Short Form Feed)
@@ -126,6 +129,7 @@ class DymoLabeler550Command:
             "Feed to Print Head (Short Form Feed)", struct.pack("<BB", ESC, ord("G"))
         )
 
+    @CommandExecutor.command
     @staticmethod
     def feed_to_tear_position() -> Command:
         """ESC E Feed to Tear Position (Long Form Feed)
@@ -139,6 +143,7 @@ class DymoLabeler550Command:
             struct.pack("<BB", ESC, ord("E")),
         )
 
+    @CommandExecutor.command
     @staticmethod
     def end_of_print_job() -> Command:
         """ESC Q End of Print Job
@@ -148,6 +153,7 @@ class DymoLabeler550Command:
         """  # noqa: D205, E501
         return Command("End of Print Job", struct.pack("<BB", ESC, ord("Q")))
 
+    @CommandExecutor.command
     @staticmethod
     def set_print_density(duty_cycle: int = 100) -> Command:
         """ESC C Set Print Density
@@ -162,6 +168,7 @@ class DymoLabeler550Command:
             struct.pack("<BBB", ESC, ord("C"), duty_cycle),
         )
 
+    @CommandExecutor.command
     @staticmethod
     def reset_print_density_to_default() -> Command:
         """ESC e Reset Print Density to Default
@@ -173,6 +180,7 @@ class DymoLabeler550Command:
             struct.pack("<BB", ESC, ord("e")),
         )
 
+    @CommandExecutor.command
     @staticmethod
     def restart_print_engine() -> Command:
         """ESC * Restart Print Engine
@@ -183,10 +191,11 @@ class DymoLabeler550Command:
         which says ESC @ (0x1B40)
         """  # noqa: D205
         return Command(
-            "Reboot the print engine",
+            "Restart Print Engine",
             struct.pack("<BB", ESC, ord("*")),
         )
 
+    @CommandExecutor.command
     @staticmethod
     def restore_print_engine_factory_settings() -> Command:
         """ESC * Restore Print Engine Factory Settings
@@ -200,6 +209,7 @@ class DymoLabeler550Command:
             struct.pack("<BB", ESC, ord("$")),
         )
 
+    @CommandExecutor.command
     @staticmethod
     def set_label_count(label_count: int) -> Command:
         """ESC o Set Label Count

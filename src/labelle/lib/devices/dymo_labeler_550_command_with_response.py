@@ -340,18 +340,19 @@ class CommandWithResponse(ABC):
     retry_exceptions: tuple[type[Exception]] | None = None
 
     @classmethod
-    def execute(cls, devin: BinaryIO, devout: BinaryIO) -> Any:
+    def execute(cls, devin: BinaryIO, devout: BinaryIO, *args, **kwargs) -> Any:
         return retry_call(
             cls._execute,
-            fkwargs={"devin": devin, "devout": devout},
+            fargs=args,
+            fkwargs={"devin": devin, "devout": devout, **kwargs},
             exceptions=cls.retry_exceptions,
             tries=10,
             delay=0.5,
         )
 
     @classmethod
-    def _execute(cls, devin: BinaryIO, devout: BinaryIO, *kargs, **kwargs) -> Any:
-        command = cls._request(*kargs, **kwargs)
+    def _execute(cls, devin: BinaryIO, devout: BinaryIO, *args, **kwargs) -> Any:
+        command = cls._request(*args, **kwargs)
         devout.write(command.payload)
         response_payload = devin.read(cls.expected_response_length)
         response_payload = bytes(response_payload)  # convert from array.array to bytes
