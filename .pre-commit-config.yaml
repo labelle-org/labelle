@@ -20,7 +20,7 @@ repos:
     args: ['--fix=lf']
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.4.4
+  rev: v0.4.5
   hooks:
   - id: ruff
     args: [--fix, --exit-non-zero-on-fix]
@@ -48,6 +48,6 @@ repos:
     - types-pygments
 
 - repo: https://github.com/igorshubovych/markdownlint-cli
-  rev: v0.40.0
+  rev: v0.41.0
   hooks:
   - id: markdownlint
