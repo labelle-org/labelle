@@ -10,7 +10,7 @@
             "request": "launch",
             "module": "labelle.cli.cli",
             "args": [
-                "--preview",
+                "--output=console",
                 "hi",
             ],
             "justMyCode": false,
