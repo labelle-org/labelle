@@ -5,12 +5,27 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "CLI",
+            "name": "CLI (Console preview)",
             "type": "debugpy",
             "request": "launch",
             "module": "labelle.cli.cli",
             "args": [
                 "--output=console",
+                "--verbose",
+                "--tape-size-mm=12",
+                "hi",
+            ],
+            "justMyCode": false,
+        },
+        {
+            "name": "CLI (Printer)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "labelle.cli.cli",
+            "args": [
+                "--output=printer",
+                "--verbose",
+                "--tape-size-mm=12",
                 "hi",
             ],
             "justMyCode": false,
