@@ -9,6 +9,8 @@ ARG deps="\
     libxcb-keysyms1 \
     libxcb-shape0 \
     libxkbcommon-x11-0 \
+    libusb-1.0-0 \
+    usbutils \
     "
 RUN apt-get update \
     && apt-get install -y ${deps} \

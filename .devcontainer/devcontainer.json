@@ -43,7 +43,12 @@
 		"-e",
 		"XAUTHORITY=/tmp/.Xauthority",
 		"-v",
-		"${localEnv:HOME}/.Xauthority:/tmp/.Xauthority"
+		"${localEnv:HOME}/.Xauthority:/tmp/.Xauthority",
+		// Share USB devices to container (https://binary-manu.github.io/binary-is-better/docker/access-usb-devices-from-unprivileged-docker-containers)
+		"-v",
+		"/dev/bus/usb:/dev/bus/usb",
+		"--device-cgroup-rule",
+		"c 189:* rw"
 	],
 	"features": {
 		"ghcr.io/devcontainers/features/github-cli:1": {}
