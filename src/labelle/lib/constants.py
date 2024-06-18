@@ -34,20 +34,56 @@ UNCONFIRMED_MESSAGE = (
     "WARNING: This device is not confirmed to work with this software. Please "
     "report your experiences in https://github.com/labelle-org/labelle/issues/4"
 )
+
+
+# Supported USB device ID enumeration
+class SUPPORTED_DEVICE_ID(Enum):
+    LABELMANAGER_PC = 0x0011
+    LABELPOINT_350 = 0x0015
+    LABELMANAGER_PC_II = 0x001C
+    LABELMANAGER_PNP_NO_MODE_SWITCH = 0x1001
+    LABELMANAGER_PNP_MODE_SWITCH = 0x1002
+    LABELMANAGER_420P_NO_MODE_SWITCH = 0x1003
+    LABELMANAGER_420P_MODE_SWITCH = 0x1004
+    LABELMANAGER_280P_NO_MODE_SWITCH = 0x1005
+    LABELMANAGER_280P_MODE_SWITCH = 0x1006
+    LABELMANAGER_WIRELESS_PNP_NO_MODE_SWITCH = 0x1007
+    LABELMANAGER_WIRELESS_PNP_MODE_SWITCH = 0x1008
+    MOBILE_LABELER = 0x1009
+
+
+# fmt: off
+# Very bad I know, but it keeps a loop of removing the line breaks and errroring
+
 SUPPORTED_PRODUCTS = {
-    0x0011: "DYMO LabelMANAGER PC",
-    0x0015: "LabelPoint 350",
-    0x001C: "DYMO LabelMANAGER PC II",
-    0x1001: "LabelManager PnP (no mode switch)",
-    0x1002: "LabelManager PnP (mode switch)",
-    0x1003: f"LabelManager 420P (no mode switch) {UNCONFIRMED_MESSAGE}",
-    0x1004: f"LabelManager 420P (mode switch) {UNCONFIRMED_MESSAGE}",
-    0x1005: "LabelManager 280 (no mode switch)",
-    0x1006: "LabelManager 280 (no mode switch)",
-    0x1007: f"LabelManager Wireless PnP (no mode switch) {UNCONFIRMED_MESSAGE}",
-    0x1008: f"LabelManager Wireless PnP (mode switch) {UNCONFIRMED_MESSAGE}",
-    0x1009: f"MobileLabeler {UNCONFIRMED_MESSAGE}",
+    SUPPORTED_DEVICE_ID.LABELMANAGER_PC:
+        "DYMO LabelMANAGER PC",
+    SUPPORTED_DEVICE_ID.LABELPOINT_350:
+        "LabelPoint 350",
+    SUPPORTED_DEVICE_ID.LABELMANAGER_PC_II:
+        "DYMO LabelMANAGER PC II",
+    SUPPORTED_DEVICE_ID.LABELMANAGER_PNP_NO_MODE_SWITCH:
+        "LabelManager PnP (no mode switch)",
+    SUPPORTED_DEVICE_ID.LABELMANAGER_PNP_MODE_SWITCH:
+        "LabelManager PnP (mode switch)",
+    SUPPORTED_DEVICE_ID.LABELMANAGER_420P_NO_MODE_SWITCH:
+        f"LabelManager 420P (no mode switch) {UNCONFIRMED_MESSAGE}",
+    SUPPORTED_DEVICE_ID.LABELMANAGER_420P_MODE_SWITCH:
+        f"LabelManager 420P (mode switch) {UNCONFIRMED_MESSAGE}",
+    SUPPORTED_DEVICE_ID.LABELMANAGER_280P_NO_MODE_SWITCH:
+        "LabelManager 280 (no mode switch)",
+    SUPPORTED_DEVICE_ID.LABELMANAGER_280P_MODE_SWITCH:
+        "LabelManager 280 (no mode switch)",
+    SUPPORTED_DEVICE_ID.LABELMANAGER_WIRELESS_PNP_NO_MODE_SWITCH:
+        f"LabelManager Wireless PnP (no mode switch) {UNCONFIRMED_MESSAGE}",
+    SUPPORTED_DEVICE_ID.LABELMANAGER_WIRELESS_PNP_MODE_SWITCH:
+        f"LabelManager Wireless PnP (mode switch) {UNCONFIRMED_MESSAGE}",
+    SUPPORTED_DEVICE_ID.MOBILE_LABELER:
+        f"MobileLabeler {UNCONFIRMED_MESSAGE}",
 }
+# fmt: on
+
+
 DEV_VENDOR = 0x0922
 
 PRINTER_INTERFACE_CLASS = 0x07

@@ -5,6 +5,7 @@ import logging
 from usb.core import NoBackendError, USBError
 
 from labelle.lib.constants import (
+    SUPPORTED_DEVICE_ID,
     SUPPORTED_PRODUCTS,
     UNCONFIRMED_MESSAGE,
 )
@@ -80,7 +81,8 @@ class DeviceManager:
             LOG.debug(dev.device_info)
         dev = devices[0]
         if dev.is_supported:
-            msg = f"Recognized device as {SUPPORTED_PRODUCTS[dev.id_product]}"
+            msg = f"Recognized device as \
+                {SUPPORTED_PRODUCTS[SUPPORTED_DEVICE_ID(dev.id_product)]}"
         else:
             msg = f"Unrecognized device: {hex(dev.id_product)}. {UNCONFIRMED_MESSAGE}"
         LOG.debug(msg)
