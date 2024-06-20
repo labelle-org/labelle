@@ -238,7 +238,7 @@ class DymoLabelerFunctions:
 
 class DymoLabeler:
     _device: UsbDevice | None
-    _deviceConfig: DeviceConfig | None
+    _deviceConfig: DeviceConfig
     tape_size_mm: int
 
     LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM = 8.1
@@ -254,13 +254,14 @@ class DymoLabeler:
 
         if self._device is not None:
             # Retrieve device config
-            self._deviceConfig = get_device_config_by_id(self._device.id_product)
+            foundConfig = get_device_config_by_id(self._device.id_product)
+            if foundConfig is not None:
+                self._deviceConfig = foundConfig
+            else:
+                raise ValueError(f"Unsupported device type {self._device.id_product}")
         else:
             # Use simulator config
             self._deviceConfig = SIMULATOR_CONFIG
-
-        if self._deviceConfig is None:
-            raise ValueError(f"Unsupported device type {device.id_product}")
 
         if tape_size_mm is None:
             tape_size_mm = self.DEFAULT_TAPE_SIZE_MM

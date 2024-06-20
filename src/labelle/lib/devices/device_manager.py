@@ -90,7 +90,7 @@ class DeviceManager:
         return dev
 
 
-def get_device_config_by_id(idValue: int) -> DeviceConfig:
+def get_device_config_by_id(idValue: int) -> DeviceConfig | None:
     """Get a labeler device config with USB ID.
 
     :param idValue: USB ID value

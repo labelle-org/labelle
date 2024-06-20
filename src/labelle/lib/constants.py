@@ -13,7 +13,7 @@
 # either sysfs is unavailable or unusable by this script for some reason.
 # Please beware that DEV_NODE must be set to None when not used, else you will
 # be bitten by the NameError exception.
-from enum import IntEnum
+from enum import Enum, IntEnum
 from pathlib import Path
 
 import labelle.resources.fonts
