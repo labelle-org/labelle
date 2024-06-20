@@ -10,13 +10,14 @@ from __future__ import annotations
 import array
 import logging
 import math
-from typing import Any
 
 import usb
 from PIL import Image
 from usb.core import NoBackendError, USBError
 
-from labelle.lib.constants import ESC, SUPPORTED_DEVICE_ID, SYN
+from labelle.lib.constants import ESC, SIMULATOR_CONFIG, SYN
+from labelle.lib.devices.device_config import DeviceConfig
+from labelle.lib.devices.device_manager import get_device_config_by_id
 from labelle.lib.devices.usb_device import UsbDevice, UsbDeviceError
 from labelle.lib.utils import mm_to_px
 
@@ -237,83 +238,36 @@ class DymoLabelerFunctions:
 
 class DymoLabeler:
     _device: UsbDevice | None
+    _deviceConfig: DeviceConfig | None
     tape_size_mm: int
 
     LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM = 8.1
     LABELER_PRINT_HEAD_HEIGHT_MM = 8.2
     DEFAULT_TAPE_SIZE_MM = 12
 
-    # Default supported tape sizes
-    labeler_supported_tape_sizes: list
-
-    # Default printer head size in dots
-    labeler_print_head_width_pixels: int
-
-    # Default printer margins (for each tape size)
-    # { tapeSizeMm : (firstVisiblePixel, lastVisiblePixel) }
-    labeler_label_vertical_margins: dict[int, Any]
-
     def __init__(
         self,
         tape_size_mm: int | None = None,
         device: UsbDevice | None = None,
     ):
-        if tape_size_mm is None:
-            tape_size_mm = self.DEFAULT_TAPE_SIZE_MM
-
         self._device = device
 
-        # --- Set options based on printer type ---
         if self._device is not None:
-            if self._device.id_product == SUPPORTED_DEVICE_ID.LABELMANAGER_PC:
-                self.labeler_print_head_width_pixels = 128
-                self.labeler_supported_tape_sizes = [19, 12, 9, 6]
-                self.labeler_label_vertical_margins = {
-                    6: (11, 51),
-                    9: (1, 62),
-                    12: (0, 63),
-                    19: (0, 0),
-                }
-
-            elif self._device.id_product == SUPPORTED_DEVICE_ID.LABELMANAGER_PC_II:
-                self.labeler_print_head_width_pixels = 128
-                self.labeler_supported_tape_sizes = [24, 19, 12, 9, 6]
-                self.labeler_label_vertical_margins = {
-                    6: (11, 51),
-                    9: (1, 62),
-                    12: (0, 63),
-                    19: (0, 0),
-                    24: (0, 0),
-                }
-
-            else:
-                # Defaults (For most printers)
-                self.labeler_print_head_width_pixels = 64
-                self.labeler_supported_tape_sizes = [12, 9, 6]
-                self.labeler_label_vertical_margins = {
-                    6: (11, 51),
-                    9: (1, 62),
-                    12: (0, 63),
-                }
+            # Retrieve device config
+            self._deviceConfig = get_device_config_by_id(self._device.id_product)
         else:
-            # Simulator (supports everything)
-            self.labeler_print_head_width_pixels = 128
-            self.labeler_supported_tape_sizes = [24, 19, 12, 9, 6]
-            self.labeler_label_vertical_margins = {
-                6: (11, 51),
-                9: (1, 62),
-                12: (0, 63),
-                19: (0, 0),
-                24: (0, 0),
-            }
+            # Use simulator config
+            self._deviceConfig = SIMULATOR_CONFIG
 
-        # --- End set options based on printer type ---
+        if self._deviceConfig is None:
+            raise ValueError(f"Unsupported device type {device.id_product}")
 
-        # Check if selected tape size is supported by printer
-        if tape_size_mm not in self.labeler_supported_tape_sizes:
+        if tape_size_mm is None:
+            tape_size_mm = self.DEFAULT_TAPE_SIZE_MM
+        if tape_size_mm not in self._deviceConfig.supportedTapeSizes:
             raise ValueError(
                 f"Unsupported tape size {tape_size_mm}mm. "
-                f"Supported sizes: {self.labeler_supported_tape_sizes}"
+                f"Supported sizes: {self._deviceConfig.supportedTapeSizes}mm"
             )
         self.tape_size_mm = tape_size_mm
 
@@ -336,7 +290,6 @@ class DymoLabeler:
 
     @property
     def labeler_margin_px(self) -> tuple[float, float]:
-        # ToDo: Use preset margins here instead of this calculation
         vertical_margin_mm = max(
             0, (self.tape_size_mm - self.LABELER_PRINT_HEAD_HEIGHT_MM) / 2
         )

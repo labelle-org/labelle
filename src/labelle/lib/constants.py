@@ -13,11 +13,12 @@
 # either sysfs is unavailable or unusable by this script for some reason.
 # Please beware that DEV_NODE must be set to None when not used, else you will
 # be bitten by the NameError exception.
-from enum import Enum
+from enum import IntEnum
 from pathlib import Path
 
 import labelle.resources.fonts
 import labelle.resources.icons
+from labelle.lib.devices.device_config import DeviceConfig
 
 try:
     from pyqrcode import QRCode
@@ -37,7 +38,7 @@ UNCONFIRMED_MESSAGE = (
 
 
 # Supported USB device ID enumeration
-class SUPPORTED_DEVICE_ID(Enum):
+class SUPPORTED_DEVICE_ID(IntEnum):
     LABELMANAGER_PC = 0x0011
     LABELPOINT_350 = 0x0015
     LABELMANAGER_PC_II = 0x001C
@@ -52,36 +53,110 @@ class SUPPORTED_DEVICE_ID(Enum):
     MOBILE_LABELER = 0x1009
 
 
-# fmt: off
-# Very bad I know, but it keeps a loop of removing the line breaks and errroring
+# Create supported products list
+SUPPORTED_PRODUCTS = []
 
-SUPPORTED_PRODUCTS = {
-    SUPPORTED_DEVICE_ID.LABELMANAGER_PC:
+# ---- Supported USB Devices configuration ----
+SUPPORTED_PRODUCTS.append(
+    DeviceConfig(
         "DYMO LabelMANAGER PC",
-    SUPPORTED_DEVICE_ID.LABELPOINT_350:
+        [int(SUPPORTED_DEVICE_ID.LABELMANAGER_PC)],
+        # ToDo: Validate config!
+        128,
+        [6, 9, 12, 19],
+        {6: (44, 85), 9: (31, 94), 12: (38, 117), 19: (2, 127)},
+    )
+)
+SUPPORTED_PRODUCTS.append(
+    DeviceConfig(
         "LabelPoint 350",
-    SUPPORTED_DEVICE_ID.LABELMANAGER_PC_II:
+        [int(SUPPORTED_DEVICE_ID.LABELPOINT_350)],
+        # ToDo: Validate config!
+        64,
+        [6, 9, 12],
+        {6: (44, 85), 9: (31, 94), 12: (38, 117)},
+    )
+)
+SUPPORTED_PRODUCTS.append(
+    DeviceConfig(
         "DYMO LabelMANAGER PC II",
-    SUPPORTED_DEVICE_ID.LABELMANAGER_PNP_NO_MODE_SWITCH:
-        "LabelManager PnP (no mode switch)",
-    SUPPORTED_DEVICE_ID.LABELMANAGER_PNP_MODE_SWITCH:
-        "LabelManager PnP (mode switch)",
-    SUPPORTED_DEVICE_ID.LABELMANAGER_420P_NO_MODE_SWITCH:
-        f"LabelManager 420P (no mode switch) {UNCONFIRMED_MESSAGE}",
-    SUPPORTED_DEVICE_ID.LABELMANAGER_420P_MODE_SWITCH:
-        f"LabelManager 420P (mode switch) {UNCONFIRMED_MESSAGE}",
-    SUPPORTED_DEVICE_ID.LABELMANAGER_280P_NO_MODE_SWITCH:
-        "LabelManager 280 (no mode switch)",
-    SUPPORTED_DEVICE_ID.LABELMANAGER_280P_MODE_SWITCH:
-        "LabelManager 280 (no mode switch)",
-    SUPPORTED_DEVICE_ID.LABELMANAGER_WIRELESS_PNP_NO_MODE_SWITCH:
-        f"LabelManager Wireless PnP (no mode switch) {UNCONFIRMED_MESSAGE}",
-    SUPPORTED_DEVICE_ID.LABELMANAGER_WIRELESS_PNP_MODE_SWITCH:
-        f"LabelManager Wireless PnP (mode switch) {UNCONFIRMED_MESSAGE}",
-    SUPPORTED_DEVICE_ID.MOBILE_LABELER:
+        [int(SUPPORTED_DEVICE_ID.LABELMANAGER_PC_II)],
+        128,
+        [6, 9, 12, 19, 24],
+        {6: (44, 85), 9: (31, 94), 12: (38, 117), 19: (2, 127), 24: (2, 127)},
+    )
+)
+SUPPORTED_PRODUCTS.append(
+    DeviceConfig(
+        "LabelManager PnP",
+        [
+            int(SUPPORTED_DEVICE_ID.LABELMANAGER_PNP_NO_MODE_SWITCH),
+            int(SUPPORTED_DEVICE_ID.LABELMANAGER_PNP_MODE_SWITCH),
+        ],
+        # ToDo: Validate config!
+        64,
+        [6, 9, 12],
+        {6: (44, 85), 9: (31, 94), 12: (38, 117)},
+    )
+)
+SUPPORTED_PRODUCTS.append(
+    DeviceConfig(
+        f"LabelManager 420P {UNCONFIRMED_MESSAGE}",
+        [
+            int(SUPPORTED_DEVICE_ID.LABELMANAGER_420P_NO_MODE_SWITCH),
+            int(SUPPORTED_DEVICE_ID.LABELMANAGER_420P_MODE_SWITCH),
+        ],
+        # ToDo: Validate config!
+        64,
+        [6, 9, 12],
+        {6: (44, 85), 9: (31, 94), 12: (38, 117)},
+    )
+)
+SUPPORTED_PRODUCTS.append(
+    DeviceConfig(
+        "LabelManager 280",
+        [
+            int(SUPPORTED_DEVICE_ID.LABELMANAGER_280P_MODE_SWITCH),
+            int(SUPPORTED_DEVICE_ID.LABELMANAGER_280P_NO_MODE_SWITCH),
+        ],
+        # ToDo: Validate config!
+        64,
+        [6, 9, 12],
+        {6: (44, 85), 9: (31, 94), 12: (38, 117)},
+    )
+)
+SUPPORTED_PRODUCTS.append(
+    DeviceConfig(
+        f"LabelManager Wireless PnP {UNCONFIRMED_MESSAGE}",
+        [
+            int(SUPPORTED_DEVICE_ID.LABELMANAGER_WIRELESS_PNP_NO_MODE_SWITCH),
+            int(SUPPORTED_DEVICE_ID.LABELMANAGER_WIRELESS_PNP_MODE_SWITCH),
+        ],
+        # ToDo: Validate config!
+        64,
+        [6, 9, 12],
+        {6: (44, 85), 9: (31, 94), 12: (38, 117)},
+    )
+)
+SUPPORTED_PRODUCTS.append(
+    DeviceConfig(
         f"MobileLabeler {UNCONFIRMED_MESSAGE}",
-}
-# fmt: on
+        [int(SUPPORTED_DEVICE_ID.MOBILE_LABELER)],
+        # ToDo: Validate config!
+        64,
+        [6, 9, 12],
+        {6: (44, 85), 9: (31, 94), 12: (38, 117)},
+    )
+)
+
+# Simulator configuration
+SIMULATOR_CONFIG = DeviceConfig(
+    "Simulator",
+    [0],
+    128,
+    [6, 9, 12, 19, 24],
+    {6: (44, 85), 9: (31, 94), 12: (38, 117), 19: (2, 127), 24: (2, 127)},
+)
 
 
 DEV_VENDOR = 0x0922
