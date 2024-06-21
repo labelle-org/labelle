@@ -96,7 +96,6 @@ SUPPORTED_PRODUCTS.append(
             int(SUPPORTED_DEVICE_ID.LABELMANAGER_PNP_NO_MODE_SWITCH),
             int(SUPPORTED_DEVICE_ID.LABELMANAGER_PNP_MODE_SWITCH),
         ],
-        # ToDo: Validate config!
         # Printhead 64 Pixels, distributed over 9mm of active area
         64,
         9,
