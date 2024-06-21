@@ -249,18 +249,7 @@ class DymoLabeler:
         tape_size_mm: int | None = None,
         device: UsbDevice | None = None,
     ):
-        self._device = device
-
-        if self._device is not None:
-            # Retrieve device config
-            foundConfig = get_device_config_by_id(self._device.id_product)
-            if foundConfig is not None:
-                self._deviceConfig = foundConfig
-            else:
-                raise ValueError(f"Unsupported device type {self._device.id_product}")
-        else:
-            # Use simulator config
-            self._deviceConfig = SIMULATOR_CONFIG
+        self.device = device
 
         if tape_size_mm is None:
             tape_size_mm = self.DEFAULT_TAPE_SIZE_MM
@@ -312,6 +301,17 @@ class DymoLabeler:
         try:
             if device:
                 device.setup()
+
+                # Retrieve device config
+                foundConfig = get_device_config_by_id(device.id_product)
+                if foundConfig is not None:
+                    self._deviceConfig = foundConfig
+                else:
+                    raise ValueError(f"Unsupported device type {device.id_product}")
+            else:
+                # Use simulator config
+                self._deviceConfig = SIMULATOR_CONFIG
+
         except UsbDeviceError as e:
             device = None
             LOG.error(e)
