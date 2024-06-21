@@ -62,9 +62,10 @@ SUPPORTED_PRODUCTS.append(
         "DYMO LabelMANAGER PC",
         [int(SUPPORTED_DEVICE_ID.LABELMANAGER_PC)],
         # ToDo: Validate config!
+        # Printhead 128 Pixels, distributed over 18mm of active area
         128,
+        18,
         [6, 9, 12, 19],
-        {6: (44, 85), 9: (31, 94), 12: (38, 117), 19: (2, 127)},
     )
 )
 SUPPORTED_PRODUCTS.append(
@@ -72,18 +73,20 @@ SUPPORTED_PRODUCTS.append(
         "LabelPoint 350",
         [int(SUPPORTED_DEVICE_ID.LABELPOINT_350)],
         # ToDo: Validate config!
+        # Printhead 64 Pixels, distributed over 9mm of active area
         64,
+        9,
         [6, 9, 12],
-        {6: (44, 85), 9: (31, 94), 12: (38, 117)},
     )
 )
 SUPPORTED_PRODUCTS.append(
     DeviceConfig(
         "DYMO LabelMANAGER PC II",
         [int(SUPPORTED_DEVICE_ID.LABELMANAGER_PC_II)],
+        # Printhead 128 Pixels, distributed over 18mm of active area
         128,
+        18,
         [6, 9, 12, 19, 24],
-        {6: (44, 85), 9: (31, 94), 12: (38, 117), 19: (2, 127), 24: (2, 127)},
     )
 )
 SUPPORTED_PRODUCTS.append(
@@ -94,9 +97,10 @@ SUPPORTED_PRODUCTS.append(
             int(SUPPORTED_DEVICE_ID.LABELMANAGER_PNP_MODE_SWITCH),
         ],
         # ToDo: Validate config!
+        # Printhead 64 Pixels, distributed over 9mm of active area
         64,
+        9,
         [6, 9, 12],
-        {6: (44, 85), 9: (31, 94), 12: (38, 117)},
     )
 )
 SUPPORTED_PRODUCTS.append(
@@ -107,9 +111,10 @@ SUPPORTED_PRODUCTS.append(
             int(SUPPORTED_DEVICE_ID.LABELMANAGER_420P_MODE_SWITCH),
         ],
         # ToDo: Validate config!
+        # Printhead 64 Pixels, distributed over 9mm of active area
         64,
+        9,
         [6, 9, 12],
-        {6: (44, 85), 9: (31, 94), 12: (38, 117)},
     )
 )
 SUPPORTED_PRODUCTS.append(
@@ -120,9 +125,10 @@ SUPPORTED_PRODUCTS.append(
             int(SUPPORTED_DEVICE_ID.LABELMANAGER_280P_NO_MODE_SWITCH),
         ],
         # ToDo: Validate config!
+        # Printhead 64 Pixels, distributed over 9mm of active area
         64,
+        9,
         [6, 9, 12],
-        {6: (44, 85), 9: (31, 94), 12: (38, 117)},
     )
 )
 SUPPORTED_PRODUCTS.append(
@@ -133,9 +139,10 @@ SUPPORTED_PRODUCTS.append(
             int(SUPPORTED_DEVICE_ID.LABELMANAGER_WIRELESS_PNP_MODE_SWITCH),
         ],
         # ToDo: Validate config!
+        # Printhead 64 Pixels, distributed over 9mm of active area
         64,
+        9,
         [6, 9, 12],
-        {6: (44, 85), 9: (31, 94), 12: (38, 117)},
     )
 )
 SUPPORTED_PRODUCTS.append(
@@ -143,9 +150,10 @@ SUPPORTED_PRODUCTS.append(
         f"MobileLabeler {UNCONFIRMED_MESSAGE}",
         [int(SUPPORTED_DEVICE_ID.MOBILE_LABELER)],
         # ToDo: Validate config!
+        # Printhead 64 Pixels, distributed over 9mm of active area
         64,
+        9,
         [6, 9, 12],
-        {6: (44, 85), 9: (31, 94), 12: (38, 117)},
     )
 )
 
@@ -153,9 +161,10 @@ SUPPORTED_PRODUCTS.append(
 SIMULATOR_CONFIG = DeviceConfig(
     "Simulator",
     [0],
+    # Fake printhead 128 Pixels, distributed over 18mm of active area
     128,
+    18,
     [6, 9, 12, 19, 24],
-    {6: (44, 85), 9: (31, 94), 12: (38, 117), 19: (2, 127), 24: (2, 127)},
 )
 
 

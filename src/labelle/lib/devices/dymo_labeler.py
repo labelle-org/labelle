@@ -242,7 +242,6 @@ class DymoLabeler:
     tape_size_mm: int
 
     LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM = 8.1
-    LABELER_PRINT_HEAD_HEIGHT_MM = 8.2
     DEFAULT_TAPE_SIZE_MM = 12
 
     def __init__(
@@ -274,7 +273,10 @@ class DymoLabeler:
 
     @property
     def height_px(self):
-        return DymoLabelerFunctions.height_px(self.tape_size_mm)
+        """Get the tape size in pixels."""
+        return self._deviceConfig.get_tape_print_size_and_margins_px(self.tape_size_mm)[
+            0
+        ]
 
     @property
     def _functions(self) -> DymoLabelerFunctions:
@@ -291,13 +293,14 @@ class DymoLabeler:
 
     @property
     def labeler_margin_px(self) -> tuple[float, float]:
-        vertical_margin_mm = max(
-            0, (self.tape_size_mm - self.LABELER_PRINT_HEAD_HEIGHT_MM) / 2
-        )
+        # Get vertical (top) margin
+        vertical_margin_px = self._deviceConfig.get_tape_print_size_and_margins_px(
+            self.tape_size_mm
+        )[1]
 
         return (
             mm_to_px(self.minimum_horizontal_margin_mm),
-            mm_to_px(vertical_margin_mm),
+            vertical_margin_px,
         )
 
     @property
