@@ -104,6 +104,10 @@ class DeviceConfig:
             # Bottom margin is equal due to centering of the tape
             bottomMargin = topMargin
 
+            # Make sure the total is the exact amount of pixels of the printhead
+            # Aka compensate for margin rounding/division errors
+            activeTapePixels = self.printHeadSizePixels - (topMargin + bottomMargin)
+
             # Return active pixels / margins set
             return (int(activeTapePixels), int(topMargin), int(bottomMargin))
         else:
