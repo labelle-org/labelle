@@ -12,17 +12,17 @@ class DeviceConfig:
     name: str
     """Name of this device"""
 
-    deviceIDs: list[int]
+    device_ids: list[int]
     """List of USB Device ID's this device can identify as"""
 
-    printHeadSizePixels: int
+    print_head_size_px: int
     """Size of the print head in pixels (use calibration routine to determine)"""
 
-    printHeadActiveAreaMillimeters: float
+    print_head_active_area_mm: float
     """Size of the active area of the print head in millimters
         (use calibration routine to determine)"""
 
-    supportedTapeSizes: list[int]
+    supported_tape_sizes: list[int]
     """List of supported tape sizes in mm"""
 
     # Fixed to 1 mm until proven otherwise ;)
@@ -36,58 +36,59 @@ class DeviceConfig:
     def __init__(
         self,
         name: str,
-        deviceIDs: list[int],
-        printHeadSizePixels: int,
-        printHeadActiveAreaMillimeters: int,
-        supportedTapeSizes: list[int],
+        device_ids: list[int],
+        print_head_size_pixels: int,
+        print_head_active_area_mm: int,
+        supported_tape_sizes: list[int],
     ):
         """Initialize a Labeler config object."""
         self.name = name
-        self.deviceIDs = deviceIDs
-        self.printHeadSizePixels = printHeadSizePixels
-        self.printHeadActiveAreaMillimeters = printHeadActiveAreaMillimeters
-        self.supportedTapeSizes = supportedTapeSizes
+        self.device_ids = device_ids
+        self.print_head_size_px = print_head_size_pixels
+        self.print_head_active_area_mm = print_head_active_area_mm
+        self.supported_tape_sizes = supported_tape_sizes
 
-    def matches_device_id(self, idValue: int) -> bool:
+    def matches_device_id(self, device_id: int) -> bool:
         """Check if the a device ID matches this config."""
-        if idValue in self.deviceIDs:
+        if device_id in self.device_ids:
             return True
         else:
             return False
 
     def get_tape_print_size_and_margins_px(
-        self, tapeSizeMM: int
+        self, tape_size_mm: int
     ) -> tuple[int, int, int]:
         """Get print margins for a specific tape size.
 
-        :param tapeSizeMM: Tape size in mm
-        :return: Margins tuple in pixels [ActivePixels,TopMarginPx,BottomMarginPx]
+        :param tape_size_mm: Tape size in mm
+        :return: Margins tuple in pixels
+            (Active pixels on tape, Top margin pixels, bottom margin pixels)
         """
-        if tapeSizeMM in self.supportedTapeSizes:
+        if tape_size_mm in self.supported_tape_sizes:
             # Calculate the pixels per mm for this printer
             # Example: printhead of 128 Pixels, distributed over 18 mm of active area.
             #   Makes 7.11 pixels/mm
-            printPPmm: float = (
-                self.printHeadSizePixels / self.printHeadActiveAreaMillimeters
+            print_pixels_per_mm: float = (
+                self.print_head_size_px / self.print_head_active_area_mm
             )
 
             # Calculate usable tape width (*2 for top and bottom)
-            usableTapeWidth: float = tapeSizeMM - (
+            usable_tape_width_mm: float = tape_size_mm - (
                 self.TAPE_ALIGNMENT_INACCURACY_MM * 2
             )
 
             # Calculate the numer of active pixels for the tape
-            activeTapePixels: float = 0
-            if usableTapeWidth >= self.printHeadActiveAreaMillimeters:
+            usable_tape_width_pixels: float = 0
+            if usable_tape_width_mm >= self.print_head_active_area_mm:
                 # Tape is larger than active area of printhead. Use all pixels
-                activeTapePixels = self.printHeadSizePixels
+                usable_tape_width_pixels = self.print_head_size_px
             else:
                 # Calculate the amount of active pixels we are able to use
                 # (taking the placement inaccuracy into account)
-                activeTapePixels = printPPmm * usableTapeWidth
+                usable_tape_width_pixels = print_pixels_per_mm * usable_tape_width_mm
 
             # Round down to nearest whole number as we can't use half a pixels ;)
-            activeTapePixels = math.floor(activeTapePixels)
+            usable_tape_width_pixels = math.floor(usable_tape_width_pixels)
 
             # To calculate the margins we need to know some hardware info
             # Printer has special "support studs" that
@@ -99,20 +100,24 @@ class DeviceConfig:
             # just calculate the top and bottom margin
 
             # Calculate the top margin
-            topMargin = round(((self.printHeadSizePixels - activeTapePixels) / 2), 0)
+            margin_top = round(
+                ((self.print_head_size_px - usable_tape_width_pixels) / 2), 0
+            )
 
             # Bottom margin is equal due to centering of the tape
-            bottomMargin = topMargin
+            margin_bottom = margin_top
 
             # Make sure the total is the exact amount of pixels of the printhead
             # Aka compensate for margin rounding/division errors
-            activeTapePixels = self.printHeadSizePixels - (topMargin + bottomMargin)
+            usable_tape_width_pixels = self.print_head_size_px - (
+                margin_top + margin_bottom
+            )
 
             # Return active pixels / margins set
-            return (int(activeTapePixels), int(topMargin), int(bottomMargin))
+            return (int(usable_tape_width_pixels), int(margin_top), int(margin_bottom))
         else:
             # Tape size not supported
             raise ValueError(
-                f"Unsupported tape size {tapeSizeMM}mm. "
-                f"Supported sizes: {self.supportedTapeSizes}mm"
+                f"Unsupported tape size {tape_size_mm}mm. "
+                f"Supported sizes: {self.supported_tape_sizes}mm"
             )

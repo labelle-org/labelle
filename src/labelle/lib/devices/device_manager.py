@@ -81,11 +81,11 @@ class DeviceManager:
             LOG.debug(dev.device_info)
         dev = devices[0]
         if dev.is_supported:
-            foundDeviceConfig: DeviceConfig | None = get_device_config_by_id(
+            found_device_config: DeviceConfig | None = get_device_config_by_id(
                 dev.id_product
             )
-            if foundDeviceConfig is not None:
-                msg = f"Recognized device as {foundDeviceConfig.name}"
+            if found_device_config is not None:
+                msg = f"Recognized device as {found_device_config.name}"
         else:
             msg = f"Unrecognized device: {hex(dev.id_product)}. {UNCONFIRMED_MESSAGE}"
         LOG.debug(msg)

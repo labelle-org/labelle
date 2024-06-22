@@ -238,7 +238,7 @@ class DymoLabelerFunctions:
 
 class DymoLabeler:
     _device: UsbDevice | None
-    _deviceConfig: DeviceConfig
+    _device_config: DeviceConfig
     tape_size_mm: int
 
     LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM = 8.1
@@ -253,19 +253,19 @@ class DymoLabeler:
 
         if tape_size_mm is None:
             tape_size_mm = self.DEFAULT_TAPE_SIZE_MM
-        if tape_size_mm not in self._deviceConfig.supportedTapeSizes:
+        if tape_size_mm not in self._device_config.supported_tape_sizes:
             raise ValueError(
                 f"Unsupported tape size {tape_size_mm}mm. "
-                f"Supported sizes: {self._deviceConfig.supportedTapeSizes}mm"
+                f"Supported sizes: {self._device_config.supported_tape_sizes}mm"
             )
         self.tape_size_mm = tape_size_mm
 
     @property
     def height_px(self):
         """Get the tape size in pixels."""
-        return self._deviceConfig.get_tape_print_size_and_margins_px(self.tape_size_mm)[
-            0
-        ]
+        return self._device_config.get_tape_print_size_and_margins_px(
+            self.tape_size_mm
+        )[0]
 
     @property
     def _functions(self) -> DymoLabelerFunctions:
@@ -283,7 +283,7 @@ class DymoLabeler:
     @property
     def labeler_margin_px(self) -> tuple[float, float]:
         # Get vertical (top) margin
-        vertical_margin_px = self._deviceConfig.get_tape_print_size_and_margins_px(
+        vertical_margin_px = self._device_config.get_tape_print_size_and_margins_px(
             self.tape_size_mm
         )[1]
 
@@ -303,14 +303,14 @@ class DymoLabeler:
                 device.setup()
 
                 # Retrieve device config
-                foundConfig = get_device_config_by_id(device.id_product)
-                if foundConfig is not None:
-                    self._deviceConfig = foundConfig
+                found_config = get_device_config_by_id(device.id_product)
+                if found_config is not None:
+                    self._device_config = found_config
                 else:
                     raise ValueError(f"Unsupported device type {device.id_product}")
             else:
                 # Use simulator config
-                self._deviceConfig = SIMULATOR_CONFIG
+                self._device_config = SIMULATOR_CONFIG
 
         except UsbDeviceError as e:
             device = None
