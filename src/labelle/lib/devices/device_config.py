@@ -40,7 +40,4 @@ class DeviceConfig:
 
     def matches_device_id(self, device_id: int) -> bool:
         """Check if the a device ID matches this config."""
-        if device_id in self.device_ids:
-            return True
-        else:
-            return False
+        return device_id in self.device_ids
