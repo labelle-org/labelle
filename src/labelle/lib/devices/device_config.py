@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import logging
 import math
+from dataclasses import dataclass
 
 LOG = logging.getLogger(__name__)
 
 
+@dataclass
 class DeviceConfig:
     """Configuration object for the capabilities of a label printer."""
 
@@ -25,28 +27,13 @@ class DeviceConfig:
     supported_tape_sizes_mm: list[int]
     """List of supported tape sizes in mm"""
 
-    # Fixed to 1 mm until proven otherwise ;)
-    TAPE_ALIGNMENT_INACCURACY_MM: float = 1
-    """The inaccuracy of the tape position relative to the printhead"""
-    # Inaccuracy of the tape position is mostly caused by
-    # the tape moving slightly from side to side in the cartridge.
-    # Improper cartrigde placemement is also an factor,
-    # but negligible due to a physical spring in the lid.
-
-    def __init__(
-        self,
-        name: str,
-        device_ids: list[int],
-        print_head_width_px: int,
-        print_head_active_area_width_mm: int,
-        supported_tape_sizes_mm: list[int],
-    ):
-        """Initialize a Labeler config object."""
-        self.name = name
-        self.device_ids = device_ids
-        self.print_head_width_px = print_head_width_px
-        self.print_head_active_area_width_mm = print_head_active_area_width_mm
-        self.supported_tape_sizes_mm = supported_tape_sizes_mm
+    tape_alignment_inaccuracy_mm: float = 1.0
+    """The inaccuracy of the tape position relative to the printhead
+    Inaccuracy of the tape position is mostly caused by
+    the tape moving slightly from side to side in the cartridge.
+    Improper cartrigde placemement is also an factor,
+    but negligible due to a physical spring in the lid.
+    """
 
     def matches_device_id(self, device_id: int) -> bool:
         """Check if the a device ID matches this config."""
@@ -74,7 +61,7 @@ class DeviceConfig:
 
             # Calculate usable tape width (*2 for top and bottom)
             usable_tape_width_mm: float = tape_size_mm - (
-                self.TAPE_ALIGNMENT_INACCURACY_MM * 2
+                self.tape_alignment_inaccuracy_mm * 2
             )
 
             # Calculate the numer of active pixels for the tape
