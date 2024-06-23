@@ -31,12 +31,14 @@ class SamplePatternRenderEngine(HorizontallyCombinedRenderEngine):
             for x in range(ss - 1, 2 * ss - 1):
                 for y in range(0, width):
                     if x == ss - 1 and y % ss == ss - 1:
-                        _left, _top, right, bottom = font.getbbox(str(y))
+                        _left, _top, right, bottom = font.getbbox(str(y + 1))
                         number_size_px = max(right, bottom)
                         if number_size_px <= ss:
                             with draw_image(dyadic_checkerboard_pattern) as draw:
                                 assert isinstance(draw, ImageDraw.ImageDraw)
-                                draw.text((x, y - bottom), str(y), font=font, fill=1)
+                                draw.text(
+                                    (x, y - bottom), str(y + 1), font=font, fill=1
+                                )
                     if (math.floor(y / ss) % 2) == 0:
                         if dyadic_checkerboard_pattern.getpixel((x, y)) == 1:
                             dyadic_checkerboard_pattern.putpixel((x, y), 0)
