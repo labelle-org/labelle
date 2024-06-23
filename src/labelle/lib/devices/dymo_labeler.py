@@ -373,11 +373,11 @@ class DymoLabeler:
                 device.setup()
 
                 # Retrieve device config
-                found_config = get_device_config_by_id(device.id_product)
-                if found_config is not None:
-                    self._device_config = found_config
-                else:
+                found_device_config = get_device_config_by_id(device.id_product)
+
+                if found_device_config is None:
                     raise ValueError(f"Unsupported device type {device.id_product}")
+                self._deviceConfig = found_device_config
             else:
                 # Use simulator config
                 self._device_config = SIMULATOR_CONFIG
