@@ -293,6 +293,10 @@ class DymoLabeler:
         )
 
     @property
+    def device_config(self) -> DeviceConfig:
+        return self._device_config
+
+    @property
     def device(self) -> UsbDevice | None:
         return self._device
 
