@@ -100,7 +100,7 @@ def get_device_config_by_id(idValue: int) -> DeviceConfig | None:
     """
     #
     for device in SUPPORTED_PRODUCTS:
-        if device.matches_device_id(idValue) is True:
+        if device.matches_device_id(idValue):
             return device
 
     # No device config found
