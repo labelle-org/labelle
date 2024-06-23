@@ -10,6 +10,7 @@ from __future__ import annotations
 import array
 import logging
 import math
+from collections import namedtuple
 
 import usb
 from PIL import Image
@@ -244,6 +245,14 @@ class DymoLabeler:
     LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM = 8.1
     DEFAULT_TAPE_SIZE_MM = 12
 
+    TapePrintProperties = namedtuple(
+        "TapePrintProperties",
+        ["usable_tape_height_px", "top_margin_px", "bottom_margin_px"],
+    )
+    """Tape print properties tuple type.
+    Contains margins and size in pixels for printing.
+    """
+
     def __init__(
         self,
         tape_size_mm: int | None = None,
@@ -262,10 +271,8 @@ class DymoLabeler:
 
     @property
     def height_px(self):
-        """Get the tape size in pixels."""
-        return self._device_config.get_tape_print_size_and_margins_px(
-            self.tape_size_mm
-        )[0]
+        """Get the (usable) tape height in pixels."""
+        return self.tape_print_properties.usable_tape_height_px
 
     @property
     def _functions(self) -> DymoLabelerFunctions:
@@ -282,15 +289,74 @@ class DymoLabeler:
 
     @property
     def labeler_margin_px(self) -> tuple[float, float]:
-        # Get vertical (top) margin
-        vertical_margin_px = self._device_config.get_tape_print_size_and_margins_px(
-            self.tape_size_mm
-        )[1]
-
         return (
             mm_to_px(self.minimum_horizontal_margin_mm),
-            vertical_margin_px,
+            self.tape_print_properties.top_margin_px,
         )
+
+    @property
+    def tape_print_properties(self) -> TapePrintProperties:
+        if self.tape_size_mm in self.device_config.supported_tape_sizes_mm:
+            # Calculate the pixels per mm for this printer
+            # Example: printhead of 128 Pixels, distributed over 18 mm of active area.
+            #   Makes 7.11 pixels/mm
+            print_pixels_per_mm: float = (
+                self.device_config.print_head_px / self.device_config.print_head_mm
+            )
+
+            # Calculate usable tape height (*2 for top and bottom)
+            usable_tape_height_mm: float = self.tape_size_mm - (
+                2 * self.device_config.tape_alignment_inaccuracy_mm
+            )
+
+            # Calculate the numer of active pixels for the tape
+            usable_tape_height_pixels: float = 0
+            if usable_tape_height_mm >= self.device_config.print_head_mm:
+                # Tape is larger than active area of printhead. Use all pixels
+                usable_tape_height_pixels = self.device_config.print_head_px
+            else:
+                # Calculate the amount of active pixels we are able to use
+                # (taking the placement inaccuracy into account)
+                usable_tape_height_pixels = print_pixels_per_mm * usable_tape_height_mm
+
+            # Round down to nearest whole number as we can't use half a pixels ;)
+            usable_tape_height_pixels = math.floor(usable_tape_height_pixels)
+
+            # To calculate the margins we need to know some hardware info
+            # Printer has special "support studs" that
+            # let 19 & 24mm tapes go to the bottom (if supported)
+            # but 12mm based casettes are raised so they are centered to the printhead.
+            # Smaller tapes than 12mm are in 12mm casettes are centered
+            # in the cartridge and in turn also centered to the printhead
+            # Which gives us the advantage that we can
+            # just calculate the top and bottom margin
+
+            # Calculate the top margin
+            margin_top = round(
+                ((self.device_config.print_head_px - usable_tape_height_pixels) / 2), 0
+            )
+
+            # Bottom margin is equal due to centering of the tape
+            margin_bottom = margin_top
+
+            # Make sure the total is the exact amount of pixels of the printhead
+            # Aka compensate for margin rounding/division errors
+            usable_tape_height_pixels = self.device_config.print_head_px - (
+                margin_top + margin_bottom
+            )
+
+            # Return active pixels / margins set
+            return self.TapePrintProperties(
+                usable_tape_height_px=int(usable_tape_height_pixels),
+                top_margin_px=int(margin_top),
+                bottom_margin_px=int(margin_bottom),
+            )
+        else:
+            # Tape size not supported
+            raise ValueError(
+                f"Unsupported tape size {self.tape_size_mm}mm. "
+                f"Supported sizes: {self.device_config.supported_tape_sizes_mm}mm"
+            )
 
     @property
     def device_config(self) -> DeviceConfig:

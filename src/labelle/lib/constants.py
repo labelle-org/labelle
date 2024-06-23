@@ -43,8 +43,8 @@ SUPPORTED_PRODUCTS = [
         device_ids=[0x0011],
         # ToDo: Validate config!
         # Printhead 128 Pixels, distributed over 18mm of active area
-        print_head_width_px=128,
-        print_head_active_area_width_mm=18,
+        print_head_px=128,
+        print_head_mm=18,
         supported_tape_sizes_mm=[6, 9, 12, 19],
     ),
     DeviceConfig(
@@ -52,24 +52,24 @@ SUPPORTED_PRODUCTS = [
         device_ids=[0x0015],
         # ToDo: Validate config!
         # Printhead 64 Pixels, distributed over 9mm of active area
-        print_head_width_px=64,
-        print_head_active_area_width_mm=9,
+        print_head_px=64,
+        print_head_mm=9,
         supported_tape_sizes_mm=[6, 9, 12],
     ),
     DeviceConfig(
         name="DYMO LabelMANAGER PC II",
         device_ids=[0x001C],
         # Printhead 128 Pixels, distributed over 18mm of active area
-        print_head_width_px=128,
-        print_head_active_area_width_mm=18,
+        print_head_px=128,
+        print_head_mm=18,
         supported_tape_sizes_mm=[6, 9, 12, 19, 24],
     ),
     DeviceConfig(
         name="LabelManager PnP",
         device_ids=[0x1001, 0x1002],
         # Printhead 64 Pixels, distributed over 9mm of active area
-        print_head_width_px=64,
-        print_head_active_area_width_mm=9,
+        print_head_px=64,
+        print_head_mm=9,
         supported_tape_sizes_mm=[6, 9, 12],
     ),
     DeviceConfig(
@@ -77,8 +77,8 @@ SUPPORTED_PRODUCTS = [
         device_ids=[0x1003, 0x1004],
         # ToDo: Validate config!
         # Printhead 64 Pixels, distributed over 9mm of active area
-        print_head_width_px=64,
-        print_head_active_area_width_mm=9,
+        print_head_px=64,
+        print_head_mm=9,
         supported_tape_sizes_mm=[6, 9, 12],
     ),
     DeviceConfig(
@@ -86,8 +86,8 @@ SUPPORTED_PRODUCTS = [
         device_ids=[0x1006, 0x1005],
         # ToDo: Validate config!
         # Printhead 64 Pixels, distributed over 9mm of active area
-        print_head_width_px=64,
-        print_head_active_area_width_mm=9,
+        print_head_px=64,
+        print_head_mm=9,
         supported_tape_sizes_mm=[6, 9, 12],
     ),
     DeviceConfig(
@@ -95,8 +95,8 @@ SUPPORTED_PRODUCTS = [
         device_ids=[0x1007, 0x1008],
         # ToDo: Validate config!
         # Printhead 64 Pixels, distributed over 9mm of active area
-        print_head_width_px=64,
-        print_head_active_area_width_mm=9,
+        print_head_px=64,
+        print_head_mm=9,
         supported_tape_sizes_mm=[6, 9, 12],
     ),
     DeviceConfig(
@@ -104,8 +104,8 @@ SUPPORTED_PRODUCTS = [
         device_ids=[0x1009],
         # ToDo: Validate config!
         # Printhead 64 Pixels, distributed over 9mm of active area
-        print_head_width_px=64,
-        print_head_active_area_width_mm=9,
+        print_head_px=64,
+        print_head_mm=9,
         supported_tape_sizes_mm=[6, 9, 12],
     ),
 ]
@@ -115,8 +115,8 @@ SIMULATOR_CONFIG = DeviceConfig(
     name="Simulator",
     device_ids=[0],
     # Fake printhead 128 Pixels, distributed over 18mm of active area
-    print_head_width_px=128,
-    print_head_active_area_width_mm=18,
+    print_head_px=128,
+    print_head_mm=18,
     supported_tape_sizes_mm=[6, 9, 12, 19, 24],
 )
 
