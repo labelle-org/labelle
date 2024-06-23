@@ -161,7 +161,7 @@ def default(
     ] = Direction.LEFT,
     sample_pattern: Annotated[
         Optional[int],
-        typer.Option(help="Prints test pattern of a desired dot width"),
+        typer.Option(help="Prints test pattern of a desired dot height [px]"),
     ] = None,
     min_length: Annotated[
         Optional[float],
