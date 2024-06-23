@@ -328,14 +328,12 @@ class DymoLabeler:
         # Round down to nearest whole number as we can't use half a pixels ;)
         usable_tape_height_pixels = math.floor(usable_tape_height_pixels)
 
-        # To calculate the margins we need to know some hardware info
-        # Printer has special "support studs" that
-        # let 19 & 24mm tapes go to the bottom (if supported)
-        # but 12mm based casettes are raised so they are centered to the printhead.
-        # Smaller tapes than 12mm are in 12mm casettes are centered
-        # in the cartridge and in turn also centered to the printhead
-        # Which gives us the advantage that we can
-        # just calculate the top and bottom margin
+        # To calculate the margins we need to know some hardware info:
+        # The printer has special "support studs" that allow 19 & 24mm tapes
+        # to sink to the bottom of the printer.
+        # 12mm based casettes are raised slightly so they are center to the printhead.
+        # Tapes smaller than 12mm are centered in the cartridge and to the printhead.
+        # This gives us the advantage that we can calculate the top and bottom margin
 
         # Calculate the top margin
         margin_top = round(
