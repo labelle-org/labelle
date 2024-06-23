@@ -371,7 +371,7 @@ class DymoLabeler:
                 device.setup()
 
                 # Retrieve device config based on product ID
-                self._deviceConfig = get_device_config_by_id(device.id_product)
+                self._device_config = get_device_config_by_id(device.id_product)
             else:
                 # Use simulator config
                 self._device_config = SIMULATOR_CONFIG
