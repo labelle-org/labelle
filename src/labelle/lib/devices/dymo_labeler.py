@@ -242,9 +242,6 @@ class DymoLabeler:
     _device_config: DeviceConfig
     tape_size_mm: int
 
-    LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM = 8.1
-    DEFAULT_TAPE_SIZE_MM = 12
-
     TapePrintProperties = namedtuple(
         "TapePrintProperties",
         ["usable_tape_height_px", "top_margin_px", "bottom_margin_px"],
@@ -261,7 +258,10 @@ class DymoLabeler:
         self.device = device
 
         if tape_size_mm is None:
-            tape_size_mm = self.DEFAULT_TAPE_SIZE_MM
+            # Select highest supported tape size as default, if not set
+            tape_size_mm = max(self._device_config.supported_tape_sizes_mm)
+
+        # Check if selected tape size is supported
         if tape_size_mm not in self._device_config.supported_tape_sizes_mm:
             raise ValueError(
                 f"Unsupported tape size {tape_size_mm}mm. "
@@ -285,7 +285,7 @@ class DymoLabeler:
 
     @property
     def minimum_horizontal_margin_mm(self):
-        return self.LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM
+        return self.device_config.LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM
 
     @property
     def labeler_margin_px(self) -> tuple[float, float]:
