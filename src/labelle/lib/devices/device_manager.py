@@ -81,18 +81,15 @@ class DeviceManager:
             LOG.debug(dev.device_info)
         dev = devices[0]
         if dev.is_supported:
-            found_device_config: DeviceConfig | None = get_device_config_by_id(
-                dev.id_product
-            )
-            if found_device_config is not None:
-                msg = f"Recognized device as {found_device_config.name}"
+            device_config = get_device_config_by_id(dev.id_product)
+            msg = f"Recognized device as {device_config.name}"
         else:
             msg = f"Unrecognized device: {hex(dev.id_product)}. {UNCONFIRMED_MESSAGE}"
         LOG.debug(msg)
         return dev
 
 
-def get_device_config_by_id(idValue: int) -> DeviceConfig | None:
+def get_device_config_by_id(product_id: int) -> DeviceConfig:
     """Get a labeler device config with USB ID.
 
     :param idValue: USB ID value
@@ -100,8 +97,8 @@ def get_device_config_by_id(idValue: int) -> DeviceConfig | None:
     """
     #
     for device in SUPPORTED_PRODUCTS:
-        if device.matches_device_id(idValue):
+        if device.matches_device_id(product_id):
             return device
 
     # No device config found
-    return None
+    raise ValueError(f"Unsupported device type product id: {product_id}")
