@@ -28,6 +28,7 @@ class DeviceConfig:
 
     tape_alignment_inaccuracy_mm: float = 1.0
     """The inaccuracy of the tape position relative to the printhead
+
     Inaccuracy of the tape position is mostly caused by
     the tape moving slightly from side to side in the cartridge.
     Improper cartrigde placemement is also an factor,
