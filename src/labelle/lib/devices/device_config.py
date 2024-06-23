@@ -15,14 +15,14 @@ class DeviceConfig:
     device_ids: list[int]
     """List of USB Device ID's this device can identify as"""
 
-    print_head_size_px: int
+    print_head_width_px: int
     """Size of the print head in pixels (use calibration routine to determine)"""
 
-    print_head_active_area_mm: float
+    print_head_active_area_width_mm: float
     """Size of the active area of the print head in millimters
         (use calibration routine to determine)"""
 
-    supported_tape_sizes: list[int]
+    supported_tape_sizes_mm: list[int]
     """List of supported tape sizes in mm"""
 
     # Fixed to 1 mm until proven otherwise ;)
@@ -37,16 +37,16 @@ class DeviceConfig:
         self,
         name: str,
         device_ids: list[int],
-        print_head_size_pixels: int,
-        print_head_active_area_mm: int,
-        supported_tape_sizes: list[int],
+        print_head_width_px: int,
+        print_head_active_area_width_mm: int,
+        supported_tape_sizes_mm: list[int],
     ):
         """Initialize a Labeler config object."""
         self.name = name
         self.device_ids = device_ids
-        self.print_head_size_px = print_head_size_pixels
-        self.print_head_active_area_mm = print_head_active_area_mm
-        self.supported_tape_sizes = supported_tape_sizes
+        self.print_head_width_px = print_head_width_px
+        self.print_head_active_area_width_mm = print_head_active_area_width_mm
+        self.supported_tape_sizes_mm = supported_tape_sizes_mm
 
     def matches_device_id(self, device_id: int) -> bool:
         """Check if the a device ID matches this config."""
@@ -64,12 +64,12 @@ class DeviceConfig:
         :return: Margins tuple in pixels
             (Active pixels on tape, Top margin pixels, bottom margin pixels)
         """
-        if tape_size_mm in self.supported_tape_sizes:
+        if tape_size_mm in self.supported_tape_sizes_mm:
             # Calculate the pixels per mm for this printer
             # Example: printhead of 128 Pixels, distributed over 18 mm of active area.
             #   Makes 7.11 pixels/mm
             print_pixels_per_mm: float = (
-                self.print_head_size_px / self.print_head_active_area_mm
+                self.print_head_width_px / self.print_head_active_area_width_mm
             )
 
             # Calculate usable tape width (*2 for top and bottom)
@@ -79,9 +79,9 @@ class DeviceConfig:
 
             # Calculate the numer of active pixels for the tape
             usable_tape_width_pixels: float = 0
-            if usable_tape_width_mm >= self.print_head_active_area_mm:
+            if usable_tape_width_mm >= self.print_head_active_area_width_mm:
                 # Tape is larger than active area of printhead. Use all pixels
-                usable_tape_width_pixels = self.print_head_size_px
+                usable_tape_width_pixels = self.print_head_width_px
             else:
                 # Calculate the amount of active pixels we are able to use
                 # (taking the placement inaccuracy into account)
@@ -101,7 +101,7 @@ class DeviceConfig:
 
             # Calculate the top margin
             margin_top = round(
-                ((self.print_head_size_px - usable_tape_width_pixels) / 2), 0
+                ((self.print_head_width_px - usable_tape_width_pixels) / 2), 0
             )
 
             # Bottom margin is equal due to centering of the tape
@@ -109,7 +109,7 @@ class DeviceConfig:
 
             # Make sure the total is the exact amount of pixels of the printhead
             # Aka compensate for margin rounding/division errors
-            usable_tape_width_pixels = self.print_head_size_px - (
+            usable_tape_width_pixels = self.print_head_width_px - (
                 margin_top + margin_bottom
             )
 
@@ -119,5 +119,5 @@ class DeviceConfig:
             # Tape size not supported
             raise ValueError(
                 f"Unsupported tape size {tape_size_mm}mm. "
-                f"Supported sizes: {self.supported_tape_sizes}mm"
+                f"Supported sizes: {self.supported_tape_sizes_mm}mm"
             )

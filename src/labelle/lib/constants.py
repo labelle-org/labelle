@@ -13,7 +13,7 @@
 # either sysfs is unavailable or unusable by this script for some reason.
 # Please beware that DEV_NODE must be set to None when not used, else you will
 # be bitten by the NameError exception.
-from enum import Enum, IntEnum
+from enum import Enum
 from pathlib import Path
 
 import labelle.resources.fonts
@@ -36,134 +36,88 @@ UNCONFIRMED_MESSAGE = (
     "report your experiences in https://github.com/labelle-org/labelle/issues/4"
 )
 
-
-# Supported USB device ID enumeration
-class SUPPORTED_DEVICE_ID(IntEnum):
-    LABELMANAGER_PC = 0x0011
-    LABELPOINT_350 = 0x0015
-    LABELMANAGER_PC_II = 0x001C
-    LABELMANAGER_PNP_NO_MODE_SWITCH = 0x1001
-    LABELMANAGER_PNP_MODE_SWITCH = 0x1002
-    LABELMANAGER_420P_NO_MODE_SWITCH = 0x1003
-    LABELMANAGER_420P_MODE_SWITCH = 0x1004
-    LABELMANAGER_280P_NO_MODE_SWITCH = 0x1005
-    LABELMANAGER_280P_MODE_SWITCH = 0x1006
-    LABELMANAGER_WIRELESS_PNP_NO_MODE_SWITCH = 0x1007
-    LABELMANAGER_WIRELESS_PNP_MODE_SWITCH = 0x1008
-    MOBILE_LABELER = 0x1009
-
-
-# Create supported products list
-SUPPORTED_PRODUCTS = []
-
 # ---- Supported USB Devices configuration ----
-SUPPORTED_PRODUCTS.append(
+SUPPORTED_PRODUCTS = [
     DeviceConfig(
-        "DYMO LabelMANAGER PC",
-        [int(SUPPORTED_DEVICE_ID.LABELMANAGER_PC)],
+        name="DYMO LabelMANAGER PC",
+        device_ids=[0x0011],
         # ToDo: Validate config!
         # Printhead 128 Pixels, distributed over 18mm of active area
-        128,
-        18,
-        [6, 9, 12, 19],
-    )
-)
-SUPPORTED_PRODUCTS.append(
+        print_head_width_px=128,
+        print_head_active_area_width_mm=18,
+        supported_tape_sizes_mm=[6, 9, 12, 19],
+    ),
     DeviceConfig(
-        "LabelPoint 350",
-        [int(SUPPORTED_DEVICE_ID.LABELPOINT_350)],
+        name="LabelPoint 350",
+        device_ids=[0x0015],
         # ToDo: Validate config!
         # Printhead 64 Pixels, distributed over 9mm of active area
-        64,
-        9,
-        [6, 9, 12],
-    )
-)
-SUPPORTED_PRODUCTS.append(
+        print_head_width_px=64,
+        print_head_active_area_width_mm=9,
+        supported_tape_sizes_mm=[6, 9, 12],
+    ),
     DeviceConfig(
-        "DYMO LabelMANAGER PC II",
-        [int(SUPPORTED_DEVICE_ID.LABELMANAGER_PC_II)],
+        name="DYMO LabelMANAGER PC II",
+        device_ids=[0x001C],
         # Printhead 128 Pixels, distributed over 18mm of active area
-        128,
-        18,
-        [6, 9, 12, 19, 24],
-    )
-)
-SUPPORTED_PRODUCTS.append(
+        print_head_width_px=128,
+        print_head_active_area_width_mm=18,
+        supported_tape_sizes_mm=[6, 9, 12, 19, 24],
+    ),
     DeviceConfig(
-        "LabelManager PnP",
-        [
-            int(SUPPORTED_DEVICE_ID.LABELMANAGER_PNP_NO_MODE_SWITCH),
-            int(SUPPORTED_DEVICE_ID.LABELMANAGER_PNP_MODE_SWITCH),
-        ],
+        name="LabelManager PnP",
+        device_ids=[0x1001, 0x1002],
         # Printhead 64 Pixels, distributed over 9mm of active area
-        64,
-        9,
-        [6, 9, 12],
-    )
-)
-SUPPORTED_PRODUCTS.append(
+        print_head_width_px=64,
+        print_head_active_area_width_mm=9,
+        supported_tape_sizes_mm=[6, 9, 12],
+    ),
     DeviceConfig(
-        f"LabelManager 420P {UNCONFIRMED_MESSAGE}",
-        [
-            int(SUPPORTED_DEVICE_ID.LABELMANAGER_420P_NO_MODE_SWITCH),
-            int(SUPPORTED_DEVICE_ID.LABELMANAGER_420P_MODE_SWITCH),
-        ],
+        name=f"LabelManager 420P {UNCONFIRMED_MESSAGE}",
+        device_ids=[0x1003, 0x1004],
         # ToDo: Validate config!
         # Printhead 64 Pixels, distributed over 9mm of active area
-        64,
-        9,
-        [6, 9, 12],
-    )
-)
-SUPPORTED_PRODUCTS.append(
+        print_head_width_px=64,
+        print_head_active_area_width_mm=9,
+        supported_tape_sizes_mm=[6, 9, 12],
+    ),
     DeviceConfig(
-        "LabelManager 280",
-        [
-            int(SUPPORTED_DEVICE_ID.LABELMANAGER_280P_MODE_SWITCH),
-            int(SUPPORTED_DEVICE_ID.LABELMANAGER_280P_NO_MODE_SWITCH),
-        ],
+        name="LabelManager 280",
+        device_ids=[0x1006, 0x1005],
         # ToDo: Validate config!
         # Printhead 64 Pixels, distributed over 9mm of active area
-        64,
-        9,
-        [6, 9, 12],
-    )
-)
-SUPPORTED_PRODUCTS.append(
+        print_head_width_px=64,
+        print_head_active_area_width_mm=9,
+        supported_tape_sizes_mm=[6, 9, 12],
+    ),
     DeviceConfig(
-        f"LabelManager Wireless PnP {UNCONFIRMED_MESSAGE}",
-        [
-            int(SUPPORTED_DEVICE_ID.LABELMANAGER_WIRELESS_PNP_NO_MODE_SWITCH),
-            int(SUPPORTED_DEVICE_ID.LABELMANAGER_WIRELESS_PNP_MODE_SWITCH),
-        ],
+        name=f"LabelManager Wireless PnP {UNCONFIRMED_MESSAGE}",
+        device_ids=[0x1007, 0x1008],
         # ToDo: Validate config!
         # Printhead 64 Pixels, distributed over 9mm of active area
-        64,
-        9,
-        [6, 9, 12],
-    )
-)
-SUPPORTED_PRODUCTS.append(
+        print_head_width_px=64,
+        print_head_active_area_width_mm=9,
+        supported_tape_sizes_mm=[6, 9, 12],
+    ),
     DeviceConfig(
-        f"MobileLabeler {UNCONFIRMED_MESSAGE}",
-        [int(SUPPORTED_DEVICE_ID.MOBILE_LABELER)],
+        name=f"MobileLabeler {UNCONFIRMED_MESSAGE}",
+        device_ids=[0x1009],
         # ToDo: Validate config!
         # Printhead 64 Pixels, distributed over 9mm of active area
-        64,
-        9,
-        [6, 9, 12],
-    )
-)
+        print_head_width_px=64,
+        print_head_active_area_width_mm=9,
+        supported_tape_sizes_mm=[6, 9, 12],
+    ),
+]
 
 # Simulator configuration
 SIMULATOR_CONFIG = DeviceConfig(
-    "Simulator",
-    [0],
+    name="Simulator",
+    device_ids=[0],
     # Fake printhead 128 Pixels, distributed over 18mm of active area
-    128,
-    18,
-    [6, 9, 12, 19, 24],
+    print_head_width_px=128,
+    print_head_active_area_width_mm=18,
+    supported_tape_sizes_mm=[6, 9, 12, 19, 24],
 )
 
 

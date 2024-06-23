@@ -253,10 +253,10 @@ class DymoLabeler:
 
         if tape_size_mm is None:
             tape_size_mm = self.DEFAULT_TAPE_SIZE_MM
-        if tape_size_mm not in self._device_config.supported_tape_sizes:
+        if tape_size_mm not in self._device_config.supported_tape_sizes_mm:
             raise ValueError(
                 f"Unsupported tape size {tape_size_mm}mm. "
-                f"Supported sizes: {self._device_config.supported_tape_sizes}mm"
+                f"Supported sizes: {self._device_config.supported_tape_sizes_mm}mm"
             )
         self.tape_size_mm = tape_size_mm
 
