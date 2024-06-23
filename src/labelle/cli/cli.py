@@ -18,7 +18,6 @@ from labelle import __version__
 from labelle.lib.constants import (
     DEFAULT_BARCODE_TYPE,
     DEFAULT_MARGIN_PX,
-    PIXELS_PER_MM,
     USE_QR,
     BarcodeType,
     Direction,
@@ -54,12 +53,12 @@ from labelle.lib.render_engines import (
 LOG = logging.getLogger(__name__)
 
 
-def mm_to_payload_px(mm: float, margin: float) -> float:
+def mm_to_payload_px(labeler: DymoLabeler, mm: float, margin: float) -> float:
     """Convert a length in mm to a number of pixels of payload.
 
-    The print resolution is 7 pixels/mm, and margin is subtracted from each side.
+    Margin is subtracted from each side.
     """
-    return max(0, (mm * PIXELS_PER_MM) - margin * 2)
+    return max(0, (mm * labeler.pixels_per_mm) - margin * 2)
 
 
 def version_callback(value: bool) -> None:
@@ -503,13 +502,6 @@ def default(
         min_label_mm_len = fixed_length
         max_label_mm_len = fixed_length
 
-    min_payload_len_px = mm_to_payload_px(min_label_mm_len, margin_px)
-    max_payload_len_px = (
-        mm_to_payload_px(max_label_mm_len, margin_px)
-        if max_label_mm_len is not None
-        else None
-    )
-
     if output == Output.PRINTER:
         device_manager = get_device_manager()
         device = device_manager.find_and_select_device(patterns=device_pattern)
@@ -518,13 +510,21 @@ def default(
         device = None
 
     dymo_labeler = DymoLabeler(tape_size_mm=tape_size_mm, device=device)
+
+    min_payload_len_px = mm_to_payload_px(dymo_labeler, min_label_mm_len, margin_px)
+    max_payload_len_px = (
+        mm_to_payload_px(dymo_labeler, max_label_mm_len, margin_px)
+        if max_label_mm_len is not None
+        else None
+    )
+
     if not render_engines:
         raise typer.BadParameter("No elements to print")
     render_engine = HorizontallyCombinedRenderEngine(render_engines)
     render_context = RenderContext(
         background_color="white",
         foreground_color="black",
-        height_px=dymo_labeler.height_px,
+        height_px=dymo_labeler.label_height_px,
         preview_show_margins=False,
     )
 
@@ -544,6 +544,7 @@ def default(
     else:
         render = PrintPreviewRenderEngine(
             render_engine=render_engine,
+            dymo_labeler=dymo_labeler,
             justify=justify,
             visible_horizontal_margin_px=margin_px,
             labeler_margin_px=dymo_labeler.labeler_margin_px,

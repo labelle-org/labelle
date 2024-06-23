@@ -137,10 +137,6 @@ FONT_SIZERATIO = 7 / 8
 DEFAULT_MARGIN_PX = 56
 VERTICAL_PREVIEW_MARGIN_PX = 13
 
-DPI = 180
-MM_PER_INCH = 25.4
-PIXELS_PER_MM = DPI / MM_PER_INCH
-
 ICON_DIR = Path(labelle.resources.icons.__file__).parent
 
 

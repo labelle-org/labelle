@@ -20,7 +20,6 @@ from labelle.lib.constants import ESC, SIMULATOR_CONFIG, SYN
 from labelle.lib.devices.device_config import DeviceConfig
 from labelle.lib.devices.device_manager import get_device_config_by_id
 from labelle.lib.devices.usb_device import UsbDevice, UsbDeviceError
-from labelle.lib.utils import mm_to_px
 
 LOG = logging.getLogger(__name__)
 POSSIBLE_USB_ERRORS = (UsbDeviceError, NoBackendError, USBError)
@@ -257,6 +256,9 @@ class DymoLabeler:
     ):
         self.device = device
 
+        if self._device_config is None:
+            raise ValueError("No device config")
+
         if tape_size_mm is None:
             # Select highest supported tape size as default, if not set
             tape_size_mm = max(self._device_config.supported_tape_sizes_mm)
@@ -270,7 +272,7 @@ class DymoLabeler:
         self.tape_size_mm = tape_size_mm
 
     @property
-    def height_px(self):
+    def label_height_px(self):
         """Get the (usable) tape height in pixels."""
         return self.tape_print_properties.usable_tape_height_px
 
@@ -285,12 +287,14 @@ class DymoLabeler:
 
     @property
     def minimum_horizontal_margin_mm(self):
+        # Return distance between printhead and cutter
+        # as we don't want to cut though our printed label
         return self.device_config.LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM
 
     @property
     def labeler_margin_px(self) -> tuple[float, float]:
         return (
-            mm_to_px(self.minimum_horizontal_margin_mm),
+            self.mm_to_px(self.minimum_horizontal_margin_mm),
             self.tape_print_properties.top_margin_px,
         )
 
@@ -302,13 +306,6 @@ class DymoLabeler:
                 f"Unsupported tape size {self.tape_size_mm}mm. "
                 f"Supported sizes: {self.device_config.supported_tape_sizes_mm}mm"
             )
-
-        # Calculate the pixels per mm for this printer
-        # Example: printhead of 128 Pixels, distributed over 18 mm of active area.
-        #   Makes 7.11 pixels/mm
-        print_pixels_per_mm: float = (
-            self.device_config.print_head_px / self.device_config.print_head_mm
-        )
 
         # Calculate usable tape height (*2 for top and bottom)
         usable_tape_height_mm: float = self.tape_size_mm - (
@@ -323,7 +320,7 @@ class DymoLabeler:
         else:
             # Calculate the amount of active pixels we are able to use
             # (taking the placement inaccuracy into account)
-            usable_tape_height_pixels = print_pixels_per_mm * usable_tape_height_mm
+            usable_tape_height_pixels = self.pixels_per_mm * usable_tape_height_mm
 
         # Round down to nearest whole number as we can't use half a pixels ;)
         usable_tape_height_pixels = math.floor(usable_tape_height_pixels)
@@ -384,6 +381,23 @@ class DymoLabeler:
     @property
     def is_ready(self) -> bool:
         return self.device is not None
+
+    @property
+    def pixels_per_mm(self) -> float:
+        # Calculate the pixels per mm for this printer
+        # Example: printhead of 128 Pixels, distributed over 18 mm of active area.
+        #   Makes 7.11 pixels/mm
+        return self.device_config.print_head_px / self.device_config.print_head_mm
+
+    def px_to_mm(self, px) -> float:
+        """Convert pixels to millimeters for the current printer."""
+        mm = px / self.pixels_per_mm
+        # Round up to nearest 0.1mm
+        return math.ceil(mm * 10) / 10
+
+    def mm_to_px(self, mm) -> float:
+        """Convert millimeters to pixels for the current printer."""
+        return mm * self.pixels_per_mm
 
     def print(
         self,

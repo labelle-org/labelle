@@ -105,7 +105,7 @@ class LabelleWindow(QWidget):
         self._render_context = RenderContext(
             foreground_color=settings.foreground_color,
             background_color=settings.background_color,
-            height_px=self._dymo_labeler.height_px,
+            height_px=self._dymo_labeler.label_height_px,
             preview_show_margins=settings.preview_show_margins,
         )
         self._label_list.update_params(
