@@ -81,8 +81,7 @@ class DeviceManager:
             LOG.debug(dev.device_info)
         dev = devices[0]
         if dev.is_supported:
-            device_config = get_device_config_by_id(dev.id_product)
-            msg = f"Recognized device as {device_config.name}"
+            msg = f"Recognized device as {get_device_config_by_id(dev.id_product).name}"
         else:
             msg = f"Unrecognized device: {hex(dev.id_product)}. {UNCONFIRMED_MESSAGE}"
         LOG.debug(msg)
@@ -101,4 +100,4 @@ def get_device_config_by_id(product_id: int) -> DeviceConfig:
             return device
 
     # No device config found
-    raise ValueError(f"Unsupported device type product id: {product_id}")
+    raise ValueError(f"Unsupported device type product id: {hex(product_id)}")
