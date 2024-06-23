@@ -245,9 +245,9 @@ def test_qr_render_engine_too_big():
 #############################
 
 
-@pytest.mark.parametrize("width", [10, 100, 1000])
-def test_sample_pattern_render_engine(request, image_diff, width):
-    render_engine = SamplePatternRenderEngine(width=width)
+@pytest.mark.parametrize("height", [15, 64, 65, 100, 256])
+def test_sample_pattern_render_engine(request, image_diff, height):
+    render_engine = SamplePatternRenderEngine(height=height)
     image = render_engine.render(RENDER_CONTEXT)
     verify_image(request, image_diff, image)
 
