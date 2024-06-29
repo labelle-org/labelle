@@ -2,7 +2,13 @@ from pathlib import Path
 from typing import Optional
 
 from PyQt6 import QtCore
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import (
+    QFont,
+    QFontDatabase,
+    QIcon,
+    QStandardItem,
+    QStandardItemModel,
+)
 from PyQt6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -38,12 +44,46 @@ from labelle.lib.render_engines.render_engine import RenderEngineException
 class FontStyle(QComboBox):
     def __init__(self) -> None:
         super().__init__()
+
         # Populate font_style
+        fonts_model = QStandardItemModel()
         for font_path in get_available_fonts():
-            name = font_path.stem
-            absolute_path = font_path.absolute()
-            self.addItem(name, absolute_path)
+            # Retrieve font options
+            font_name = font_path.stem
+            font_absolute_path = font_path.absolute()
+
+            # Make combobox item
+            item = QStandardItem(font_name)
+            item.setData(font_absolute_path, QtCore.Qt.ItemDataRole.UserRole)
+
+            # Add application font to allow Qt rendering with it
+            try:
+                font_id = QFontDatabase.addApplicationFont(str(font_absolute_path))
+                loaded_font_families = QFontDatabase.applicationFontFamilies(font_id)
+                if loaded_font_families:
+                    item_font = QFont(loaded_font_families[0])
+
+                    if "bold" in font_name.lower():
+                        item_font.setBold(True)
+
+                    if "italic" in font_name.lower():
+                        item_font.setItalic(True)
+
+                    item.setFont(item_font)
+            except:
+                pass
+                # Failed loading font
+
+            # Append to data model
+            fonts_model.appendRow(item)
+
+        self.setModel(fonts_model)
+
+        try:
             self.setCurrentText("Carlito-Regular")
+        except:
+            pass
+            # Failed setting default font
 
 
 class BaseLabelWidget(QWidget):
