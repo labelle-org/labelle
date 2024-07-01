@@ -63,7 +63,7 @@ class LabelleWindow(QWidget):
         self._device_manager = DeviceManager()
         self._dymo_labeler = DymoLabeler()
         self._settings_toolbar.update_labeler_context(
-            supported_tape_sizes=self._dymo_labeler.SUPPORTED_TAPE_SIZES_MM,
+            supported_tape_sizes=self._dymo_labeler.device_config.supported_tape_sizes_mm,
             installed_tape_size=self._dymo_labeler.tape_size_mm,
             minimum_horizontal_margin_mm=self._dymo_labeler.minimum_horizontal_margin_mm,
         )
@@ -105,7 +105,7 @@ class LabelleWindow(QWidget):
         self._render_context = RenderContext(
             foreground_color=settings.foreground_color,
             background_color=settings.background_color,
-            height_px=self._dymo_labeler.height_px,
+            height_px=self._dymo_labeler.label_height_px,
             preview_show_margins=settings.preview_show_margins,
         )
         self._label_list.update_params(
