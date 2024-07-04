@@ -15,7 +15,7 @@ POSSIBLE_USB_ERRORS = (NoBackendError, USBError)
 
 
 class OnlineDeviceManager(QWidget):
-    _last_scan_error: DeviceManagerError | None
+    last_scan_error: DeviceManagerError | None
     _status_time: QTimer
     _device_manager: DeviceManager
     last_scan_error_changed_signal = QtCore.pyqtSignal(
@@ -26,20 +26,20 @@ class OnlineDeviceManager(QWidget):
     def __init__(self) -> None:
         super().__init__()
         self._device_manager = DeviceManager()
-        self._last_scan_error = None
+        self.last_scan_error = None
         self._init_timers()
 
     def _refresh_devices(self) -> None:
-        prev = self._last_scan_error
+        prev = self.last_scan_error
         try:
             changed = self._device_manager.scan()
-            self._last_scan_error = None
+            self.last_scan_error = None
             if changed:
                 self.devices_changed_signal.emit()
         except DeviceManagerError as e:
-            self._last_scan_error = e
+            self.last_scan_error = e
 
-        if str(prev) != str(self._last_scan_error):
+        if str(prev) != str(self.last_scan_error):
             self.devices_changed_signal.emit()
             self.last_scan_error_changed_signal.emit()
 
@@ -48,10 +48,6 @@ class OnlineDeviceManager(QWidget):
         self._status_time.timeout.connect(self._refresh_devices)
         self._status_time.start(2000)
         self._refresh_devices()
-
-    @property
-    def last_scan_error(self) -> DeviceManagerError | None:
-        return self._last_scan_error
 
     @property
     def devices(self) -> list[UsbDevice]:
