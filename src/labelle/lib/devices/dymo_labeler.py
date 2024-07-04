@@ -10,7 +10,7 @@ from __future__ import annotations
 import array
 import logging
 import math
-from collections import namedtuple
+from typing import NamedTuple
 
 import usb
 from PIL import Image
@@ -236,18 +236,16 @@ class DymoLabelerFunctions:
         LOG.debug(f"Post-send response: {status}")
 
 
+class TapePrintProperties(NamedTuple):
+    usable_tape_height_px: int
+    top_margin_px: int
+    bottom_margin_px: int
+
+
 class DymoLabeler:
     _device: UsbDevice | None
     _device_config: DeviceConfig
     tape_size_mm: int
-
-    TapePrintProperties = namedtuple(
-        "TapePrintProperties",
-        ["usable_tape_height_px", "top_margin_px", "bottom_margin_px"],
-    )
-    """Tape print properties tuple type.
-    Contains margins and size in pixels for printing.
-    """
 
     def __init__(
         self,
@@ -347,7 +345,7 @@ class DymoLabeler:
         )
 
         # Return active pixels / margins set
-        return self.TapePrintProperties(
+        return TapePrintProperties(
             usable_tape_height_px=int(usable_tape_height_pixels),
             top_margin_px=int(margin_top),
             bottom_margin_px=int(margin_bottom),
