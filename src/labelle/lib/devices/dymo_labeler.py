@@ -286,12 +286,14 @@ class DymoLabeler:
     def minimum_horizontal_margin_mm(self):
         # Return distance between printhead and cutter
         # as we don't want to cut though our printed label
-        return self.device_config.LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM
+        return self.px_to_mm(
+            self.device_config.distance_between_print_head_and_cutter_px
+        )
 
     @property
     def labeler_margin_px(self) -> tuple[float, float]:
         return (
-            self.mm_to_px(self.minimum_horizontal_margin_mm),
+            self.device_config.distance_between_print_head_and_cutter_px,
             self.tape_print_properties.top_margin_px,
         )
 
