@@ -51,8 +51,7 @@ class DeviceManager:
         changed = prev_set != cur_set
         return changed
 
-    @property
-    def devices(self) -> list[UsbDevice]:
+    def get_devices_from_last_scan(self) -> list[UsbDevice]:
         try:
             return sorted(self._devices.values(), key=lambda dev: dev.hash)
         except POSSIBLE_USB_ERRORS:

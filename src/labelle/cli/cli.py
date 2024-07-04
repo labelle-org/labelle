@@ -97,7 +97,7 @@ def list_devices() -> NoReturn:
     console = Console()
     headers = ["Manufacturer", "Product", "Serial Number", "USB"]
     table = Table(*headers, show_header=True)
-    for device in device_manager.devices:
+    for device in device_manager.get_devices_from_last_scan():
         table.add_row(
             device.manufacturer, device.product, device.serial_number, device.usb_id
         )

@@ -51,4 +51,4 @@ class OnlineDeviceManager(QWidget):
 
     @property
     def devices(self) -> list[UsbDevice]:
-        return self._device_manager.devices
+        return self._device_manager.get_devices_from_last_scan()
