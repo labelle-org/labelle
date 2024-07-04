@@ -535,7 +535,7 @@ def default(
             render_engine=render_engine,
             justify=justify,
             visible_horizontal_margin_px=margin_px,
-            labeler_margin_px=dymo_labeler.labeler_margin_px,
+            labeler_margin_px=dymo_labeler.get_labeler_margin_px(),
             max_width_px=max_payload_len_px,
             min_width_px=min_payload_len_px,
         )
@@ -547,7 +547,7 @@ def default(
             dymo_labeler=dymo_labeler,
             justify=justify,
             visible_horizontal_margin_px=margin_px,
-            labeler_margin_px=dymo_labeler.labeler_margin_px,
+            labeler_margin_px=dymo_labeler.get_labeler_margin_px(),
             max_width_px=max_payload_len_px,
             min_width_px=min_payload_len_px,
         )

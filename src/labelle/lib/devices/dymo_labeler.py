@@ -20,6 +20,7 @@ from labelle.lib.constants import ESC, SIMULATOR_CONFIG, SYN
 from labelle.lib.devices.device_config import DeviceConfig
 from labelle.lib.devices.device_manager import get_device_config_by_id
 from labelle.lib.devices.usb_device import UsbDevice, UsbDeviceError
+from labelle.lib.render_engines.margins import LabelMarginsPx
 
 LOG = logging.getLogger(__name__)
 POSSIBLE_USB_ERRORS = (UsbDeviceError, NoBackendError, USBError)
@@ -281,11 +282,10 @@ class DymoLabeler:
             self.device_config.distance_between_print_head_and_cutter_px
         )
 
-    @property
-    def labeler_margin_px(self) -> tuple[float, float]:
-        return (
-            self.device_config.distance_between_print_head_and_cutter_px,
-            self.tape_print_properties.top_margin_px,
+    def get_labeler_margin_px(self) -> LabelMarginsPx:
+        return LabelMarginsPx(
+            horizontal=self.device_config.distance_between_print_head_and_cutter_px,
+            vertical=self.tape_print_properties.top_margin_px,
         )
 
     @property

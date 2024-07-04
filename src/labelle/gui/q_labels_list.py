@@ -161,7 +161,7 @@ class QLabelList(QListWidget):
             dymo_labeler=self.dymo_labeler,
             justify=self.justify,
             visible_horizontal_margin_px=self.dymo_labeler.mm_to_px(self.h_margin_mm),
-            labeler_margin_px=self.dymo_labeler.labeler_margin_px,
+            labeler_margin_px=self.dymo_labeler.get_labeler_margin_px(),
             max_width_px=None,
             min_width_px=self.dymo_labeler.mm_to_px(self.min_label_width_mm),
         )
@@ -180,7 +180,7 @@ class QLabelList(QListWidget):
             render_engine=self._payload_render_engine,
             justify=self.justify,
             visible_horizontal_margin_px=self.dymo_labeler.mm_to_px(self.h_margin_mm),
-            labeler_margin_px=self.dymo_labeler.labeler_margin_px,
+            labeler_margin_px=self.dymo_labeler.get_labeler_margin_px(),
             max_width_px=None,
             min_width_px=self.dymo_labeler.mm_to_px(self.min_label_width_mm),
         )
