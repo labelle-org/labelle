@@ -244,7 +244,7 @@ class TapePrintProperties(NamedTuple):
 
 class DymoLabeler:
     _device: UsbDevice | None
-    _device_config: DeviceConfig
+    device_config: DeviceConfig
     tape_size_mm: int
 
     def __init__(
@@ -254,18 +254,18 @@ class DymoLabeler:
     ):
         self.device = device
 
-        if self._device_config is None:
+        if self.device_config is None:
             raise ValueError("No device config")
 
         if tape_size_mm is None:
             # Select highest supported tape size as default, if not set
-            tape_size_mm = max(self._device_config.supported_tape_sizes_mm)
+            tape_size_mm = max(self.device_config.supported_tape_sizes_mm)
 
         # Check if selected tape size is supported
-        if tape_size_mm not in self._device_config.supported_tape_sizes_mm:
+        if tape_size_mm not in self.device_config.supported_tape_sizes_mm:
             raise ValueError(
                 f"Unsupported tape size {tape_size_mm}mm. "
-                f"Supported sizes: {self._device_config.supported_tape_sizes_mm}mm"
+                f"Supported sizes: {self.device_config.supported_tape_sizes_mm}mm"
             )
         self.tape_size_mm = tape_size_mm
 
@@ -351,10 +351,6 @@ class DymoLabeler:
         )
 
     @property
-    def device_config(self) -> DeviceConfig:
-        return self._device_config
-
-    @property
     def device(self) -> UsbDevice | None:
         return self._device
 
@@ -365,10 +361,10 @@ class DymoLabeler:
                 device.setup()
 
                 # Retrieve device config based on product ID
-                self._device_config = get_device_config_by_id(device.id_product)
+                self.device_config = get_device_config_by_id(device.id_product)
             else:
                 # Use simulator config
-                self._device_config = SIMULATOR_CONFIG
+                self.device_config = SIMULATOR_CONFIG
 
         except UsbDeviceError as e:
             device = None
