@@ -24,12 +24,22 @@ class DeviceManagerNoDevices(DeviceManagerError):
 
 
 class DeviceManager:
+    """Incrementally maintain a list of connected USB devices.
+
+    The list begins empty. It is updated whenever scan() is called. The list is
+    accessible via get_devices_from_last_scan().
+    """
+
     _devices: dict[str, UsbDevice]
 
     def __init__(self) -> None:
         self._devices = {}
 
     def scan(self) -> bool:
+        """Check for devices being connected or disconnected.
+
+        Returns true if the list of devices has changed.
+        """
         prev = self._devices
         try:
             cur = {
@@ -46,8 +56,10 @@ class DeviceManager:
         cur_set = set(cur)
 
         for dev in prev_set - cur_set:
+            # Pop removed devices
             self._devices.pop(dev)
         for dev in cur_set - prev_set:
+            # Add new devices
             self._devices[dev] = cur[dev]
 
         changed = prev_set != cur_set
@@ -95,7 +107,6 @@ def get_device_config_by_id(product_id: int) -> DeviceConfig:
     :param idValue: USB ID value
     :return: Device config, None if not found
     """
-    #
     for device in SUPPORTED_PRODUCTS:
         if device.matches_device_id(product_id):
             return device
