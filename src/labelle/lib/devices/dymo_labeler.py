@@ -369,10 +369,6 @@ class DymoLabeler:
             LOG.error(e)
         self._device = device
 
-    @property
-    def is_ready(self) -> bool:
-        return self.device is not None
-
     def pixels_per_mm(self) -> float:
         # Calculate the pixels per mm for this printer
         # Example: printhead of 128 Pixels, distributed over 18 mm of active area.
