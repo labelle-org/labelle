@@ -269,8 +269,7 @@ class DymoLabeler:
             )
         self.tape_size_mm = tape_size_mm
 
-    @property
-    def label_height_px(self):
+    def get_label_height_px(self):
         """Get the (usable) tape height in pixels."""
         return self.tape_print_properties.usable_tape_height_px
 

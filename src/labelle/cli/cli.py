@@ -524,7 +524,7 @@ def default(
     render_context = RenderContext(
         background_color="white",
         foreground_color="black",
-        height_px=dymo_labeler.label_height_px,
+        height_px=dymo_labeler.get_label_height_px(),
         preview_show_margins=False,
     )
 
