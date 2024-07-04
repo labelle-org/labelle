@@ -317,7 +317,7 @@ class DymoLabeler:
         else:
             # Calculate the amount of active pixels we are able to use
             # (taking the placement inaccuracy into account)
-            usable_tape_height_pixels = self.pixels_per_mm * usable_tape_height_mm
+            usable_tape_height_pixels = self.pixels_per_mm() * usable_tape_height_mm
 
         # Round down to nearest whole number as we can't use half a pixels ;)
         usable_tape_height_pixels = math.floor(usable_tape_height_pixels)
@@ -376,7 +376,6 @@ class DymoLabeler:
     def is_ready(self) -> bool:
         return self.device is not None
 
-    @property
     def pixels_per_mm(self) -> float:
         # Calculate the pixels per mm for this printer
         # Example: printhead of 128 Pixels, distributed over 18 mm of active area.
@@ -385,13 +384,13 @@ class DymoLabeler:
 
     def px_to_mm(self, px) -> float:
         """Convert pixels to millimeters for the current printer."""
-        mm = px / self.pixels_per_mm
+        mm = px / self.pixels_per_mm()
         # Round up to nearest 0.1mm
         return math.ceil(mm * 10) / 10
 
     def mm_to_px(self, mm) -> float:
         """Convert millimeters to pixels for the current printer."""
-        return mm * self.pixels_per_mm
+        return mm * self.pixels_per_mm()
 
     def print(
         self,

@@ -58,7 +58,7 @@ def mm_to_payload_px(labeler: DymoLabeler, mm: float, margin: float) -> float:
 
     Margin is subtracted from each side.
     """
-    return max(0, (mm * labeler.pixels_per_mm) - margin * 2)
+    return max(0, (mm * labeler.pixels_per_mm()) - margin * 2)
 
 
 def version_callback(value: bool) -> None:
