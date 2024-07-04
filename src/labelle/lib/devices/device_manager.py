@@ -8,6 +8,7 @@ from labelle.lib.constants import (
     SUPPORTED_PRODUCTS,
     UNCONFIRMED_MESSAGE,
 )
+from labelle.lib.devices.device_config import DeviceConfig
 from labelle.lib.devices.usb_device import UsbDevice
 
 LOG = logging.getLogger(__name__)
@@ -80,8 +81,23 @@ class DeviceManager:
             LOG.debug(dev.device_info)
         dev = devices[0]
         if dev.is_supported:
-            msg = f"Recognized device as {SUPPORTED_PRODUCTS[dev.id_product]}"
+            msg = f"Recognized device as {get_device_config_by_id(dev.id_product).name}"
         else:
             msg = f"Unrecognized device: {hex(dev.id_product)}. {UNCONFIRMED_MESSAGE}"
         LOG.debug(msg)
         return dev
+
+
+def get_device_config_by_id(product_id: int) -> DeviceConfig:
+    """Get a labeler device config with USB ID.
+
+    :param idValue: USB ID value
+    :return: Device config, None if not found
+    """
+    #
+    for device in SUPPORTED_PRODUCTS:
+        if device.matches_device_id(product_id):
+            return device
+
+    # No device config found
+    raise ValueError(f"Unsupported device type product id: {hex(product_id)}")

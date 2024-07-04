@@ -105,25 +105,22 @@ class MarginsRenderEngine(RenderEngine):
         # There's also some vertical margin between printed area and the label
         # edge
 
-        vertical_offset_px: float = 0
         if self.mode == "print":
             # print head is already in offset from label's edge under the cutter
             horizontal_offset_px -= self.labeler_horizontal_margin_px
-            # no need to add vertical margins to bitmap
-            bitmap_height = float(payload_bitmap.height)
-        elif self.mode == "preview":
-            # add vertical margins to bitmap
-            bitmap_height = (
-                float(payload_bitmap.height) + self.labeler_vertical_margin_px * 2.0
-            )
-            vertical_offset_px = self.labeler_vertical_margin_px
+
+        # add vertical margins to bitmap
+        bitmap_height = (
+            float(payload_bitmap.height) + self.labeler_vertical_margin_px * 2.0
+        )
 
         bitmap = Image.new("1", (math.ceil(label_width_px), math.ceil(bitmap_height)))
         bitmap.paste(
-            payload_bitmap, box=(round(horizontal_offset_px), round(vertical_offset_px))
+            payload_bitmap,
+            box=(round(horizontal_offset_px), round(self.labeler_vertical_margin_px)),
         )
         meta = {
             "horizontal_offset_px": horizontal_offset_px,
-            "vertical_offset_px": vertical_offset_px,
+            "vertical_offset_px": self.labeler_vertical_margin_px,
         }
         return bitmap, meta

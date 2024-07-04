@@ -18,6 +18,7 @@ from pathlib import Path
 
 import labelle.resources.fonts
 import labelle.resources.icons
+from labelle.lib.devices.device_config import DeviceConfig
 
 try:
     from pyqrcode import QRCode
@@ -34,19 +35,92 @@ UNCONFIRMED_MESSAGE = (
     "WARNING: This device is not confirmed to work with this software. Please "
     "report your experiences in https://github.com/labelle-org/labelle/issues/4"
 )
-SUPPORTED_PRODUCTS = {
-    0x0011: "DYMO LabelMANAGER PC",
-    0x0015: "LabelPoint 350",
-    0x1001: "LabelManager PnP (no mode switch)",
-    0x1002: "LabelManager PnP (mode switch)",
-    0x1003: f"LabelManager 420P (no mode switch) {UNCONFIRMED_MESSAGE}",
-    0x1004: f"LabelManager 420P (mode switch) {UNCONFIRMED_MESSAGE}",
-    0x1005: "LabelManager 280 (no mode switch)",
-    0x1006: "LabelManager 280 (no mode switch)",
-    0x1007: f"LabelManager Wireless PnP (no mode switch) {UNCONFIRMED_MESSAGE}",
-    0x1008: f"LabelManager Wireless PnP (mode switch) {UNCONFIRMED_MESSAGE}",
-    0x1009: f"MobileLabeler {UNCONFIRMED_MESSAGE}",
-}
+
+# ---- Supported USB Devices configuration ----
+SUPPORTED_PRODUCTS = [
+    DeviceConfig(
+        name="DYMO LabelMANAGER PC",
+        device_ids=[0x0011],
+        # ToDo: Validate config!
+        # Printhead 128 Pixels, distributed over 18mm of active area
+        print_head_px=128,
+        print_head_mm=18,
+        supported_tape_sizes_mm=[6, 9, 12, 19],
+    ),
+    DeviceConfig(
+        name="LabelPoint 350",
+        device_ids=[0x0015],
+        # ToDo: Validate config!
+        # Printhead 64 Pixels, distributed over 9mm of active area
+        print_head_px=64,
+        print_head_mm=9,
+        supported_tape_sizes_mm=[6, 9, 12],
+    ),
+    DeviceConfig(
+        name="DYMO LabelMANAGER PC II",
+        device_ids=[0x001C],
+        # Printhead 128 Pixels, distributed over 18mm of active area
+        print_head_px=128,
+        print_head_mm=18,
+        supported_tape_sizes_mm=[6, 9, 12, 19, 24],
+    ),
+    DeviceConfig(
+        name="LabelManager PnP",
+        device_ids=[0x1001, 0x1002],
+        # Printhead 64 Pixels, distributed over 9mm of active area
+        print_head_px=64,
+        print_head_mm=9,
+        supported_tape_sizes_mm=[6, 9, 12],
+    ),
+    DeviceConfig(
+        name=f"LabelManager 420P {UNCONFIRMED_MESSAGE}",
+        device_ids=[0x1003, 0x1004],
+        # ToDo: Validate config!
+        # Printhead 64 Pixels, distributed over 9mm of active area
+        print_head_px=64,
+        print_head_mm=9,
+        supported_tape_sizes_mm=[6, 9, 12],
+    ),
+    DeviceConfig(
+        name="LabelManager 280",
+        device_ids=[0x1006, 0x1005],
+        # ToDo: Validate config!
+        # Printhead 64 Pixels, distributed over 9mm of active area
+        print_head_px=64,
+        print_head_mm=9,
+        supported_tape_sizes_mm=[6, 9, 12],
+    ),
+    DeviceConfig(
+        name=f"LabelManager Wireless PnP {UNCONFIRMED_MESSAGE}",
+        device_ids=[0x1007, 0x1008],
+        # ToDo: Validate config!
+        # Printhead 64 Pixels, distributed over 9mm of active area
+        print_head_px=64,
+        print_head_mm=9,
+        supported_tape_sizes_mm=[6, 9, 12],
+    ),
+    DeviceConfig(
+        name=f"MobileLabeler {UNCONFIRMED_MESSAGE}",
+        device_ids=[0x1009],
+        # ToDo: Validate config!
+        # Printhead 64 Pixels, distributed over 9mm of active area
+        print_head_px=64,
+        print_head_mm=9,
+        supported_tape_sizes_mm=[6, 9, 12],
+    ),
+]
+
+# Simulator configuration
+SIMULATOR_CONFIG = DeviceConfig(
+    name="Simulator",
+    device_ids=[0],
+    # Fake printhead 128 Pixels, distributed over 18mm of active area
+    print_head_px=128,
+    print_head_mm=18,
+    supported_tape_sizes_mm=[6, 9, 12, 19, 24],
+)
+
+
 DEV_VENDOR = 0x0922
 
 PRINTER_INTERFACE_CLASS = 0x07
@@ -62,10 +136,6 @@ FONT_SIZERATIO = 7 / 8
 
 DEFAULT_MARGIN_PX = 56
 VERTICAL_PREVIEW_MARGIN_PX = 13
-
-DPI = 180
-MM_PER_INCH = 25.4
-PIXELS_PER_MM = DPI / MM_PER_INCH
 
 ICON_DIR = Path(labelle.resources.icons.__file__).parent
 
