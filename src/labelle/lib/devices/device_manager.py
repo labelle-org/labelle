@@ -32,7 +32,9 @@ class DeviceManager:
     def scan(self) -> bool:
         prev = self._devices
         try:
-            cur = {dev.hash: dev for dev in UsbDevice.supported_devices() if dev.hash}
+            cur = {
+                dev.hash: dev for dev in UsbDevice.find_supported_devices() if dev.hash
+            }
         except POSSIBLE_USB_ERRORS as e:
             self._devices.clear()
             raise DeviceManagerError(f"Failed scanning devices: {e}") from e
