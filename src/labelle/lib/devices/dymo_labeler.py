@@ -375,15 +375,15 @@ class DymoLabeler:
         #   Makes 7.11 pixels/mm
         return self.device_config.print_head_px / self.device_config.print_head_mm
 
-    def px_to_mm(self, px) -> float:
+    def px_to_mm(self, px: int) -> float:
         """Convert pixels to millimeters for the current printer."""
         mm = px / self.pixels_per_mm()
         # Round up to nearest 0.1mm
         return math.ceil(mm * 10) / 10
 
-    def mm_to_px(self, mm) -> float:
+    def mm_to_px(self, mm: float) -> int:
         """Convert millimeters to pixels for the current printer."""
-        return mm * self.pixels_per_mm()
+        return math.ceil(mm * self.pixels_per_mm())
 
     def print(
         self,

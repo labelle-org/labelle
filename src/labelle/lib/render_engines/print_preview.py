@@ -24,10 +24,10 @@ class PrintPreviewRenderEngine(RenderEngine):
         render_engine: RenderEngine,
         dymo_labeler: DymoLabeler,
         justify: Direction = Direction.CENTER,
-        visible_horizontal_margin_px: float = 0,
+        visible_horizontal_margin_px: int = 0,
         labeler_margin_px: LabelMarginsPx | None = None,
-        max_width_px: float | None = None,
-        min_width_px: float = 0,
+        max_width_px: int | None = None,
+        min_width_px: int = 0,
     ) -> None:
         super().__init__()
         self.dymo_labeler = dymo_labeler
@@ -167,32 +167,40 @@ class PrintPreviewRenderEngine(RenderEngine):
             fill=mark_color,
         )
 
+        full_width_mm: float = self.dymo_labeler.px_to_mm(label_width)
+        full_height_mm: float = self.dymo_labeler.px_to_mm(label_height)
+        printable_width_mm: float = self.dymo_labeler.px_to_mm(
+            label_width - x_margin * 2
+        )
+        printable_height_mm: float = self.dymo_labeler.px_to_mm(
+            label_height - y_margin * 2
+        )
         labels = [
             # payload width
             {
                 "xy": (self.X_MARGIN_PX + label_width / 2, preview_width_mark_y),
-                "text": f"{self.dymo_labeler.px_to_mm(label_width - x_margin * 2)} mm",
+                "text": f"{printable_width_mm} mm",
                 "anchor": "mm",
                 "align": "center",
             },
             # label width
             {
                 "xy": (self.X_MARGIN_PX + label_width / 2, label_width_mark_y),
-                "text": f"{self.dymo_labeler.px_to_mm(label_width)} mm",
+                "text": f"{full_width_mm} mm",
                 "anchor": "mm",
                 "align": "center",
             },
             # payload height
             {
                 "xy": (preview_width_mark_x, self.DY + label_height / 2 - self.DY),
-                "text": f"{self.dymo_labeler.px_to_mm(label_height - y_margin * 2)} mm",
+                "text": f"{printable_height_mm} mm",
                 "anchor": "mm",
                 "align": "center",
             },
             # label height
             {
                 "xy": (label_width_mark_x, self.DY + label_height / 2 + self.DY),
-                "text": f"{self.dymo_labeler.px_to_mm(label_height)} mm",
+                "text": f"{full_height_mm} mm",
                 "anchor": "mm",
                 "align": "center",
             },

@@ -17,6 +17,7 @@ class LabelMarginsPx(NamedTuple):
     horizontal: int
     vertical: int
 
+
 class BitmapTooBigError(RenderEngineException):
     def __init__(self, width_px, max_width_px):
         msg = f"width_px: {width_px}, max_width_px: {max_width_px}"
@@ -26,7 +27,7 @@ class BitmapTooBigError(RenderEngineException):
 class MarginsRenderEngine(RenderEngine):
     label_margins_px: LabelMarginsPx
     min_width_px: int
-    max_width_px: int
+    max_width_px: int | None
     visible_horizontal_margin_px: int
     render_engine: RenderEngine
 
@@ -126,9 +127,7 @@ class MarginsRenderEngine(RenderEngine):
             horizontal_offset_px -= self.label_margins_px.horizontal
 
         # add vertical margins to bitmap
-        bitmap_height = (
-            payload_bitmap.height + self.label_margins_px.vertical * 2
-        )
+        bitmap_height = payload_bitmap.height + self.label_margins_px.vertical * 2
 
         bitmap = Image.new("1", (label_width_px, bitmap_height))
         bitmap.paste(

@@ -13,10 +13,10 @@ class PrintPayloadRenderEngine(RenderEngine):
         self,
         render_engine: RenderEngine,
         justify: Direction = Direction.CENTER,
-        visible_horizontal_margin_px: float = 0,
+        visible_horizontal_margin_px: int = 0,
         labeler_margin_px: LabelMarginsPx | None = None,
-        max_width_px: float | None = None,
-        min_width_px: float | None = 0,
+        max_width_px: int | None = None,
+        min_width_px: int | None = 0,
     ):
         super().__init__()
         self.render_engine = MarginsRenderEngine(
@@ -34,5 +34,5 @@ class PrintPayloadRenderEngine(RenderEngine):
 
     def render_with_meta(
         self, context: RenderContext
-    ) -> tuple[Image.Image, dict[str, float]]:
+    ) -> tuple[Image.Image, dict[str, int]]:
         return self.render_engine.render_with_meta(context)
