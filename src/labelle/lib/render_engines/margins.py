@@ -11,12 +11,7 @@ from labelle.lib.render_engines.render_engine import (
     RenderEngine,
     RenderEngineException,
 )
-
-
-class LabelMarginsPx(NamedTuple):
-    horizontal: int
-    vertical: int
-
+from labelle.lib.margins import LabelMarginsPx
 
 class BitmapTooBigError(RenderEngineException):
     def __init__(self, width_px, max_width_px):

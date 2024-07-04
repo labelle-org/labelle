@@ -7,7 +7,8 @@ from PIL import Image, ImageColor, ImageDraw, ImageOps
 
 from labelle.lib.constants import Direction
 from labelle.lib.devices.dymo_labeler import DymoLabeler
-from labelle.lib.render_engines.margins import LabelMarginsPx, MarginsRenderEngine
+from labelle.lib.margins import LabelMarginsPx
+from labelle.lib.render_engines.margins import MarginsRenderEngine
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import RenderEngine
 

@@ -3,7 +3,8 @@ from __future__ import annotations
 from PIL import Image
 
 from labelle.lib.constants import Direction
-from labelle.lib.render_engines.margins import LabelMarginsPx, MarginsRenderEngine
+from labelle.lib.margins import LabelMarginsPx
+from labelle.lib.render_engines.margins import MarginsRenderEngine
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import RenderEngine
 
