@@ -252,7 +252,7 @@ class DymoLabeler:
         tape_size_mm: int | None = None,
         device: UsbDevice | None = None,
     ):
-        self.device = device
+        self.set_device(device)
 
         if self.device_config is None:
             raise ValueError("No device config")
@@ -352,12 +352,13 @@ class DymoLabeler:
 
     @property
     def device(self) -> UsbDevice | None:
+        # Using a property here shields the device from being mutated
+        # outside of set_device.
         return self._device
 
-    @device.setter
-    def device(self, device: UsbDevice | None):
+    def set_device(self, device: UsbDevice | None):
         try:
-            if device:
+            if device is not None:
                 device.setup()
 
                 # Retrieve device config based on product ID

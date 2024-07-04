@@ -137,7 +137,7 @@ class LabelleWindow(QWidget):
             crash_msg_box(self, "Printing Failed!", err)
 
     def _on_device_selected(self) -> None:
-        self._dymo_labeler.device = self._device_selector.selected_device
+        self._dymo_labeler.set_device(self._device_selector.selected_device)
         self._settings_toolbar.on_settings_changed()
 
 
