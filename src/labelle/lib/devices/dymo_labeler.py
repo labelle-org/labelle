@@ -259,8 +259,12 @@ class DymoLabeler:
             raise ValueError("No device config")
 
         if tape_size_mm is None:
-            # Select highest supported tape size as default, if not set
-            tape_size_mm = max(self.device_config.supported_tape_sizes_mm)
+            if device is None:
+                # If there's no device, then use the most common tape size
+                tape_size_mm = 12
+            else:
+                # Select highest supported tape size as default, if not set
+                tape_size_mm = max(self.device_config.supported_tape_sizes_mm)
 
         # Check if selected tape size is supported
         if tape_size_mm not in self.device_config.supported_tape_sizes_mm:
