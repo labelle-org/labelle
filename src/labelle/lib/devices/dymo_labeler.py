@@ -276,7 +276,7 @@ class DymoLabeler:
 
     def get_label_height_px(self):
         """Get the (usable) tape height in pixels."""
-        return self.tape_print_properties.usable_tape_height_px
+        return self.compute_tape_print_properties().usable_tape_height_px
 
     @property
     def minimum_horizontal_margin_mm(self):
@@ -287,13 +287,13 @@ class DymoLabeler:
         )
 
     def get_labeler_margin_px(self) -> LabelMarginsPx:
+        tape_print_properties = self.compute_tape_print_properties()
         return LabelMarginsPx(
             horizontal=self.device_config.distance_between_print_head_and_cutter_px,
-            vertical=self.tape_print_properties.top_margin_px,
+            vertical=tape_print_properties.top_margin_px,
         )
 
-    @property
-    def tape_print_properties(self) -> TapePrintProperties:
+    def compute_tape_print_properties(self) -> TapePrintProperties:
         # Check if selected tape size supported
         if self.tape_size_mm not in self.device_config.supported_tape_sizes_mm:
             raise ValueError(
