@@ -1,17 +1,18 @@
 from __future__ import annotations
 
-from typing import Literal, NamedTuple
+from typing import Literal
 
 from PIL import Image
 
 from labelle.lib.constants import Direction
 from labelle.lib.env_config import is_dev_mode_no_margins
+from labelle.lib.margins import LabelMarginsPx
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import (
     RenderEngine,
     RenderEngineException,
 )
-from labelle.lib.margins import LabelMarginsPx
+
 
 class BitmapTooBigError(RenderEngineException):
     def __init__(self, width_px, max_width_px):
