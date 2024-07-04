@@ -274,15 +274,6 @@ class DymoLabeler:
         return self.tape_print_properties.usable_tape_height_px
 
     @property
-    def _functions(self) -> DymoLabelerFunctions:
-        assert self._device is not None
-        return DymoLabelerFunctions(
-            devout=self._device.devout,
-            devin=self._device.devin,
-            synwait=64,
-        )
-
-    @property
     def minimum_horizontal_margin_mm(self):
         # Return distance between printhead and cutter
         # as we don't want to cut though our printed label
@@ -431,7 +422,13 @@ class DymoLabeler:
 
         try:
             LOG.debug("Printing label..")
-            self._functions.print_label(label_matrix)
+            assert self._device is not None
+            functions = DymoLabelerFunctions(
+                devout=self._device.devout,
+                devin=self._device.devin,
+                synwait=64,
+            )
+            functions.print_label(label_matrix)
             LOG.debug("Done printing.")
             if self._device is not None:
                 self._device.dispose()
