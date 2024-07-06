@@ -47,15 +47,13 @@ class FontStyle(QComboBox):
 
         # Populate font_style
         fonts_model = QStandardItemModel()
+
+        # Create items for all available fonts
         for font_path in get_available_fonts():
             # Create item for font
             item = self.make_combobox_item_for_font(font_path)
-
-            if item is None:
-                continue
-
-            # Append to data model
-            fonts_model.appendRow(item)
+            if item is not None:
+                fonts_model.appendRow(item)
 
         self.setModel(fonts_model)
 
