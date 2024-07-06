@@ -48,42 +48,49 @@ class FontStyle(QComboBox):
         # Populate font_style
         fonts_model = QStandardItemModel()
         for font_path in get_available_fonts():
-            # Retrieve font options
-            font_name = font_path.stem
-            font_absolute_path = font_path.absolute()
+            # Create item for font
+            item = self.make_combobox_item_for_font(font_path)
 
-            # Make combobox item
-            item = QStandardItem(font_name)
-            item.setData(font_absolute_path, QtCore.Qt.ItemDataRole.UserRole)
-
-            # Add application font to allow Qt rendering with it
-            try:
-                font_id = QFontDatabase.addApplicationFont(str(font_absolute_path))
-                loaded_font_families = QFontDatabase.applicationFontFamilies(font_id)
-                if loaded_font_families:
-                    item_font = QFont(loaded_font_families[0])
-
-                    if "bold" in font_name.lower():
-                        item_font.setBold(True)
-
-                    if "italic" in font_name.lower():
-                        item_font.setItalic(True)
-
-                    item.setFont(item_font)
-            except:
-                pass
-                # Failed loading font
+            if item is None:
+                continue
 
             # Append to data model
             fonts_model.appendRow(item)
 
         self.setModel(fonts_model)
 
-        try:
-            self.setCurrentText("Carlito-Regular")
-        except:
-            pass
-            # Failed setting default font
+        # Select default font
+        self.setCurrentText("Carlito-Regular")
+
+    def make_combobox_item_for_font(self, font_path: Path) -> QStandardItem | None:
+        # Retrieve font data
+        font_name = font_path.stem
+        font_absolute_path = font_path.absolute()
+
+        # Make combobox item
+        item = QStandardItem(font_name)
+        item.setData(font_absolute_path, QtCore.Qt.ItemDataRole.UserRole)
+        item_font = QFont()
+
+        # Add application font to allow Qt rendering with it
+        font_id = QFontDatabase.addApplicationFont(str(font_absolute_path))
+        if font_id >= 0:
+            loaded_font_families = QFontDatabase.applicationFontFamilies(font_id)
+            if loaded_font_families:
+                item_font.setFamilies(loaded_font_families)
+
+        # Set bold if font name indictates it
+        if "bold" in font_name.lower():
+            item_font.setBold(True)
+
+        # Set italic if font name indictates it
+        if "italic" in font_name.lower():
+            item_font.setItalic(True)
+
+        # font to item
+        item.setFont(item_font)
+
+        return item
 
 
 class BaseLabelWidget(QWidget):
