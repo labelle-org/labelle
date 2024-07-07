@@ -53,15 +53,14 @@ class FontStyle(QComboBox):
         for font_path in get_available_fonts():
             # Create item for font
             item = self.make_combobox_item_for_font(font_path)
-            if item is not None:
-                fonts_model.appendRow(item)
+            fonts_model.appendRow(item)
 
         self.setModel(fonts_model)
 
         # Select default font
         self.setCurrentText("Carlito-Regular")
 
-    def make_combobox_item_for_font(self, font_path: Path) -> QStandardItem | None:
+    def make_combobox_item_for_font(self, font_path: Path) -> QStandardItem:
         # Retrieve font data
         font_name = font_path.stem
         font_absolute_path = font_path.absolute()
