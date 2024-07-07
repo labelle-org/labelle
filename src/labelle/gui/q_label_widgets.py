@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Optional
 
 from PyQt6 import QtCore
 from PyQt6.QtGui import (
@@ -122,7 +123,7 @@ class BaseLabelWidget(QWidget):
         pass
 
     @property
-    def render_engine(self) -> Optional[RenderEngine]:
+    def render_engine(self) -> RenderEngine | None:
         try:
             return self.render_engine_impl
         except RenderEngineException as err:
@@ -156,7 +157,7 @@ class TextDymoLabelWidget(BaseLabelWidget):
     font_size: QSpinBox
     frame_width_px: QSpinBox
 
-    def __init__(self, render_context: RenderContext, parent: Optional[QWidget] = None):
+    def __init__(self, render_context: RenderContext, parent: QWidget | None = None):
         super().__init__(parent)
         self.render_context = render_context
 
