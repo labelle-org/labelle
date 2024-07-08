@@ -153,6 +153,7 @@ of the print head. See
 
 Please also measure the height in mm of the sample pattern so that we can determine
 the resolution of the print head.
+Please also measure the top and bottom margins in mm.
 
 It may be necessary to
 [clean the print head](#checking-the-cleanliness-of-the-print-head) to ensure
@@ -166,6 +167,10 @@ Checklist:
 * The height of the print head in pixels is determined if not previously known.
 * The height of the sample pattern in mm is measured if not previously known.
 * The print head is clean.
-* For each tape size:
+* For each tape size that you have:
   * A photo of the sample pattern is provided.
+  * Measurements in mm of the top and bottom margins if the sample pattern doesn't
+    extend to the edges of the tape.
 * This information is submitted in a new GitHub issue.
+
+Example: See [#60](https://github.com/labelle-org/labelle/issues/60)
