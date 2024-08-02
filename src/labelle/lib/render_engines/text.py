@@ -48,7 +48,7 @@ class TextRenderEngine(RenderEngine):
 
         font = ImageFont.truetype(str(self.font_file_name), font_size_px)
         boxes = (font.getbbox(line) for line in self.text_lines)
-        line_widths = (right - left for left, _, right, _ in boxes)
+        line_widths = (right - left for left, _top, right, _bottom in boxes)
         label_width_px = max(line_widths) + (font_offset_px * 2)
         bitmap = Image.new("1", (label_width_px, height_px))
         with draw_image(bitmap) as draw:
