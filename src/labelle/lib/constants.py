@@ -73,13 +73,13 @@ SUPPORTED_PRODUCTS = [
         supported_tape_sizes_mm=[6, 9, 12],
     ),
     DeviceConfig(
-        name=f"LabelManager 420P {UNCONFIRMED_MESSAGE}",
+        # Ref: <https://github.com/labelle-org/labelle/issues/62>
+        name="LabelManager 420P",
         device_ids=[0x1003, 0x1004],
-        # ToDo: Validate config!
-        # Printhead 64 Pixels, distributed over 9mm of active area
-        print_head_px=64,
-        print_head_mm=9,
-        supported_tape_sizes_mm=[6, 9, 12],
+        # Printhead 128 Pixels, distributed over 18mm of active area
+        print_head_px=128,
+        print_head_mm=18,
+        supported_tape_sizes_mm=[6, 9, 12, 19],
     ),
     DeviceConfig(
         name="LabelManager 280",
