@@ -1,8 +1,15 @@
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Optional
 
 from PyQt6 import QtCore
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import (
+    QFont,
+    QFontDatabase,
+    QIcon,
+    QStandardItem,
+    QStandardItemModel,
+)
 from PyQt6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -38,12 +45,50 @@ from labelle.lib.render_engines.render_engine import RenderEngineException
 class FontStyle(QComboBox):
     def __init__(self) -> None:
         super().__init__()
+
         # Populate font_style
+        fonts_model = QStandardItemModel()
+
+        # Create items for all available fonts
         for font_path in get_available_fonts():
-            name = font_path.stem
-            absolute_path = font_path.absolute()
-            self.addItem(name, absolute_path)
-            self.setCurrentText("Carlito-Regular")
+            # Create item for font
+            item = self.make_combobox_item_for_font(font_path)
+            fonts_model.appendRow(item)
+
+        self.setModel(fonts_model)
+
+        # Select default font
+        self.setCurrentText("Carlito-Regular")
+
+    def make_combobox_item_for_font(self, font_path: Path) -> QStandardItem:
+        # Retrieve font data
+        font_name = font_path.stem
+        font_absolute_path = font_path.absolute()
+
+        # Make combobox item
+        item = QStandardItem(font_name)
+        item.setData(font_absolute_path, QtCore.Qt.ItemDataRole.UserRole)
+        item_font = QFont()
+
+        # Add application font to allow Qt rendering with it
+        font_id = QFontDatabase.addApplicationFont(str(font_absolute_path))
+        if font_id >= 0:
+            loaded_font_families = QFontDatabase.applicationFontFamilies(font_id)
+            if loaded_font_families:
+                item_font.setFamilies(loaded_font_families)
+
+        # Set bold if font name indictates it
+        if "bold" in font_name.lower():
+            item_font.setBold(True)
+
+        # Set italic if font name indictates it
+        if "italic" in font_name.lower():
+            item_font.setItalic(True)
+
+        # font to item
+        item.setFont(item_font)
+
+        return item
 
 
 class BaseLabelWidget(QWidget):
@@ -77,7 +122,7 @@ class BaseLabelWidget(QWidget):
         pass
 
     @property
-    def render_engine(self) -> Optional[RenderEngine]:
+    def render_engine(self) -> RenderEngine | None:
         try:
             return self.render_engine_impl
         except RenderEngineException as err:
@@ -111,7 +156,7 @@ class TextDymoLabelWidget(BaseLabelWidget):
     font_size: QSpinBox
     frame_width_px: QSpinBox
 
-    def __init__(self, render_context: RenderContext, parent: Optional[QWidget] = None):
+    def __init__(self, render_context: RenderContext, parent: QWidget | None = None):
         super().__init__(parent)
         self.render_context = render_context
 

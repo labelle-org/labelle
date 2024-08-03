@@ -45,6 +45,12 @@ Labelle is not affiliated with DYMO. Please see the [disclaimer](#disclaimers) b
 
 For more information about experimental device support, see [#4](https://github.com/labelle-org/labelle/issues/4).
 
+If you have a device or tape size that we do not yet support, the first step is
+to try and get it to print. In some cases this is as simple as
+[adding the device id](src/labelle/lib/constants.py). Once you can print,
+you can help us determine the print head size and margins for your tape sizes
+by following [these instructions](doc/margin-calibration-howto.md).
+
 ## Installation
 
 It is recommended to install Labelle with
