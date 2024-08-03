@@ -35,9 +35,8 @@ class DeviceConfig:
     but negligible due to a physical spring in the lid.
     """
 
-    LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM: float = 8.1
-    """This is the distance between the printhead and the cutter (knife).
-    """
+    distance_between_print_head_and_cutter_px: int = 57
+    """Amount of unprintable tape remaining in the machine after cutting with knife."""
 
     def matches_device_id(self, device_id: int) -> bool:
         """Check if the a device ID matches this config."""
