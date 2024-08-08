@@ -73,6 +73,13 @@ or on Arch with
 sudo pacman -S python-pipx
 ```
 
+You will also need the USB development libraries; on Ubuntu/Debian, install
+with
+
+```bash
+sudo apt-get  --no-install-recommends install libusb-1.0-0
+```
+
 By default, users don't have permission to access generic USB devices, so you will
 need to add a rule. The first time you run `labelle`, it will give instructions
 about how to do this:
@@ -89,6 +96,16 @@ You do not have sufficient access to the device. You probably want to add the a 
 ```
 
 <!-- markdownlint-enable MD013 -->
+
+## Interference from CUPS
+
+Sometimes, the CUPS printing system will attempt to communicate with the label
+maker, causing interference with Labelle.  If you don't otherwise have a USB
+printer, you can disable CUPS attempting this with:
+
+```bash
+sudo touch /etc/udev/rules.d/70-printers.rules
+```
 
 ## Testing experimental features
 
