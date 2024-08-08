@@ -6,6 +6,7 @@
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
 import logging
+import sys
 from pathlib import Path
 from typing import List, NoReturn, Optional
 
@@ -200,6 +201,10 @@ def default(
             "--qr", callback=qr_callback, help="QR code", rich_help_panel="Elements"
         ),
     ] = None,
+    batch: Annotated[
+        bool,
+        typer.Option(help="Read batch commands from stdin", rich_help_panel="Elements"),
+    ] = False,
     barcode_content: Annotated[
         Optional[str],
         typer.Option("--barcode", help="Barcode", rich_help_panel="Elements"),
@@ -482,10 +487,10 @@ def default(
             BarcodeRenderEngine(content=barcode_content, barcode_type=barcode_type)
         )
 
-    if text:
+    def render_text(lines):
         render_engines.append(
             TextRenderEngine(
-                text_lines=text,
+                text_lines=lines,
                 font_file_name=font_path,
                 frame_width_px=frame_width_px,
                 font_size_ratio=int(font_scale) / 100.0,
@@ -493,8 +498,32 @@ def default(
             )
         )
 
+    if text:
+        render_text(text)
+
     if picture:
         render_engines.append(PictureRenderEngine(picture))
+
+    if batch:
+        text_accumulator: List[str] = []
+        for line in sys.stdin:
+            line = line.rstrip("\r\n")
+            parts = line.split(":", 1)
+            if parts[0] == "TEXTSTART":
+                if len(text_accumulator) > 0:
+                    render_text(text_accumulator)
+                text_accumulator = [parts[1]]
+            elif parts[0] == "TEXTADD":
+                text_accumulator.append(parts[1])
+            elif parts[0] == "QR":
+                if len(text_accumulator) > 0:
+                    render_text(text_accumulator)
+                    text_accumulator = []
+                render_engines.append(QrRenderEngine(qr_callback(parts[1])))
+            else:
+                print("WARNING: invalid command", line)
+        if len(text_accumulator) > 0:
+            render_text(text_accumulator)
 
     if fixed_length is None:
         min_label_mm_len = min_length
