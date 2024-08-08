@@ -191,18 +191,20 @@ commands are:
   first.
 * `TEXTADD`: Adds an additional line to the current block of text.  Used to
   create multiline text blocks.
-* `QR`: Creates a QR code block
+* `QRSTART`: Creates a QR code block
+* `QRADD`: Adds additional lines to the text that will be encoded to form the QR
+  code (rarely used)
 
 For instance, this input:
 
 ```text
 TEXTSTART:FD12
 TEXTADD:2013
-QR:1234
+QRSTART:1234
 TEXTSTART:BIG
 TEXTSTART:LINE1
 TEXTADD:LINE2
-QR:12345
+QRSTART:12345
 ```
 
 Creates a label with:
