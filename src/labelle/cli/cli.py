@@ -505,45 +505,48 @@ def default(
         render_engines.append(PictureRenderEngine(picture))
 
     if batch:
-        text_accumulator: List[str] = []
-        qr_accumulator: List[str] = []
+        accumulator: List[str] = []
+        accumulator_type: str = "empty"
 
-        def flush_text():
-            nonlocal text_accumulator
-            if len(text_accumulator) > 0:
-                render_text(text_accumulator)
-                text_accumulator = []
-
-        def flush_qr():
-            nonlocal qr_accumulator
-            if len(qr_accumulator) > 0:
+        def flush_all():
+            nonlocal accumulator
+            nonlocal accumulator_type
+            if accumulator_type == "text":
+                render_text(accumulator)
+            elif accumulator_type == "qr":
                 render_engines.append(
-                    QrRenderEngine(qr_callback("\n".join(qr_accumulator)))
+                    QrRenderEngine(qr_callback("\n".join(accumulator)))
                 )
-                qr_accumulator = []
 
-        def flush_both():
-            flush_text()
-            flush_qr()
+            accumulator = []
+            accumulator_type = "empty"
+
+        # Verify version
+        line = sys.stdin.readline().strip()
+        parts = line.split(":", 1)
+        if not (parts[0] == "LABELLE-LABEL-SPEC-VERSION" and parts[1] == "1"):
+            err_console = Console(stderr=True)
+            err_console.print(
+                "Error: Batch doesn't begin with LABELLE-LABEL-SPEC-VERSION:1"
+            )
+            raise typer.Exit()
 
         for line in sys.stdin:
             line = line.rstrip("\r\n")
             parts = line.split(":", 1)
-            if parts[0] == "TEXTSTART":
-                flush_both()
-                text_accumulator.append(parts[1])
-            elif parts[0] == "TEXTADD":
-                flush_qr()
-                text_accumulator.append(parts[1])
-            elif parts[0] == "QRSTART":
-                flush_both()
-                qr_accumulator.append(parts[1])
-            elif parts[0] == "QRADD":
-                flush_text()
-                qr_accumulator.append(parts[1])
+            if parts[0] == "TEXT":
+                flush_all()
+                accumulator_type = "text"
+                accumulator.append(parts[1])
+            elif parts[0] == "QR":
+                flush_all()
+                accumulator_type = "qr"
+                accumulator.append(parts[1])
+            elif parts[0] == "NEWLINE":
+                accumulator.append(parts[1])
             else:
                 print("WARNING: invalid command", line)
-        flush_both()
+        flush_all()
 
     if fixed_length is None:
         min_label_mm_len = min_length

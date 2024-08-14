@@ -187,29 +187,29 @@ UI does, this mode allows multiple blocks of each type.  `--batch` reads from
 stdin.  Each line must begin with a command, a colon, and then details.  The
 commands are:
 
-* `TEXTSTART`: Starts a new text block.  Any previous text lines will be printed
+* `LABELLE-LABEL-SPEC-VERSION:1` must be the first line.
+* `TEXT`: Starts a new text block.  Any previous text lines will be printed
   first.
-* `TEXTADD`: Adds an additional line to the current block of text.  Used to
-  create multiline text blocks.
-* `QRSTART`: Creates a QR code block
-* `QRADD`: Adds additional lines to the text that will be encoded to form the QR
-  code (rarely used)
+* `NEWLINE`: Adds an additional line to the current block of text or QR. Used to
+  create multiline blocks.
+* `QR`: Creates a QR code block
 
 For instance, this input:
 
 ```text
-TEXTSTART:FD12
-TEXTADD:2013
-QRSTART:1234
-TEXTSTART:BIG
-TEXTSTART:LINE1
-TEXTADD:LINE2
-QRSTART:12345
+LABELLE-LABEL-SPEC-VERSION:1
+TEXT:FD12
+NEWLINE:2013
+QR:1234
+TEXT:BIG
+TEXT:LINE1
+NEWLINE:LINE2
+QR:12345
 ```
 
 Creates a label with:
 
-* A 2-line text block (first like `FD12`, second line `2013`)
+* A 2-line text block (first line `FD12`, second line `2013`)
 * Then, a QR code for 1234
 * Then, a line-line text block with the text `BIG`
 * Then, another 2-line text block
