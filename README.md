@@ -149,42 +149,70 @@ Labelle includes the Carlito font, licensed under the
 
 ## Modes
 
-### Print text
+### Overview
 
-```labelle MyText```
+For a comprehensive list of options, run
 
-Multilines will be generated on whitespace
+```bash
+labelle --help
+```
 
-```labelle MyLine MySecondLine # Will print two Lines```
+### Preview
 
-If you want whitespaces just enclose in " "
+To save tape, you can preview the label without printing it
 
-```labelle "prints a single line"```
+```bash
+labelle --output=console --text Hi
+```
 
-### Print QRCodes and Barcodes
+![Hi](doc/hi.png)
 
-```labelle --help```
+### Text
+
+If your text includes whitespace or any other characters like `<` or `$` that are
+interpreted by your shell, then the text must be quoted.
+
+```bash
+labelle --text 'Price: $3.50'
+```
+
+![Price: $3.50](doc/3-50.png)
+
+Multiple text arguments will stack on top of each other as separate lines
+
+```bash
+labelle --text "first line" --text "second line"
+```
+
+![first line second line](doc/two-lines.png)
 
 ### Print Codes and Text
 
 Just add a text after your qr or barcode text
 
-```labelle -qr "QR Content" "Cleartext printed"```
+```bash
+labelle --qr "QR Content" --text "Cleartext printed"
+```
+
+![QR Content Cleartext printed](doc/qr-with-text.png)
 
 ### Picture printing
 
-Any picture with JPEG standard may be printed. Beware it will be downsized to tape.
+Any commonly-supported raster image may be printed.
 
-```labelle -p mypic.jpg ""```
+```bash
+labelle --picture labelle.png
+```
 
-Take care of the trailing "" - you may enter text here which gets printed in
-front of the image
+![labelle.png](doc/labelle-label.png)
 
 ## GUI
 
 ### Run Labelle GUI
 
-```labelle-gui```
+```bash
+labelle-gui
+```
 
 ### GUI App Features
 
