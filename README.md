@@ -73,6 +73,19 @@ or on Arch with
 sudo pacman -S python-pipx
 ```
 
+In case the USB development libraries are not already installed, you may see an
+error like
+
+```python
+DeviceManagerError: Failed scanning devices: No backend available
+```
+
+To fix this, on Ubuntu/Debian, install with
+
+```bash
+sudo apt-get  --no-install-recommends install libusb-1.0-0
+```
+
 By default, users don't have permission to access generic USB devices, so you will
 need to add a rule. The first time you run `labelle`, it will give instructions
 about how to do this:
