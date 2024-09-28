@@ -73,8 +73,14 @@ or on Arch with
 sudo pacman -S python-pipx
 ```
 
-You will also need the USB development libraries; on Ubuntu/Debian, install
-with
+In case the USB development libraries are not already installed, you may see an
+error like
+
+```python
+DeviceManagerError: Failed scanning devices: No backend available
+```
+
+To fix this, on Ubuntu/Debian, install with
 
 ```bash
 sudo apt-get  --no-install-recommends install libusb-1.0-0
