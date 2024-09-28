@@ -6,6 +6,7 @@
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
 import logging
+import sys
 from pathlib import Path
 from typing import List, NoReturn, Optional
 
@@ -200,6 +201,10 @@ def default(
             "--qr", callback=qr_callback, help="QR code", rich_help_panel="Elements"
         ),
     ] = None,
+    batch: Annotated[
+        bool,
+        typer.Option(help="Read batch commands from stdin", rich_help_panel="Elements"),
+    ] = False,
     barcode_content: Annotated[
         Optional[str],
         typer.Option("--barcode", help="Barcode", rich_help_panel="Elements"),
@@ -482,10 +487,10 @@ def default(
             BarcodeRenderEngine(content=barcode_content, barcode_type=barcode_type)
         )
 
-    if text:
+    def render_text(lines):
         render_engines.append(
             TextRenderEngine(
-                text_lines=text,
+                text_lines=lines,
                 font_file_name=font_path,
                 frame_width_px=frame_width_px,
                 font_size_ratio=int(font_scale) / 100.0,
@@ -493,8 +498,55 @@ def default(
             )
         )
 
+    if text:
+        render_text(text)
+
     if picture:
         render_engines.append(PictureRenderEngine(picture))
+
+    if batch:
+        accumulator: List[str] = []
+        accumulator_type: str = "empty"
+
+        def flush_all():
+            nonlocal accumulator
+            nonlocal accumulator_type
+            if accumulator_type == "text":
+                render_text(accumulator)
+            elif accumulator_type == "qr":
+                render_engines.append(
+                    QrRenderEngine(qr_callback("\n".join(accumulator)))
+                )
+
+            accumulator = []
+            accumulator_type = "empty"
+
+        # Verify version
+        line = sys.stdin.readline().strip()
+        parts = line.split(":", 1)
+        if not (parts[0] == "LABELLE-LABEL-SPEC-VERSION" and parts[1] == "1"):
+            err_console = Console(stderr=True)
+            err_console.print(
+                "Error: Batch doesn't begin with LABELLE-LABEL-SPEC-VERSION:1"
+            )
+            raise typer.Exit()
+
+        for line in sys.stdin:
+            line = line.rstrip("\r\n")
+            parts = line.split(":", 1)
+            if parts[0] == "TEXT":
+                flush_all()
+                accumulator_type = "text"
+                accumulator.append(parts[1])
+            elif parts[0] == "QR":
+                flush_all()
+                accumulator_type = "qr"
+                accumulator.append(parts[1])
+            elif parts[0] == "NEWLINE":
+                accumulator.append(parts[1])
+            else:
+                print("WARNING: invalid command", line)
+        flush_all()
 
     if fixed_length is None:
         min_label_mm_len = min_length

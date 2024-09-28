@@ -180,6 +180,45 @@ Any picture with JPEG standard may be printed. Beware it will be downsized to ta
 Take care of the trailing "" - you may enter text here which gets printed in
 front of the image
 
+### More control with batch mode
+
+When run with `--batch`, labelle gives you more control over the output.  As the
+UI does, this mode allows multiple blocks of each type.  `--batch` reads from
+stdin.  Each line must begin with a command, a colon, and then details.  The
+commands are:
+
+* `LABELLE-LABEL-SPEC-VERSION:1` must be the first line.
+* `TEXT`: Starts a new text block.  Any previous text lines will be printed
+  first.
+* `NEWLINE`: Adds an additional line to the current block of text or QR. Used to
+  create multiline blocks.
+* `QR`: Creates a QR code block
+
+For instance, this input:
+
+```text
+LABELLE-LABEL-SPEC-VERSION:1
+TEXT:FD12
+NEWLINE:2013
+QR:1234
+TEXT:BIG
+TEXT:LINE1
+NEWLINE:LINE2
+QR:12345
+```
+
+Creates a label with:
+
+* A 2-line text block (first line `FD12`, second line `2013`)
+* Then, a QR code for 1234
+* Then, a line-line text block with the text `BIG`
+* Then, another 2-line text block
+* Finally, a QR code
+
+Which looks like this:
+
+![Batch mode example](doc/batch-example.png)
+
 ## GUI
 
 ### Run Labelle GUI
