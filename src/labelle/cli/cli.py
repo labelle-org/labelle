@@ -444,8 +444,7 @@ def default(
             "Cannot specify both barcode with text and regular barcode"
         )
 
-    if fixed_length is not None and (
-        not (min_length is None or min_length == 0) or max_length is not None
+    if fixed_length is not None and min_length is not None max_length is not None
     ):
         raise typer.BadParameter(
             "Cannot specify min/max and fixed length at the same time"
