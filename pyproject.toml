@@ -1,11 +1,10 @@
 [build-system]
-requires = ["hatchling >=1.11.1,<2.0.0", "hatch-vcs >=0.3.0,<0.4"]
+requires = ["hatchling >=1.11.1,<2.0.0", "hatch-vcs >=0.3.0,<0.4", "hatch-fancy-pypi-readme"]
 build-backend = "hatchling.build"
 
 [project]
 name = "labelle"
 description = "Open-source label printing software"
-readme = "README.md"
 url = "https://github.com/labelle-org/labelle"
 authors = [{name = "Sebastian J. Bronner", email = "waschtl@sbronner.com"}]
 maintainers = [
@@ -35,7 +34,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Printing",
 ]
-dynamic = ["version"]
+dynamic = ["version", "readme"]
 requires-python = ">=3.8,<4"
 
 [project.optional-dependencies]
@@ -65,6 +64,30 @@ version-file = "src/labelle/_version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/labelle"]
+
+# <https://github.com/hynek/hatch-fancy-pypi-readme>
+[tool.hatch.metadata.hooks.fancy-pypi-readme]
+content-type = "text/markdown"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+path = "README.md"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
+# Image links should go to the raw content on GitHub
+# <https://stackoverflow.com/a/46875147>
+pattern = '\[(.*?)\]\(((?!https?://)\S+\.(png|jpe?g|svg|gif))\)'
+replacement = '[\1](https://raw.githubusercontent.com/labelle-org/labelle/main/\g<2>)'
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
+# Handle also HTML image tags
+pattern = '''(<img\b[^>]*\bsrc=)(['"])((?!https?://)[^'"]+)(['"][^>]*>)'''
+replacement = '<img src="https://raw.githubusercontent.com/labelle-org/labelle/main/\g<3>\g<4>'
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
+# Remaining non-image relative links map to the normal absolute GitHub URL
+# <https://stackoverflow.com/a/46875147>
+pattern = '\[(.*?)\]\(((?!https?://)\S+)\)'
+replacement = '[\1](https://github.com/labelle-org/labelle/tree/main/\g<2>)'
 
 [tool.tox]
 legacy_tox_ini = """
