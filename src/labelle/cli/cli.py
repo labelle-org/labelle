@@ -58,7 +58,7 @@ def mm_to_payload_px(labeler: DymoLabeler, mm: float, margin: float) -> float:
 
     Margin is subtracted from each side.
     """
-    return max(0, (mm * labeler.pixels_per_mm) - margin * 2)
+    return max(0, (mm * labeler.pixels_per_mm()) - margin * 2)
 
 
 def version_callback(value: bool) -> None:
@@ -524,7 +524,7 @@ def default(
     render_context = RenderContext(
         background_color="white",
         foreground_color="black",
-        height_px=dymo_labeler.label_height_px,
+        height_px=dymo_labeler.get_label_height_px(),
         preview_show_margins=False,
     )
 

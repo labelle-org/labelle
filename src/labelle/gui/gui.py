@@ -105,7 +105,7 @@ class LabelleWindow(QWidget):
         self._render_context = RenderContext(
             foreground_color=settings.foreground_color,
             background_color=settings.background_color,
-            height_px=self._dymo_labeler.label_height_px,
+            height_px=self._dymo_labeler.get_label_height_px(),
             preview_show_margins=settings.preview_show_margins,
         )
         self._label_list.update_params(
@@ -137,7 +137,7 @@ class LabelleWindow(QWidget):
             crash_msg_box(self, "Printing Failed!", err)
 
     def _on_device_selected(self) -> None:
-        self._dymo_labeler.device = self._device_selector.selected_device
+        self._dymo_labeler.set_device(self._device_selector.selected_device)
         self._settings_toolbar.on_settings_changed()
 
 
