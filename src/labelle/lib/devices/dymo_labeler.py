@@ -98,7 +98,7 @@ class DymoLabelerFunctions:
                 # Send a status request
                 cmdBin = array.array("B", [ESC, ord("A")])
                 cmdBin.tofile(self._devout)
-                rspBin = self._devin.read(8)
+                rspBin = self._devin.read(512)
                 _ = array.array("B", rspBin).tolist()
                 # Ok, we got a response. Now we can send a chunk of data
 
@@ -129,7 +129,7 @@ class DymoLabelerFunctions:
         if not self._response:
             return None
         self._response = False
-        responseBin = self._devin.read(8)
+        responseBin = self._devin.read(512)
         response = array.array("B", responseBin).tolist()
         return response
 
