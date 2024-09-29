@@ -20,6 +20,7 @@ from labelle.lib.constants import ESC, SIMULATOR_CONFIG, SYN
 from labelle.lib.devices.device_config import DeviceConfig
 from labelle.lib.devices.device_manager import get_device_config_by_id
 from labelle.lib.devices.usb_device import UsbDevice, UsbDeviceError
+from labelle.lib.margins import LabelMarginsPx
 
 LOG = logging.getLogger(__name__)
 POSSIBLE_USB_ERRORS = (UsbDeviceError, NoBackendError, USBError)
@@ -258,8 +259,12 @@ class DymoLabeler:
             raise ValueError("No device config")
 
         if tape_size_mm is None:
-            # Select highest supported tape size as default, if not set
-            tape_size_mm = max(self.device_config.supported_tape_sizes_mm)
+            if device is None:
+                # If there's no device, then use the most common tape size
+                tape_size_mm = 12
+            else:
+                # Select highest supported tape size as default, if not set
+                tape_size_mm = max(self.device_config.supported_tape_sizes_mm)
 
         # Check if selected tape size is supported
         if tape_size_mm not in self.device_config.supported_tape_sizes_mm:
@@ -271,16 +276,7 @@ class DymoLabeler:
 
     def get_label_height_px(self):
         """Get the (usable) tape height in pixels."""
-        return self.tape_print_properties.usable_tape_height_px
-
-    @property
-    def _functions(self) -> DymoLabelerFunctions:
-        assert self._device is not None
-        return DymoLabelerFunctions(
-            devout=self._device.devout,
-            devin=self._device.devin,
-            synwait=64,
-        )
+        return self.compute_tape_print_properties().usable_tape_height_px
 
     @property
     def minimum_horizontal_margin_mm(self):
@@ -290,15 +286,14 @@ class DymoLabeler:
             self.device_config.distance_between_print_head_and_cutter_px
         )
 
-    @property
-    def labeler_margin_px(self) -> tuple[float, float]:
-        return (
-            self.device_config.distance_between_print_head_and_cutter_px,
-            self.tape_print_properties.top_margin_px,
+    def get_labeler_margin_px(self) -> LabelMarginsPx:
+        tape_print_properties = self.compute_tape_print_properties()
+        return LabelMarginsPx(
+            horizontal=self.device_config.distance_between_print_head_and_cutter_px,
+            vertical=tape_print_properties.top_margin_px,
         )
 
-    @property
-    def tape_print_properties(self) -> TapePrintProperties:
+    def compute_tape_print_properties(self) -> TapePrintProperties:
         # Check if selected tape size supported
         if self.tape_size_mm not in self.device_config.supported_tape_sizes_mm:
             raise ValueError(
@@ -374,25 +369,21 @@ class DymoLabeler:
             LOG.error(e)
         self._device = device
 
-    @property
-    def is_ready(self) -> bool:
-        return self.device is not None
-
     def pixels_per_mm(self) -> float:
         # Calculate the pixels per mm for this printer
         # Example: printhead of 128 Pixels, distributed over 18 mm of active area.
         #   Makes 7.11 pixels/mm
         return self.device_config.print_head_px / self.device_config.print_head_mm
 
-    def px_to_mm(self, px) -> float:
+    def px_to_mm(self, px: int) -> float:
         """Convert pixels to millimeters for the current printer."""
         mm = px / self.pixels_per_mm()
         # Round up to nearest 0.1mm
         return math.ceil(mm * 10) / 10
 
-    def mm_to_px(self, mm) -> float:
+    def mm_to_px(self, mm: float) -> int:
         """Convert millimeters to pixels for the current printer."""
-        return mm * self.pixels_per_mm()
+        return math.ceil(mm * self.pixels_per_mm())
 
     def print(
         self,
@@ -431,7 +422,13 @@ class DymoLabeler:
 
         try:
             LOG.debug("Printing label..")
-            self._functions.print_label(label_matrix)
+            assert self._device is not None
+            functions = DymoLabelerFunctions(
+                devout=self._device.devout,
+                devin=self._device.devin,
+                synwait=64,
+            )
+            functions.print_label(label_matrix)
             LOG.debug("Done printing.")
             if self._device is not None:
                 self._device.dispose()

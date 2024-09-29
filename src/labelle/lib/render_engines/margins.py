@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import math
 from typing import Literal
 
 from PIL import Image
 
 from labelle.lib.constants import Direction
 from labelle.lib.env_config import is_dev_mode_no_margins
+from labelle.lib.margins import LabelMarginsPx
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import (
     RenderEngine,
@@ -21,21 +21,28 @@ class BitmapTooBigError(RenderEngineException):
 
 
 class MarginsRenderEngine(RenderEngine):
+    label_margins_px: LabelMarginsPx
+    min_width_px: int
+    max_width_px: int | None
+    visible_horizontal_margin_px: int
+    render_engine: RenderEngine
+
     def __init__(
         self,
         render_engine: RenderEngine,
         mode: Literal["print", "preview"],
         justify: Direction = Direction.CENTER,
-        visible_horizontal_margin_px: float = 0,
-        labeler_margin_px: tuple[float, float] = (0, 0),
-        max_width_px: float | None = None,
-        min_width_px: float | None = 0,
+        visible_horizontal_margin_px: int = 0,
+        labeler_margin_px: LabelMarginsPx | None = None,
+        max_width_px: int | None = None,
+        min_width_px: int | None = None,
     ):
         super().__init__()
-        labeler_horizontal_margin_px, labeler_vertical_margin_px = labeler_margin_px
+        if labeler_margin_px is None:
+            labeler_margin_px = LabelMarginsPx(horizontal=0, vertical=0)
         assert visible_horizontal_margin_px >= 0
-        assert labeler_horizontal_margin_px >= 0
-        assert labeler_vertical_margin_px >= 0
+        assert labeler_margin_px.horizontal >= 0
+        assert labeler_margin_px.vertical >= 0
         assert not max_width_px or max_width_px >= 0
         if min_width_px is None:
             min_width_px = 0
@@ -43,20 +50,24 @@ class MarginsRenderEngine(RenderEngine):
         self.mode = mode
         self.justify = justify
         if is_dev_mode_no_margins():
-            self.visible_horizontal_margin_px = 0.0
-            self.labeler_horizontal_margin_px = 0.0
-            self.min_width_px = 0.0
+            self.visible_horizontal_margin_px = 0
+            labeler_horizontal_margin_px = 0
+            self.min_width_px = 0
         else:
             self.visible_horizontal_margin_px = visible_horizontal_margin_px
-            self.labeler_horizontal_margin_px = labeler_horizontal_margin_px
+            labeler_horizontal_margin_px = labeler_margin_px.horizontal
             self.min_width_px = min_width_px
-        self.labeler_vertical_margin_px = labeler_vertical_margin_px
+        labeler_vertical_margin_px = labeler_margin_px.vertical
+        self.label_margins_px = LabelMarginsPx(
+            horizontal=labeler_horizontal_margin_px,
+            vertical=labeler_vertical_margin_px,
+        )
         self.max_width_px = max_width_px
         self.render_engine = render_engine
 
-    def _calculate_visible_width(self, payload_width_px: int) -> float:
+    def _calculate_visible_width(self, payload_width_px: int) -> int:
         minimal_label_width_px = (
-            payload_width_px + self.visible_horizontal_margin_px * 2.0
+            payload_width_px + self.visible_horizontal_margin_px * 2
         )
         if self.max_width_px is not None and minimal_label_width_px > self.max_width_px:
             raise BitmapTooBigError(minimal_label_width_px, self.max_width_px)
@@ -72,7 +83,7 @@ class MarginsRenderEngine(RenderEngine):
 
     def render_with_meta(
         self, context: RenderContext
-    ) -> tuple[Image.Image, dict[str, float]]:
+    ) -> tuple[Image.Image, dict[str, int]]:
         payload_bitmap = self.render_engine.render(context)
         payload_width_px = payload_bitmap.width
         label_width_px = self._calculate_visible_width(payload_width_px)
@@ -81,9 +92,11 @@ class MarginsRenderEngine(RenderEngine):
         if self.justify == Direction.LEFT:
             horizontal_offset_px = self.visible_horizontal_margin_px
         elif self.justify == Direction.CENTER:
-            horizontal_offset_px = padding_px / 2
+            horizontal_offset_px = padding_px // 2
         elif self.justify == Direction.RIGHT:
             horizontal_offset_px = padding_px - self.visible_horizontal_margin_px
+        else:
+            raise ValueError(f"Invalid justify value: {self.justify}")
         assert horizontal_offset_px >= self.visible_horizontal_margin_px
 
         # In print mode:
@@ -107,20 +120,18 @@ class MarginsRenderEngine(RenderEngine):
 
         if self.mode == "print":
             # print head is already in offset from label's edge under the cutter
-            horizontal_offset_px -= self.labeler_horizontal_margin_px
+            horizontal_offset_px -= self.label_margins_px.horizontal
 
         # add vertical margins to bitmap
-        bitmap_height = (
-            float(payload_bitmap.height) + self.labeler_vertical_margin_px * 2.0
-        )
+        bitmap_height = payload_bitmap.height + self.label_margins_px.vertical * 2
 
-        bitmap = Image.new("1", (math.ceil(label_width_px), math.ceil(bitmap_height)))
+        bitmap = Image.new("1", (label_width_px, bitmap_height))
         bitmap.paste(
             payload_bitmap,
-            box=(round(horizontal_offset_px), round(self.labeler_vertical_margin_px)),
+            box=(horizontal_offset_px, self.label_margins_px.vertical),
         )
         meta = {
             "horizontal_offset_px": horizontal_offset_px,
-            "vertical_offset_px": self.labeler_vertical_margin_px,
+            "vertical_offset_px": self.label_margins_px.vertical,
         }
         return bitmap, meta

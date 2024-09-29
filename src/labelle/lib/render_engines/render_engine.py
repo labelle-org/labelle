@@ -18,5 +18,5 @@ class RenderEngine(ABC):
 
     def render_with_meta(
         self, context: RenderContext
-    ) -> tuple[Image.Image, dict[str, float] | None]:
+    ) -> tuple[Image.Image, dict[str, int] | None]:
         return self.render(context), None

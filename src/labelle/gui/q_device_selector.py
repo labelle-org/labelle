@@ -48,6 +48,7 @@ class QDeviceSelector(QToolBar):
         self._devices.currentIndexChanged.connect(self._index_changed)
 
     def repopulate(self) -> None:
+        """Update the device selector."""
         old_hashes = {device.hash for device in self.device_manager.devices}
         self._devices.clear()
         for idx, device in enumerate(self.device_manager.devices):

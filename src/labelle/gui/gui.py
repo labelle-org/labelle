@@ -116,10 +116,9 @@ class LabelleWindow(QWidget):
             justify=settings.justify,
         )
 
-        is_ready = self._dymo_labeler.is_ready
-        self._settings_toolbar.setEnabled(is_ready)
-        self._label_list.setEnabled(is_ready)
-        self._render_widget.setEnabled(is_ready)
+        self._settings_toolbar.setEnabled(True)
+        self._label_list.setEnabled(True)
+        self._render_widget.setEnabled(self._dymo_labeler.device is not None)
 
     def _update_preview_render(self, preview_bitmap: Image.Image) -> None:
         self._render.update_preview_render(preview_bitmap)

@@ -156,12 +156,14 @@ class QLabelList(QListWidget):
     def render_preview(self) -> None:
         assert self.dymo_labeler is not None
         assert self.render_context is not None
+        assert self.h_margin_mm is not None
+        assert self.min_label_width_mm is not None
         render_engine = PrintPreviewRenderEngine(
             render_engine=self._payload_render_engine,
             dymo_labeler=self.dymo_labeler,
             justify=self.justify,
             visible_horizontal_margin_px=self.dymo_labeler.mm_to_px(self.h_margin_mm),
-            labeler_margin_px=self.dymo_labeler.labeler_margin_px,
+            labeler_margin_px=self.dymo_labeler.get_labeler_margin_px(),
             max_width_px=None,
             min_width_px=self.dymo_labeler.mm_to_px(self.min_label_width_mm),
         )
@@ -176,11 +178,13 @@ class QLabelList(QListWidget):
     def render_print(self) -> None:
         assert self.dymo_labeler is not None
         assert self.render_context is not None
+        assert self.h_margin_mm is not None
+        assert self.min_label_width_mm is not None
         render_engine = PrintPayloadRenderEngine(
             render_engine=self._payload_render_engine,
             justify=self.justify,
             visible_horizontal_margin_px=self.dymo_labeler.mm_to_px(self.h_margin_mm),
-            labeler_margin_px=self.dymo_labeler.labeler_margin_px,
+            labeler_margin_px=self.dymo_labeler.get_labeler_margin_px(),
             max_width_px=None,
             min_width_px=self.dymo_labeler.mm_to_px(self.min_label_width_mm),
         )

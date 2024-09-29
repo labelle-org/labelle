@@ -98,7 +98,7 @@ class UsbDevice:
         return False
 
     @staticmethod
-    def supported_devices() -> set[UsbDevice]:
+    def find_supported_devices() -> set[UsbDevice]:
         return {
             UsbDevice(dev)
             for dev in usb.core.find(

@@ -6,6 +6,7 @@
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
 import logging
+import math
 from pathlib import Path
 from typing import List, NoReturn, Optional
 
@@ -53,12 +54,12 @@ from labelle.lib.render_engines import (
 LOG = logging.getLogger(__name__)
 
 
-def mm_to_payload_px(labeler: DymoLabeler, mm: float, margin: float) -> float:
+def mm_to_payload_px(labeler: DymoLabeler, mm: float, margin: int) -> int:
     """Convert a length in mm to a number of pixels of payload.
 
     Margin is subtracted from each side.
     """
-    return max(0, (mm * labeler.pixels_per_mm()) - margin * 2)
+    return max(0, math.ceil(mm * labeler.pixels_per_mm()) - margin * 2)
 
 
 def version_callback(value: bool) -> None:
@@ -96,7 +97,7 @@ def list_devices() -> NoReturn:
     console = Console()
     headers = ["Manufacturer", "Product", "Serial Number", "USB"]
     table = Table(*headers, show_header=True)
-    for device in device_manager.devices:
+    for device in device_manager.get_devices_from_last_scan():
         table.add_row(
             device.manufacturer, device.product, device.serial_number, device.usb_id
         )
@@ -220,7 +221,7 @@ def default(
         Optional[Path], typer.Option(help="Picture", rich_help_panel="Elements")
     ] = None,
     margin_px: Annotated[
-        float,
+        int,
         typer.Option(
             help="Horizontal margins [px]", rich_help_panel="Label Dimensions"
         ),
@@ -535,7 +536,7 @@ def default(
             render_engine=render_engine,
             justify=justify,
             visible_horizontal_margin_px=margin_px,
-            labeler_margin_px=dymo_labeler.labeler_margin_px,
+            labeler_margin_px=dymo_labeler.get_labeler_margin_px(),
             max_width_px=max_payload_len_px,
             min_width_px=min_payload_len_px,
         )
@@ -547,7 +548,7 @@ def default(
             dymo_labeler=dymo_labeler,
             justify=justify,
             visible_horizontal_margin_px=margin_px,
-            labeler_margin_px=dymo_labeler.labeler_margin_px,
+            labeler_margin_px=dymo_labeler.get_labeler_margin_px(),
             max_width_px=max_payload_len_px,
             min_width_px=min_payload_len_px,
         )
