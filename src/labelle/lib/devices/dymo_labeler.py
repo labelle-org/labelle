@@ -98,10 +98,7 @@ class DymoLabelerFunctions:
                 # Send a status request
                 cmdBin = array.array("B", [ESC, ord("A")])
                 cmdBin.tofile(self._devout)
-                # Increase buffer size to 16 bytes to prevent overflow
-                # on LabelManager 280
-                # https://libusb.sourceforge.io/api-1.0/libusb_packetoverflow.html
-                rspBin = self._devin.read(16)
+                rspBin = self._devin.read(512)
                 _ = array.array("B", rspBin).tolist()
                 # Ok, we got a response. Now we can send a chunk of data
 
@@ -132,7 +129,7 @@ class DymoLabelerFunctions:
         if not self._response:
             return None
         self._response = False
-        responseBin = self._devin.read(16)
+        responseBin = self._devin.read(512)
         response = array.array("B", responseBin).tolist()
         return response
 
