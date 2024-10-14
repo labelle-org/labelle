@@ -89,6 +89,9 @@ replacement = '<img src="https://raw.githubusercontent.com/labelle-org/labelle/m
 pattern = '\[(.*?)\]\(((?!https?://)\S+)\)'
 replacement = '[\1](https://github.com/labelle-org/labelle/tree/main/\g<2>)'
 
+[tool.pytest.ini_options]
+qt_api = "pyqt6"
+
 [tool.tox]
 legacy_tox_ini = """
 [tox]
