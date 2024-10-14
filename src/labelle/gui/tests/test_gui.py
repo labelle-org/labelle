@@ -1,10 +1,12 @@
+from pytestqt.qtbot import QtBot
+
 from labelle.gui.gui import LabelleWindow
 from labelle.gui.q_label_widgets import (
     TextDymoLabelWidget,
 )
 
 
-def test_main_window(qtbot):
+def test_main_window(qtbot: QtBot):
     widget = LabelleWindow()
     qtbot.addWidget(widget)
 
