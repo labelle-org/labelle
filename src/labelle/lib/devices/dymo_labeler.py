@@ -222,6 +222,8 @@ class DymoLabelerFunctions:
             self._raw_print_label(lines[0 : self._maxLines])
             del lines[0 : self._maxLines]
         self._raw_print_label(lines)
+        self._cut()
+        self._send_command()
 
     def _raw_print_label(self, lines: list[list[int]]):
         """Print the label described by lines (HLF)."""
@@ -240,7 +242,7 @@ class DymoLabeler:
 
     LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM = 8.1
     LABELER_PRINT_HEAD_HEIGHT_MM = 8.2
-    SUPPORTED_TAPE_SIZES_MM = (19, 12, 9, 6)
+    SUPPORTED_TAPE_SIZES_MM = (24, 19, 12, 9, 6)
     DEFAULT_TAPE_SIZE_MM = 12
 
     def __init__(
