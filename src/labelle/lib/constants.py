@@ -37,6 +37,7 @@ UNCONFIRMED_MESSAGE = (
 SUPPORTED_PRODUCTS = {
     0x0011: "DYMO LabelMANAGER PC",
     0x0015: "LabelPoint 350",
+    0x0016: f"Rhino 6000+ {UNCONFIRMED_MESSAGE}",
     0x1001: "LabelManager PnP (no mode switch)",
     0x1002: "LabelManager PnP (mode switch)",
     0x1003: f"LabelManager 420P (no mode switch) {UNCONFIRMED_MESSAGE}",
