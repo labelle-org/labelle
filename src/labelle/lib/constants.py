@@ -53,7 +53,7 @@ DEV_VENDOR = 0x0922
 PRINTER_INTERFACE_CLASS = 0x07
 HID_INTERFACE_CLASS = 0x03
 
-# Escape character preceeding all commands
+# Escape character preceding all commands
 ESC = 0x1B
 
 # Synchronization character preceding uncompressed print data
