@@ -246,9 +246,7 @@ class UsbDevice:
                 )
                 self._dev.detach_kernel_driver(intf.bInterfaceNumber)
         except NotImplementedError:
-            LOG.debug(
-                f"Kernel driver detaching not necessary on " f"{platform.system()}."
-            )
+            LOG.debug(f"Kernel driver detaching not necessary on {platform.system()}.")
         devout = usb.util.find_descriptor(
             intf,
             custom_match=(

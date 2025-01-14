@@ -326,8 +326,7 @@ class DymoLabeler:
         stream_row_length = int(math.ceil(bitmap.height / 8))
         if len(stream) // stream_row_length != bitmap.width:
             raise RuntimeError(
-                "An internal problem was encountered while processing the "
-                "label bitmap!"
+                "An internal problem was encountered while processing the label bitmap!"
             )
         label_rows: list[bytes] = [
             stream[i : i + stream_row_length]
