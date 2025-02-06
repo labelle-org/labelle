@@ -507,19 +507,27 @@ def default(
     if batch:
         accumulator: List[str] = []
         accumulator_type: str = "empty"
+        accumulator_options: List[str] = []
 
         def flush_all():
             nonlocal accumulator
             nonlocal accumulator_type
+            nonlocal accumulator_options
             if accumulator_type == "text":
                 render_text(accumulator)
             elif accumulator_type == "qr":
                 render_engines.append(
                     QrRenderEngine(qr_callback("\n".join(accumulator)))
                 )
+            elif accumulator_type == "barcode":
+                barcode_type: BarcodeType = BarcodeType(accumulator_options[0].lower()) if accumulator_options else DEFAULT_BARCODE_TYPE
+                render_engines.append(
+                    BarcodeRenderEngine("\n".join(accumulator), barcode_type)
+                )
 
             accumulator = []
             accumulator_type = "empty"
+            accumulator_options = []
 
         # Verify version
         line = sys.stdin.readline().strip()
@@ -532,18 +540,25 @@ def default(
             raise typer.Exit()
 
         for line in sys.stdin:
-            line = line.rstrip("\r\n")
-            parts = line.split(":", 1)
-            if parts[0] == "TEXT":
+            line: str = line.rstrip("\r\n")
+            settings, value = line.split(":", 1)
+            type, *options = settings.split("#", 1)
+
+            if type == "TEXT":
                 flush_all()
                 accumulator_type = "text"
-                accumulator.append(parts[1])
-            elif parts[0] == "QR":
+                accumulator.append(value)
+            elif type == "QR":
                 flush_all()
                 accumulator_type = "qr"
-                accumulator.append(parts[1])
-            elif parts[0] == "NEWLINE":
-                accumulator.append(parts[1])
+                accumulator.append(value)
+            elif type == "BARCODE":
+                flush_all()
+                accumulator_type = "barcode"
+                accumulator_options = options
+                accumulator.append(value)
+            elif type == "NEWLINE":
+                accumulator.append(value)
             else:
                 print("WARNING: invalid command", line)
         flush_all()
