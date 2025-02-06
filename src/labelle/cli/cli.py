@@ -520,7 +520,8 @@ def default(
                     QrRenderEngine(qr_callback("\n".join(accumulator)))
                 )
             elif accumulator_type == "barcode":
-                barcode_type: BarcodeType = BarcodeType(accumulator_options[0].lower()) if accumulator_options else DEFAULT_BARCODE_TYPE
+                barcode_type = BarcodeType(accumulator_options[0].lower()) \
+                    if accumulator_options else DEFAULT_BARCODE_TYPE
                 render_engines.append(
                     BarcodeRenderEngine("\n".join(accumulator), barcode_type)
                 )
@@ -542,22 +543,22 @@ def default(
         for line in sys.stdin:
             line: str = line.rstrip("\r\n")
             settings, value = line.split(":", 1)
-            type, *options = settings.split("#", 1)
+            setting, *options = settings.split("#", 1)
 
-            if type == "TEXT":
+            if setting == "TEXT":
                 flush_all()
                 accumulator_type = "text"
                 accumulator.append(value)
-            elif type == "QR":
+            elif setting == "QR":
                 flush_all()
                 accumulator_type = "qr"
                 accumulator.append(value)
-            elif type == "BARCODE":
+            elif setting == "BARCODE":
                 flush_all()
                 accumulator_type = "barcode"
                 accumulator_options = options
                 accumulator.append(value)
-            elif type == "NEWLINE":
+            elif setting == "NEWLINE":
                 accumulator.append(value)
             else:
                 print("WARNING: invalid command", line)
