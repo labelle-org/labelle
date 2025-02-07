@@ -520,8 +520,11 @@ def default(
                     QrRenderEngine(qr_callback("\n".join(accumulator)))
                 )
             elif accumulator_type == "barcode":
-                barcode_type = BarcodeType(accumulator_options[0].lower()) \
-                    if accumulator_options else DEFAULT_BARCODE_TYPE
+                barcode_type = (
+                    BarcodeType(accumulator_options[0].lower())
+                    if accumulator_options
+                    else DEFAULT_BARCODE_TYPE
+                )
                 render_engines.append(
                     BarcodeRenderEngine("\n".join(accumulator), barcode_type)
                 )
