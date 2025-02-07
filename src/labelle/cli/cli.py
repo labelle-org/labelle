@@ -507,22 +507,34 @@ def default(
     if batch:
         accumulator: List[str] = []
         accumulator_type: str = "empty"
+        accumulator_options: List[str] = []
 
         def flush_all():
             nonlocal accumulator
             nonlocal accumulator_type
+            nonlocal accumulator_options
             if accumulator_type == "text":
                 render_text(accumulator)
             elif accumulator_type == "qr":
                 render_engines.append(
                     QrRenderEngine(qr_callback("\n".join(accumulator)))
                 )
+            elif accumulator_type == "barcode":
+                barcode_type = (
+                    BarcodeType(accumulator_options[0].lower())
+                    if accumulator_options
+                    else DEFAULT_BARCODE_TYPE
+                )
+                render_engines.append(
+                    BarcodeRenderEngine("\n".join(accumulator), barcode_type)
+                )
 
             accumulator = []
             accumulator_type = "empty"
+            accumulator_options = []
 
         # Verify version
-        line = sys.stdin.readline().strip()
+        line: str = sys.stdin.readline().strip()
         parts = line.split(":", 1)
         if not (parts[0] == "LABELLE-LABEL-SPEC-VERSION" and parts[1] == "1"):
             err_console = Console(stderr=True)
@@ -533,17 +545,24 @@ def default(
 
         for line in sys.stdin:
             line = line.rstrip("\r\n")
-            parts = line.split(":", 1)
-            if parts[0] == "TEXT":
+            settings, value = line.split(":", 1)
+            setting, *options = settings.split("#", 1)
+
+            if setting == "TEXT":
                 flush_all()
                 accumulator_type = "text"
-                accumulator.append(parts[1])
-            elif parts[0] == "QR":
+                accumulator.append(value)
+            elif setting == "QR":
                 flush_all()
                 accumulator_type = "qr"
-                accumulator.append(parts[1])
-            elif parts[0] == "NEWLINE":
-                accumulator.append(parts[1])
+                accumulator.append(value)
+            elif setting == "BARCODE":
+                flush_all()
+                accumulator_type = "barcode"
+                accumulator_options = options
+                accumulator.append(value)
+            elif setting == "NEWLINE":
+                accumulator.append(value)
             else:
                 print("WARNING: invalid command", line)
         flush_all()

@@ -206,6 +206,8 @@ commands are:
 * `NEWLINE`: Adds an additional line to the current block of text or QR. Used to
   create multiline blocks.
 * `QR`: Creates a QR code block
+* `BARCODE`: Creates a barcode block. Optional: Can be preceded by #`TYPE`,
+  to generate a different barcode; default is CODE128, . e.g. `BARCODE#EAN:123456789012`
 
 For instance, this input:
 
@@ -213,7 +215,7 @@ For instance, this input:
 LABELLE-LABEL-SPEC-VERSION:1
 TEXT:FD12
 NEWLINE:2013
-QR:1234
+BARCODE:1234
 TEXT:BIG
 TEXT:LINE1
 NEWLINE:LINE2
@@ -223,7 +225,7 @@ QR:12345
 Creates a label with:
 
 * A 2-line text block (first line `FD12`, second line `2013`)
-* Then, a QR code for 1234
+* Then, a barcode code for 1234
 * Then, a line-line text block with the text `BIG`
 * Then, another 2-line text block
 * Finally, a QR code
