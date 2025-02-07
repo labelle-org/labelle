@@ -531,7 +531,7 @@ def default(
             accumulator_options = []
 
         # Verify version
-        line = sys.stdin.readline().strip()
+        line: str = sys.stdin.readline().strip()
         parts = line.split(":", 1)
         if not (parts[0] == "LABELLE-LABEL-SPEC-VERSION" and parts[1] == "1"):
             err_console = Console(stderr=True)
@@ -541,7 +541,7 @@ def default(
             raise typer.Exit()
 
         for line in sys.stdin:
-            line: str = line.rstrip("\r\n")
+            line = line.rstrip("\r\n")
             settings, value = line.split(":", 1)
             setting, *options = settings.split("#", 1)
 
