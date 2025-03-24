@@ -39,7 +39,7 @@ class PictureRenderEngine(RenderEngine):
             with Image.open(self.picture_path) as img:
                 if img.height > height_px:
                     ratio = height_px / img.height
-                    img = img.resize((int(math.ceil(img.width * ratio)), height_px))
+                    img = img.resize((math.ceil(img.width * ratio), height_px))
 
                 img = img.convert("L", palette=Image.AFFINE)
                 return ImageOps.invert(img).convert("1")

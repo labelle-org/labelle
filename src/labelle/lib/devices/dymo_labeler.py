@@ -323,7 +323,7 @@ class DymoLabeler:
         stream: bytes = rotated_bitmap.tobytes()
 
         # Regather the bytes into rows
-        stream_row_length = int(math.ceil(bitmap.height / 8))
+        stream_row_length = math.ceil(bitmap.height / 8)
         if len(stream) // stream_row_length != bitmap.width:
             raise RuntimeError(
                 "An internal problem was encountered while processing the label bitmap!"
