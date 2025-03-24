@@ -36,7 +36,7 @@ class TextRenderEngine(RenderEngine):
     def render(self, context: RenderContext) -> Image.Image:
         height_px = context.height_px
         line_height = float(height_px) / len(self.text_lines)
-        font_size_px = int(round(line_height * self.font_size_ratio))
+        font_size_px = round(line_height * self.font_size_ratio)
 
         font_offset_px = int((line_height - font_size_px) / 2)
         if self.frame_width_px:
