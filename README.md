@@ -103,6 +103,17 @@ You do not have sufficient access to the device. You probably want to add the a 
 
 <!-- markdownlint-enable MD013 -->
 
+## Interference from CUPS
+
+Sometimes, the CUPS printing system will attempt to communicate with the label
+maker, causing interference with Labelle.  This commonly causes overflow errors.
+If you don't otherwise have a USB printer, you can disable CUPS attempting this
+with:
+
+```bash
+sudo touch /etc/udev/rules.d/70-printers.rules
+```
+
 ## Testing experimental features
 
 To install a test branch, by GitHub user `ghuser` for the branch `branchname`, run
