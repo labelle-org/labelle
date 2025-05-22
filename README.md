@@ -182,7 +182,7 @@ If you want whitespaces just enclose in " "
 
 Just add a text after your qr or barcode text
 
-```labelle -qr "QR Content" "Cleartext printed"```
+```labelle --qr "QR Content" "Cleartext printed"```
 
 ### Picture printing
 
