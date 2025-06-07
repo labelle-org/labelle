@@ -240,7 +240,7 @@ class DymoLabeler:
 
     LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM = 8.1
     LABELER_PRINT_HEAD_HEIGHT_MM = 8.2
-    SUPPORTED_TAPE_SIZES_MM = (19, 12, 9, 6)
+    SUPPORTED_TAPE_SIZES_MM = (24, 19, 12, 9, 6)
     DEFAULT_TAPE_SIZE_MM = 12
 
     def __init__(
@@ -313,10 +313,19 @@ class DymoLabeler:
         The label bitmap is a PIL image in 1-bit format (mode=1), and pixels with value
         equal to 1 are burned.
         """
+
+        def mirror_byte(byte):
+            mirrored = 0
+            for i in range(8):
+                mirrored = (mirrored << 1) | (byte & 1)  # Shift mirrored left and add LSB of byte
+                byte >>= 1  # Shift byte right
+            return mirrored
+
         # Convert the image to the proper matrix for the dymo labeler object so that
         # rows span the width of the label, and the first row corresponds to the left
         # edge of the label.
         rotated_bitmap = bitmap.transpose(Image.Transpose.ROTATE_270)
+        rotated_bitmap = rotated_bitmap.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
 
         # Convert the image to raw bytes. Pixels along rows are chunked into groups of
         # 8 pixels, and subsequent rows are concatenated.
@@ -329,7 +338,7 @@ class DymoLabeler:
                 "An internal problem was encountered while processing the label bitmap!"
             )
         label_rows: list[bytes] = [
-            stream[i : i + stream_row_length]
+            bytes(mirror_byte(b) for b in stream[i: i + stream_row_length])
             for i in range(0, len(stream), stream_row_length)
         ]
 
