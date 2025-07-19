@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import array
 import logging
 import platform
 from textwrap import dedent
@@ -9,10 +10,13 @@ import usb
 
 from labelle.lib.constants import (
     DEV_VENDOR,
+    ESC,
     HID_INTERFACE_CLASS,
     PRINTER_INTERFACE_CLASS,
     SUPPORTED_PRODUCTS,
+    SYN,
 )
+from labelle.lib.devices.device import Device
 
 LOG = logging.getLogger(__name__)
 GITHUB_ISSUE_MAC = "<https://github.com/labelle-org/labelle/issues/5>"
@@ -23,7 +27,7 @@ class UsbDeviceError(RuntimeError):
     pass
 
 
-class UsbDevice:
+class UsbDevice(Device):
     _dev: usb.core.Device
     _intf: usb.core.Interface | None
     _devin: usb.core.Endpoint | None
@@ -81,6 +85,10 @@ class UsbDevice:
         address = self._get_dev_attribute("address")
         return f"Bus {bus:03} Device {address:03}: ID {self.vendor_product_id}"
 
+    @property
+    def connection_id(self) -> str:
+        return self.usb_id
+
     @staticmethod
     def _is_supported_vendor(dev: usb.core.Device) -> bool:
         return dev.idVendor == DEV_VENDOR
@@ -92,14 +100,14 @@ class UsbDevice:
             and self.id_product in SUPPORTED_PRODUCTS
         )
 
-    @staticmethod
-    def supported_devices() -> set[UsbDevice]:
-        return {
-            UsbDevice(dev)
-            for dev in usb.core.find(
-                find_all=True, custom_match=UsbDevice._is_supported_vendor
-            )
-        }
+    @classmethod
+    def supported_devices(cls) -> set[Device]:
+        usb_devices = usb.core.find(
+            find_all=True, custom_match=UsbDevice._is_supported_vendor
+        )
+        if not usb_devices:
+            usb_devices = []
+        return {UsbDevice(dev) for dev in usb_devices if type(dev) is usb.core.Device}
 
     @property
     def device_info(self) -> str:
@@ -288,9 +296,58 @@ class UsbDevice:
         return match
 
     @property
-    def devin(self):
+    def devin(self) -> usb.Endpoint:
         return self._devin
 
     @property
-    def devout(self):
+    def devout(self) -> usb.Endpoint:
         return self._devout
+
+    def execute_command(
+        self, cmd: list[int], synwait: int | None = None, response: bool = False
+    ) -> list[int] | None:
+        """Send the already built command to the LabelManager (MLF)."""
+        if len(cmd) == 0:
+            return None
+
+        while len(cmd) > 0:
+            if synwait is None:
+                cmd_to_send: list[int] = self._cmd
+                cmd_rest = []
+            else:
+                # Send a status request
+                cmdBin = array.array("B", [ESC, ord("A")])
+                cmdBin.tofile(self.devout)
+                rspBin = self.devin.read(512)
+                _ = array.array("B", rspBin).tolist()
+                # Ok, we got a response. Now we can send a chunk of data
+
+                # Compute a chunk with at most synwait SYN characters
+                synCount = 0  # Number of SYN characters encountered in iteration
+                pos = -1  # Index of last SYN character encountered in iteration
+                while synCount < synwait:
+                    try:
+                        # Increment pos to the index of the next SYN character
+                        pos += cmd[pos + 1 :].index(SYN) + 1
+                        synCount += 1
+                    except ValueError:
+                        # No more SYN characters in cmd
+                        pos = len(cmd)
+                        break
+                cmd_to_send = cmd[:pos]
+                cmd_rest = cmd[pos:]
+                LOG.debug(f"Sending chunk of {len(cmd_to_send)} bytes")
+
+            # Remove the computed chunk from the command to be processed
+            cmd = cmd_rest
+
+            # Send the chunk
+            cmdBin = array.array("B", cmd_to_send)
+            cmdBin.tofile(self.devout)
+
+        self._cmd: list[int] = []  # This looks redundant.
+        if not response:
+            return None
+        responseBin = self.devin.read(512)
+        responseList = array.array("B", responseBin).tolist()
+        return responseList
