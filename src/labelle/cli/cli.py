@@ -100,7 +100,10 @@ def list_devices() -> NoReturn:
     table = Table(*headers, show_header=True)
     for device in device_manager.devices:
         table.add_row(
-            device.manufacturer, device.product, device.serial_number, device.usb_id
+            device.manufacturer,
+            device.product,
+            device.serial_number,
+            device.connection_id,
         )
     console.print(table)
     raise typer.Exit()

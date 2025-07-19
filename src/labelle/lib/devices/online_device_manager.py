@@ -7,8 +7,8 @@ from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QWidget
 from usb.core import NoBackendError, USBError
 
+from labelle.lib.devices.device import Device
 from labelle.lib.devices.device_manager import DeviceManager, DeviceManagerError
-from labelle.lib.devices.usb_device import UsbDevice
 
 LOG = logging.getLogger(__name__)
 POSSIBLE_USB_ERRORS = (NoBackendError, USBError)
@@ -54,5 +54,5 @@ class OnlineDeviceManager(QWidget):
         return self._last_scan_error
 
     @property
-    def devices(self) -> list[UsbDevice]:
+    def devices(self) -> list[Device]:
         return self._device_manager.devices

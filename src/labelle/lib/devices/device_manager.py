@@ -8,10 +8,11 @@ from labelle.lib.constants import (
     SUPPORTED_PRODUCTS,
     UNCONFIRMED_MESSAGE,
 )
+from labelle.lib.devices.device import Device
 from labelle.lib.devices.usb_device import UsbDevice
 
 LOG = logging.getLogger(__name__)
-POSSIBLE_USB_ERRORS = (NoBackendError, USBError)
+POSSIBLE_DEVICE_ERRORS = (NoBackendError, USBError)
 
 
 class DeviceManagerError(RuntimeError):
@@ -23,7 +24,7 @@ class DeviceManagerNoDevices(DeviceManagerError):
 
 
 class DeviceManager:
-    _devices: dict[str, UsbDevice]
+    _devices: dict[str, Device]
 
     def __init__(self) -> None:
         self._devices = {}
@@ -31,8 +32,8 @@ class DeviceManager:
     def scan(self) -> bool:
         prev = self._devices
         try:
-            cur = {dev.hash: dev for dev in UsbDevice.supported_devices() if dev.hash}
-        except POSSIBLE_USB_ERRORS as e:
+            cur = {dev.hash: dev for dev in Device.supported_devices() if dev.hash}
+        except POSSIBLE_DEVICE_ERRORS as e:
             self._devices.clear()
             raise DeviceManagerError(f"Failed scanning devices: {e}") from e
         if len(cur) == 0:
@@ -51,22 +52,22 @@ class DeviceManager:
         return changed
 
     @property
-    def devices(self) -> list[UsbDevice]:
+    def devices(self) -> list[Device]:
         try:
             return sorted(self._devices.values(), key=lambda dev: dev.hash)
-        except POSSIBLE_USB_ERRORS:
+        except POSSIBLE_DEVICE_ERRORS:
             return []
 
-    def matching_devices(self, patterns: list[str] | None) -> list[UsbDevice]:
+    def matching_devices(self, patterns: list[str] | None) -> list[Device]:
         try:
             matching = filter(
                 lambda dev: dev.is_match(patterns), self._devices.values()
             )
             return sorted(matching, key=lambda dev: dev.hash)
-        except POSSIBLE_USB_ERRORS:
+        except POSSIBLE_DEVICE_ERRORS:
             return []
 
-    def find_and_select_device(self, patterns: list[str] | None = None) -> UsbDevice:
+    def find_and_select_device(self, patterns: list[str] | None = None) -> Device:
         devices = [
             device for device in self.matching_devices(patterns) if device.is_supported
         ]
@@ -79,9 +80,13 @@ class DeviceManager:
         for dev in devices:
             LOG.debug(dev.device_info)
         dev = devices[0]
-        if dev.is_supported:
+        if dev.is_supported and type(dev) is UsbDevice:
             msg = f"Recognized device as {SUPPORTED_PRODUCTS[dev.id_product]}"
-        else:
+        elif dev.is_supported:
+            msg = f"Recognized device as {dev.product}"
+        elif type(dev) is UsbDevice:
             msg = f"Unrecognized device: {hex(dev.id_product)}. {UNCONFIRMED_MESSAGE}"
+        else:
+            msg = f"Unrecognized device: {dev.product}"
         LOG.debug(msg)
         return dev

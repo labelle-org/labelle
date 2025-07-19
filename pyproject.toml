@@ -23,6 +23,8 @@ dependencies = [
     "PyQt6",
     "darkdetect",
     "typer",
+    "bleak",
+    "numpy",
 ]
 classifiers = [
     "Operating System :: POSIX :: Linux",

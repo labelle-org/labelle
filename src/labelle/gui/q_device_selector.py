@@ -9,15 +9,15 @@ from PyQt6.QtWidgets import (
     QToolBar,
 )
 
+from labelle.lib.devices.device import Device
 from labelle.lib.devices.online_device_manager import OnlineDeviceManager
-from labelle.lib.devices.usb_device import UsbDevice
 
 LOG = logging.getLogger(__name__)
 
 
 class QDeviceSelector(QToolBar):
     _device_manager: OnlineDeviceManager
-    _selected_device: UsbDevice | None
+    _selected_device: Device | None
 
     selectedDeviceChangedSignal = QtCore.pyqtSignal(name="selectedDeviceChangedSignal")
 
@@ -89,7 +89,7 @@ class QDeviceSelector(QToolBar):
         self._action_error_label = self.addWidget(self._error_label)
 
     @property
-    def selected_device(self) -> UsbDevice | None:
+    def selected_device(self) -> Device | None:
         device = None
         if self._devices.currentIndex() >= 0:
             device = self.device_manager.devices[self._devices.currentIndex()]

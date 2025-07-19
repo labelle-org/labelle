@@ -11,16 +11,19 @@ import array
 import logging
 import math
 
-import usb
+import numpy as np
 from PIL import Image
 from usb.core import NoBackendError, USBError
 
 from labelle.lib.constants import ESC, SYN
+from labelle.lib.devices.ble_device import BleDevice, BleDeviceError
+from labelle.lib.devices.device import Device, DeviceError
 from labelle.lib.devices.usb_device import UsbDevice, UsbDeviceError
 from labelle.lib.utils import mm_to_px
 
 LOG = logging.getLogger(__name__)
 POSSIBLE_USB_ERRORS = (UsbDeviceError, NoBackendError, USBError)
+POSSIBLE_BLE_ERRORS = BleDeviceError
 
 
 class DymoLabelerDetectError(Exception):
@@ -58,13 +61,11 @@ class DymoLabelerFunctions:
     # sensible timeout can also be calculated dynamically.
     _synwait: int | None
     _bytesPerLine: int | None
-    _devout: usb.core.Endpoint
-    _devin: usb.core.Endpoint
+    _device: Device
 
     def __init__(
         self,
-        devout: usb.core.Endpoint,
-        devin: usb.core.Endpoint,
+        device: Device,
         synwait: int | None = None,
     ):
         """Initialize the LabelManager object (HLF)."""
@@ -73,8 +74,7 @@ class DymoLabelerFunctions:
         self._bytesPerLine = None
         self._dotTab = 0
         self._maxLines = 200
-        self._devout = devout
-        self._devin = devin
+        self._device = device
         self._synwait = synwait
 
     @classmethod
@@ -86,52 +86,7 @@ class DymoLabelerFunctions:
         return cls._max_bytes_per_line(tape_size_mm) * 8
 
     def _send_command(self):
-        """Send the already built command to the LabelManager (MLF)."""
-        if len(self._cmd) == 0:
-            return None
-
-        while len(self._cmd) > 0:
-            if self._synwait is None:
-                cmd_to_send = self._cmd
-                cmd_rest = []
-            else:
-                # Send a status request
-                cmdBin = array.array("B", [ESC, ord("A")])
-                cmdBin.tofile(self._devout)
-                rspBin = self._devin.read(512)
-                _ = array.array("B", rspBin).tolist()
-                # Ok, we got a response. Now we can send a chunk of data
-
-                # Compute a chunk with at most synwait SYN characters
-                synCount = 0  # Number of SYN characters encountered in iteration
-                pos = -1  # Index of last SYN character encountered in iteration
-                while synCount < self._synwait:
-                    try:
-                        # Increment pos to the index of the next SYN character
-                        pos += self._cmd[pos + 1 :].index(SYN) + 1
-                        synCount += 1
-                    except ValueError:
-                        # No more SYN characters in cmd
-                        pos = len(self._cmd)
-                        break
-                cmd_to_send = self._cmd[:pos]
-                cmd_rest = self._cmd[pos:]
-                LOG.debug(f"Sending chunk of {len(cmd_to_send)} bytes")
-
-            # Remove the computed chunk from the command to be processed
-            self._cmd = cmd_rest
-
-            # Send the chunk
-            cmdBin = array.array("B", cmd_to_send)
-            cmdBin.tofile(self._devout)
-
-        self._cmd = []  # This looks redundant.
-        if not self._response:
-            return None
-        self._response = False
-        responseBin = self._devin.read(512)
-        response = array.array("B", responseBin).tolist()
-        return response
+        return self._device.execute_command(self._cmd, self._synwait, self._response)
 
     def _reset_command(self) -> None:
         """Remove a partially built command (MLF)."""
@@ -183,6 +138,27 @@ class DymoLabelerFunctions:
         cmd = [SYN, *value]
         self._build_command(cmd)
 
+    def _ble_print_data(self, lines: list[int], width: int, height: int) -> None:
+        assert height * width == len(lines) * 8
+        cmd = [
+            ESC,
+            ord("D"),
+            1,
+            2,  # Seems to be ignored?
+            *width.to_bytes(4, byteorder="little"),
+            *height.to_bytes(4, byteorder="little"),
+            *lines,
+        ]
+        self._build_command(cmd)
+
+    def _start(self) -> None:
+        cmd = [ESC, ord("s"), 0x9A, 2, 0, 0]
+        self._build_command(cmd)
+
+    def _end(self) -> None:
+        cmd = [ESC, ord("Q")]
+        self._build_command(cmd)
+
     def _chain_mark(self, tape_size_mm: int) -> None:
         """Set Chain Mark (MLF)."""
         self._dot_tab(0, tape_size_mm)
@@ -223,6 +199,15 @@ class DymoLabelerFunctions:
             del lines[0 : self._maxLines]
         self._raw_print_label(lines)
 
+    def _ble_print(self, lines: list[int], width: int, height: int) -> None:
+        self._start()
+        self._ble_print_data(lines, width, height)
+        # self._cut()
+        self._status_request()
+        self._end()
+        status = self._send_command()
+        LOG.debug(f"Post-send response: {status}")
+
     def _raw_print_label(self, lines: list[list[int]]):
         """Print the label described by lines (HLF)."""
         # Here used to be a matrix optimization code that caused problems in issue #87
@@ -235,7 +220,7 @@ class DymoLabelerFunctions:
 
 
 class DymoLabeler:
-    _device: UsbDevice | None
+    _device: Device | None
     tape_size_mm: int
 
     LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM = 8.1
@@ -246,7 +231,7 @@ class DymoLabeler:
     def __init__(
         self,
         tape_size_mm: int | None = None,
-        device: UsbDevice | None = None,
+        device: Device | None = None,
     ):
         if tape_size_mm is None:
             tape_size_mm = self.DEFAULT_TAPE_SIZE_MM
@@ -266,8 +251,7 @@ class DymoLabeler:
     def _functions(self) -> DymoLabelerFunctions:
         assert self._device is not None
         return DymoLabelerFunctions(
-            devout=self._device.devout,
-            devin=self._device.devin,
+            device=self._device,
             synwait=64,
         )
 
@@ -287,15 +271,15 @@ class DymoLabeler:
         )
 
     @property
-    def device(self) -> UsbDevice | None:
+    def device(self) -> Device | None:
         return self._device
 
     @device.setter
-    def device(self, device: UsbDevice | None):
+    def device(self, device: Device | None):
         try:
             if device:
                 device.setup()
-        except UsbDeviceError as e:
+        except DeviceError as e:
             device = None
             LOG.error(e)
         self._device = device
@@ -313,37 +297,60 @@ class DymoLabeler:
         The label bitmap is a PIL image in 1-bit format (mode=1), and pixels with value
         equal to 1 are burned.
         """
-        # Convert the image to the proper matrix for the dymo labeler object so that
-        # rows span the width of the label, and the first row corresponds to the left
-        # edge of the label.
-        rotated_bitmap = bitmap.transpose(Image.Transpose.ROTATE_270)
+        if type(self.device) is UsbDevice:
+            # Convert the image to the proper matrix for the dymo labeler object so that
+            # rows span the width of the label, and the first row corresponds to the
+            # left edge of the label.
 
-        # Convert the image to raw bytes. Pixels along rows are chunked into groups of
-        # 8 pixels, and subsequent rows are concatenated.
-        stream: bytes = rotated_bitmap.tobytes()
+            rotated_bitmap = bitmap.transpose(Image.Transpose.ROTATE_270)
 
-        # Regather the bytes into rows
-        stream_row_length = math.ceil(bitmap.height / 8)
-        if len(stream) // stream_row_length != bitmap.width:
-            raise RuntimeError(
-                "An internal problem was encountered while processing the label bitmap!"
-            )
-        label_rows: list[bytes] = [
-            stream[i : i + stream_row_length]
-            for i in range(0, len(stream), stream_row_length)
-        ]
+            # Convert the image to raw bytes. Pixels along rows are chunked into groups
+            # of 8 pixels, and subsequent rows are concatenated.
+            stream: bytes = rotated_bitmap.tobytes()
 
-        # Convert bytes into ints
-        label_matrix: list[list[int]] = [
-            array.array("B", label_row).tolist() for label_row in label_rows
-        ]
+            # Regather the bytes into rows
+            stream_row_length = math.ceil(bitmap.height / 8)
+            if len(stream) // stream_row_length != bitmap.width:
+                raise RuntimeError(
+                    "An internal problem was encountered while processing"
+                    + "the label bitmap!"
+                )
+            label_rows: list[bytes] = [
+                stream[i : i + stream_row_length]
+                for i in range(0, len(stream), stream_row_length)
+            ]
 
-        try:
-            LOG.debug("Printing label..")
-            self._functions.print_label(label_matrix)
-            LOG.debug("Done printing.")
-            if self._device is not None:
-                self._device.dispose()
-            LOG.debug("Cleaned up.")
-        except POSSIBLE_USB_ERRORS as e:
-            raise DymoLabelerPrintError(str(e)) from e
+            # Convert bytes into ints
+            label_matrix: list[list[int]] = [
+                array.array("B", label_row).tolist() for label_row in label_rows
+            ]
+
+            try:
+                LOG.debug("Printing label..")
+                self._functions.print_label(label_matrix)
+                LOG.debug("Done printing.")
+                if self._device is not None:
+                    self._device.dispose()
+                LOG.debug("Cleaned up.")
+            except POSSIBLE_USB_ERRORS as e:
+                raise DymoLabelerPrintError(str(e)) from e
+        elif type(self.device) is BleDevice:
+            # bitmap = bitmap.convert("1", dither=Image.Dither.NONE)
+            # rotated_bitmap = bitmap.rotate(-90, expand=1)
+            rotated_bitmap = bitmap.transpose(Image.Transpose.ROTATE_270)
+            height = 32  # TODO: Make this part of the config
+            width = int(64 * (rotated_bitmap.height / rotated_bitmap.width))
+            rotated_bitmap = rotated_bitmap.resize((height, width))
+            data = np.packbits(
+                np.array(rotated_bitmap.getdata()),
+                bitorder="little",
+            ).tolist()
+            try:
+                LOG.debug("Printing label..")
+                self._functions._ble_print(data, width, height)
+                LOG.debug("Done printing.")
+                if self._device is not None:
+                    self._device.dispose()
+                LOG.debug("Cleaned up.")
+            except POSSIBLE_BLE_ERRORS as e:
+                raise DymoLabelerPrintError(str(e)) from e
