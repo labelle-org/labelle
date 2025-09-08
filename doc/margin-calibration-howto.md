@@ -14,8 +14,8 @@ to contribute; we are happy to help you interpret the results. Please see
 [submitting calibration data](#submitting-calibration-data) for a detailed summary
 of the process.
 
-We track the status of supported devices
-[here](https://github.com/labelle-org/labelle/issues/4).
+We track the status of supported devices in
+[this issue](https://github.com/labelle-org/labelle/issues/4).
 
 ## General information
 
@@ -66,7 +66,7 @@ and have a 64 pixel print head with a 9mm printable height.
 The LabelManager PC II has a 128 pixel print head with an 18mm printable height.
 This makes it practical for use with the larger 19mm and 24mm D1 tapes.
 An unofficial list of DYMO printers and compatible tape sizes
-can be found [here](https://www.labelcity.com/dymo-d1-label-tape-compatibility-guide).
+can be found in this [tape compatibility guide](https://www.labelcity.com/dymo-d1-label-tape-compatibility-guide).
 
 When the tape is shorter than the printable height, the tape occupies
 some range of pixels near the middle of the print head.
