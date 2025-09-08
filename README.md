@@ -154,8 +154,8 @@ It is also possible to Download a font from
 
 For font discovery, Labelle contains code excerpts from
 [`matplotlib`](https://github.com/matplotlib/matplotlib/).
-See [here](vendoring/README.md) for more information and
-[LICENSE](src/labelle/_vendor/matplotlib/LICENSE) for the license.
+See the [corresponding README](vendoring/README.md) for more information and the
+[LICENSE](src/labelle/_vendor/matplotlib/LICENSE).
 
 Labelle includes the Carlito font, licensed under the
 [SIL Open Font License](src/labelle/resources/fonts/LICENSE).
