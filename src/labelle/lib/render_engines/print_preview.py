@@ -4,10 +4,10 @@ from darkdetect import isDark
 from PIL import Image, ImageColor, ImageDraw, ImageOps
 
 from labelle.lib.constants import Direction
+from labelle.lib.devices.dymo_labeler import DymoLabeler
 from labelle.lib.render_engines.margins import MarginsRenderEngine
 from labelle.lib.render_engines.render_context import RenderContext
 from labelle.lib.render_engines.render_engine import RenderEngine
-from labelle.lib.utils import px_to_mm
 
 
 class PrintPreviewRenderEngine(RenderEngine):
@@ -15,10 +15,12 @@ class PrintPreviewRenderEngine(RenderEngine):
     Y_MARGIN_PX = 30
     DX = X_MARGIN_PX * 0.3
     DY = Y_MARGIN_PX * 0.3
+    dymo_labeler: DymoLabeler
 
     def __init__(
         self,
         render_engine: RenderEngine,
+        dymo_labeler: DymoLabeler,
         justify: Direction = Direction.CENTER,
         visible_horizontal_margin_px: float = 0,
         labeler_margin_px: tuple[float, float] = (0, 0),
@@ -26,6 +28,7 @@ class PrintPreviewRenderEngine(RenderEngine):
         min_width_px: float = 0,
     ):
         super().__init__()
+        self.dymo_labeler = dymo_labeler
         self.render_engine = MarginsRenderEngine(
             render_engine=render_engine,
             mode="preview",
@@ -166,28 +169,28 @@ class PrintPreviewRenderEngine(RenderEngine):
             # payload width
             {
                 "xy": (self.X_MARGIN_PX + label_width / 2, preview_width_mark_y),
-                "text": f"{px_to_mm(label_width - x_margin * 2)} mm",
+                "text": f"{self.dymo_labeler.px_to_mm(label_width - x_margin * 2)} mm",
                 "anchor": "mm",
                 "align": "center",
             },
             # label width
             {
                 "xy": (self.X_MARGIN_PX + label_width / 2, label_width_mark_y),
-                "text": f"{px_to_mm(label_width)} mm",
+                "text": f"{self.dymo_labeler.px_to_mm(label_width)} mm",
                 "anchor": "mm",
                 "align": "center",
             },
             # payload height
             {
                 "xy": (preview_width_mark_x, self.DY + label_height / 2 - self.DY),
-                "text": f"{px_to_mm(label_height - y_margin * 2)} mm",
+                "text": f"{self.dymo_labeler.px_to_mm(label_height - y_margin * 2)} mm",
                 "anchor": "mm",
                 "align": "center",
             },
             # label height
             {
                 "xy": (label_width_mark_x, self.DY + label_height / 2 + self.DY),
-                "text": f"{px_to_mm(label_height)} mm",
+                "text": f"{self.dymo_labeler.px_to_mm(label_height)} mm",
                 "anchor": "mm",
                 "align": "center",
             },

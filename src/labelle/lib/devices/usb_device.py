@@ -87,10 +87,15 @@ class UsbDevice:
 
     @property
     def is_supported(self) -> bool:
-        return (
-            self._is_supported_vendor(self._dev)
-            and self.id_product in SUPPORTED_PRODUCTS
-        )
+        # If vendor matches
+        if self._is_supported_vendor(self._dev) is True:
+            # if one item in our supported products matches the device id
+            for device in SUPPORTED_PRODUCTS:
+                if device.matches_device_id(self.id_product) is True:
+                    return True
+
+        # no matches found
+        return False
 
     @staticmethod
     def supported_devices() -> set[UsbDevice]:
