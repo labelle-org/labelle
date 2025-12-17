@@ -36,6 +36,7 @@ UNCONFIRMED_MESSAGE = (
 )
 SUPPORTED_PRODUCTS = {
     0x0011: "DYMO LabelMANAGER PC",
+    0x001c: "DYMO LabelMANAGER PC II",
     0x0015: "LabelPoint 350",
     0x1001: "LabelManager PnP (no mode switch)",
     0x1002: "LabelManager PnP (mode switch)",
