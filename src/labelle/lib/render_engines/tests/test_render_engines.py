@@ -130,9 +130,8 @@ def test_barcode_render_engine_internal_error():
     )
     with pytest.raises(BarcodeRenderError) as exc_info:
         render_engine.render(RENDER_CONTEXT)
-    assert (
-        str(exc_info.value) == "Barcode render error: IllegalCharacterError("
-        "'EAN code can only contain numbers.')"
+    assert str(exc_info.value).startswith(
+        "Barcode render error: IllegalCharacterError('EAN code can only contain numbers"
     )
 
 

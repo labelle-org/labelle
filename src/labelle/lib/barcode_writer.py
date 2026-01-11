@@ -14,6 +14,10 @@ BinaryString = NewType("BinaryString", str)
 """A string that's been validated to contain only '0's and '1's."""
 
 
+def _noop() -> None:
+    pass
+
+
 def _validate_string_as_binary(s: str) -> BinaryString:
     if not all(c in ("0", "1") for c in s):
         raise ValueError("Barcode can only contain 0 and 1")
@@ -26,6 +30,15 @@ class BarcodeResult(NamedTuple):
 
 
 class SimpleBarcodeWriter(BaseWriter):
+    def __init__(self) -> None:
+        # Pass dummy values because we re-implement the `render` method anyway
+        super().__init__(
+            initialize=None,
+            paint_module=_noop,
+            paint_text=None,
+            finish=_noop,
+        )
+
     def render(self, code: List[str]) -> BarcodeResult:
         """Extract the barcode string from the code and render it into an image."""
         if len(code) != 1:
