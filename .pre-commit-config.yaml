@@ -20,19 +20,19 @@ repos:
     args: ['--fix=lf']
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.12.12
+  rev: v0.14.11
   hooks:
   - id: ruff
     args: [--fix, --unsafe-fixes, --exit-non-zero-on-fix]
   - id: ruff-format
 
 - repo: https://gitlab.com/bmares/check-json5
-  rev: v1.0.0
+  rev: v1.0.1
   hooks:
   - id: check-json5
 
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.17.1
+  rev: v1.19.1
   hooks:
   - id: mypy
     additional_dependencies:
@@ -48,6 +48,6 @@ repos:
     - types-pygments
 
 - repo: https://github.com/igorshubovych/markdownlint-cli
-  rev: v0.45.0
+  rev: v0.47.0
   hooks:
   - id: markdownlint
