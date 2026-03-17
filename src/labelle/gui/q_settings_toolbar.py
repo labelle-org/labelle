@@ -57,7 +57,7 @@ class QSettingsToolbar(QToolBar):
 
     def update_labeler_context(
         self,
-        supported_tape_sizes: tuple[int, ...],
+        supported_tape_sizes: list[int],
         installed_tape_size: int,
         minimum_horizontal_margin_mm: float,
     ) -> None:

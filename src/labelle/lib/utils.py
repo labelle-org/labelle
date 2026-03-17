@@ -7,13 +7,11 @@
 # === END LICENSE STATEMENT ===
 import contextlib
 import logging
-import math
 import sys
 from typing import Generator, List, Tuple
 
 from PIL import ImageDraw
 
-from labelle.lib.constants import PIXELS_PER_MM
 from labelle.lib.logger import print_exception
 
 LOG = logging.getLogger(__name__)
@@ -32,16 +30,6 @@ def draw_image(bitmap) -> Generator[ImageDraw.ImageDraw, None, None]:
         yield drawobj
     finally:
         del drawobj
-
-
-def px_to_mm(px) -> float:
-    mm = px / PIXELS_PER_MM
-    # Round up to nearest 0.1mm
-    return math.ceil(mm * 10) / 10
-
-
-def mm_to_px(mm) -> float:
-    return mm * PIXELS_PER_MM
 
 
 @contextlib.contextmanager
