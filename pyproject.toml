@@ -181,7 +181,6 @@ drop = [
 line-length = 88
 extend-exclude = ["_vendor"]
 src = ["src"]
-target-version = "py38"
 
 [tool.ruff.lint]
 select = [
