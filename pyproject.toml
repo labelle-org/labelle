@@ -16,7 +16,7 @@ license = "Apache-2.0"
 license-file = "LICENSE"
 dependencies = [
     "platformdirs",
-    "Pillow>=8.1.2,<11",
+    "Pillow>=12.2.0,<13",
     "PyQRCode>=1.2.1,<2",
     "python-barcode>=0.13.1",
     "pyusb",
