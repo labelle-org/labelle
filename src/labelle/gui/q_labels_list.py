@@ -1,5 +1,4 @@
 import logging
-from typing import List, Optional
 
 from PIL import Image
 from PyQt6 import QtCore
@@ -74,10 +73,10 @@ class QLabelList(QListWidget):
     renderPrintPayloadSignal = QtCore.pyqtSignal(
         Image.Image, name="renderPrintPayloadSignal"
     )
-    render_context: Optional[RenderContext]
-    dymo_labeler: Optional[DymoLabeler]
+    render_context: RenderContext | None
+    dymo_labeler: DymoLabeler | None
     h_margin_mm: float
-    min_label_width_mm: Optional[float]
+    min_label_width_mm: float | None
     justify: Direction
 
     def __init__(self, parent=None):
@@ -142,7 +141,7 @@ class QLabelList(QListWidget):
 
     @property
     def _payload_render_engine(self):
-        render_engines: List[RenderEngine] = []
+        render_engines: list[RenderEngine] = []
         for i in range(self.count()):
             item = self.item(i)
             item_widget = self.itemWidget(self.item(i))
@@ -206,11 +205,11 @@ class QLabelList(QListWidget):
         """
         assert self.render_context is not None
         contextMenu = QMenu(self)
-        add_text: Optional[QAction] = contextMenu.addAction("Add Text")
-        add_qr: Optional[QAction] = contextMenu.addAction("Add QR")
-        add_barcode: Optional[QAction] = contextMenu.addAction("Add Barcode")
-        add_img: Optional[QAction] = contextMenu.addAction("Add Image")
-        delete: Optional[QAction] = contextMenu.addAction("Delete")
+        add_text: QAction | None = contextMenu.addAction("Add Text")
+        add_qr: QAction | None = contextMenu.addAction("Add QR")
+        add_barcode: QAction | None = contextMenu.addAction("Add Barcode")
+        add_img: QAction | None = contextMenu.addAction("Add Image")
+        delete: QAction | None = contextMenu.addAction("Delete")
         menu_click = contextMenu.exec(event.globalPos())
 
         if menu_click == add_text:

@@ -6,7 +6,6 @@
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
 
-from typing import List, Tuple, Union
 
 from PIL import Image, ImageDraw
 
@@ -17,7 +16,7 @@ def _mm2px(mm: float, dpi: float = 25.4) -> float:
     return (mm * dpi) / 25.4
 
 
-def _list_of_runs(line: BinaryString) -> List[int]:
+def _list_of_runs(line: BinaryString) -> list[int]:
     # Pack line to list give better gfx result, otherwise in can
     # result in aliasing gaps
     # '11010111' -> [2, -1, 1, -1, 3]
@@ -43,7 +42,7 @@ def _calculate_size(
     module_height: float,
     vertical_margin: float,
     dpi: float = 25.4,
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     width = 2 * quiet_zone + modules_per_line * module_width
     height = vertical_margin * 2 + module_height
     return int(_mm2px(width, dpi)), int(_mm2px(height, dpi))
@@ -99,7 +98,7 @@ def _paint_module(
     xpos: float,
     ypos: float,
     width: float,
-    color: Union[int, str],
+    color: int | str,
     dpi: float,
     module_height: float,
     draw: ImageDraw.ImageDraw,

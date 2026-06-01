@@ -1,7 +1,6 @@
 import logging
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional
 
 import labelle.resources.fonts
 from labelle._vendor.matplotlib import font_manager
@@ -24,7 +23,7 @@ class NoStyleFound(ValueError):
 
 _DEFAULT_FONTS_DIR = Path(labelle.resources.fonts.__file__).parent
 _DEFAULT_STYLE = "regular"
-_DEFAULT_STYLES_TO_FONT_PATH: Dict[str, Path] = {
+_DEFAULT_STYLES_TO_FONT_PATH: dict[str, Path] = {
     "regular": _DEFAULT_FONTS_DIR / "Carlito-Regular.ttf",
     "bold": _DEFAULT_FONTS_DIR / "Carlito-Bold.ttf",
     "italic": _DEFAULT_FONTS_DIR / "Carlito-Italic.ttf",
@@ -42,7 +41,7 @@ class FontStyle(str, Enum):
 DefaultFontStyle = FontStyle(_DEFAULT_STYLE)
 
 
-def _get_styles_to_font_path_lookup() -> Dict[str, Path]:
+def _get_styles_to_font_path_lookup() -> dict[str, Path]:
     """Get a lookup table for styles to font paths.
 
     The lookup table is read from the config file, if available.
@@ -55,9 +54,7 @@ def _get_styles_to_font_path_lookup() -> Dict[str, Path]:
     return styles_to_font_path
 
 
-def get_font_path(
-    font: Optional[str] = None, style: Optional[str] = _DEFAULT_STYLE
-) -> Path:
+def get_font_path(font: str | None = None, style: str | None = _DEFAULT_STYLE) -> Path:
     """Get the path to a font.
 
     The `font` argument can be either a font name or a path to a font file.
@@ -97,7 +94,7 @@ def _path_from_name(name: str) -> Path:
     return matching_fonts[0]
 
 
-def get_available_fonts() -> List[Path]:
+def get_available_fonts() -> list[Path]:
     """Get a list of available font files."""
     fonts = [f for f in _DEFAULT_FONTS_DIR.iterdir() if f.suffix == ".ttf"]
     fonts.extend(Path(f) for f in font_manager.findSystemFonts())

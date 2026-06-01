@@ -9,7 +9,7 @@ import contextlib
 import logging
 import math
 import sys
-from typing import Generator, List, Tuple
+from collections.abc import Generator
 
 from PIL import ImageDraw
 
@@ -19,7 +19,7 @@ from labelle.lib.logger import print_exception
 LOG = logging.getLogger(__name__)
 
 
-def scaling(pix, sc) -> List[Tuple[int, int]]:
+def scaling(pix, sc) -> list[tuple[int, int]]:
     """Scaling pixel up, input: (x,y),scale-factor."""
     return [(pix[0] + i, pix[1] + j) for i in range(sc) for j in range(sc)]
 

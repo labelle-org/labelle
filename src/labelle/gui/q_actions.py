@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 from PyQt6 import QtCore
 from PyQt6.QtCore import QSize, Qt
@@ -12,12 +11,12 @@ LOG = logging.getLogger(__name__)
 class QActions(QWidget):
     _error_label: QLabel
     _is_enabled: bool
-    _last_error: Optional[str]
+    _last_error: str | None
     _print_button: QPushButton
 
     print_label_signal = QtCore.pyqtSignal(name="printLabel")
 
-    def __init__(self, parent: Optional[QWidget] = None):
+    def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         self._error_label = QLabel()
         self._is_enabled = False

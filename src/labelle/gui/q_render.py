@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 from PIL import Image, ImageQt
 from PyQt6.QtGui import QPixmap
@@ -9,7 +8,7 @@ LOG = logging.getLogger(__name__)
 
 
 class QRender(QLabel):
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._init_elements()
 
