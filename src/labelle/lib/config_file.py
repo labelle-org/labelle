@@ -3,7 +3,7 @@ import warnings
 from configparser import ConfigParser
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from platformdirs import user_config_dir
 
@@ -34,7 +34,7 @@ def get_config() -> ConfigParser:
     return config_parser
 
 
-def get_config_section(section_name: str) -> Optional[Dict[str, Any]]:
+def get_config_section(section_name: str) -> dict[str, Any] | None:
     config = get_config()
     if section_name not in config:
         return None

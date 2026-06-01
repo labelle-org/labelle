@@ -6,7 +6,7 @@
 # this notice are preserved.
 # === END LICENSE STATEMENT ===
 
-from typing import List, NamedTuple, NewType
+from typing import NamedTuple, NewType
 
 from barcode.writer import BaseWriter
 
@@ -39,7 +39,7 @@ class SimpleBarcodeWriter(BaseWriter):
             finish=_noop,
         )
 
-    def render(self, code: List[str]) -> BarcodeResult:
+    def render(self, code: list[str]) -> BarcodeResult:
         """Extract the barcode string from the code and render it into an image."""
         if len(code) != 1:
             raise ValueError("Barcode expected to have only one line")

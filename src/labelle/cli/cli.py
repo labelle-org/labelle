@@ -8,7 +8,7 @@
 import logging
 import sys
 from pathlib import Path
-from typing import Annotated, List, NoReturn, Optional
+from typing import Annotated, NoReturn
 
 import typer
 from rich.console import Console
@@ -109,7 +109,7 @@ def list_devices() -> NoReturn:
 def default(
     ctx: typer.Context,
     version: Annotated[
-        Optional[bool],
+        bool | None,
         typer.Option(
             "--version",
             callback=version_callback,
@@ -118,7 +118,7 @@ def default(
         ),
     ] = None,
     device_pattern: Annotated[
-        Optional[List[str]],
+        list[str] | None,
         typer.Option(
             "--device",
             help=(
@@ -129,7 +129,7 @@ def default(
         ),
     ] = None,
     text: Annotated[
-        Optional[List[str]],
+        list[str] | None,
         typer.Argument(
             help="Text, each parameter gives a new line",
             rich_help_panel="Elements",
@@ -160,25 +160,25 @@ def default(
         ),
     ] = Direction.LEFT,
     sample_pattern: Annotated[
-        Optional[int],
+        int | None,
         typer.Option(help="Prints test pattern of a desired dot height [px]"),
     ] = None,
     min_length: Annotated[
-        Optional[float],
+        float | None,
         typer.Option(
             help="Minimum label length [mm], add whitespace if smaller",
             rich_help_panel="Label Dimensions",
         ),
     ] = None,
     max_length: Annotated[
-        Optional[float],
+        float | None,
         typer.Option(
             help="Maximum label length [mm], error if the label won't fit",
             rich_help_panel="Label Dimensions",
         ),
     ] = None,
     fixed_length: Annotated[
-        Optional[float],
+        float | None,
         typer.Option(
             help="Fixed label length [mm], set both minimum and maximum length",
             rich_help_panel="Label Dimensions",
@@ -189,13 +189,13 @@ def default(
         typer.Option(help="Destination of the label render"),
     ] = Output.PRINTER,
     font: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             help="User font. Overrides --style parameter", rich_help_panel="Design"
         ),
     ] = None,
     qr_content: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "--qr", callback=qr_callback, help="QR code", rich_help_panel="Elements"
         ),
@@ -205,7 +205,7 @@ def default(
         typer.Option(help="Read batch commands from stdin", rich_help_panel="Elements"),
     ] = False,
     barcode_content: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--barcode", help="Barcode", rich_help_panel="Elements"),
     ] = None,
     barcode_type: Annotated[
@@ -216,13 +216,13 @@ def default(
         ),
     ] = DEFAULT_BARCODE_TYPE,
     barcode_with_text_content: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "--barcode-with-text", help="Barcode with text", rich_help_panel="Elements"
         ),
     ] = None,
     picture: Annotated[
-        Optional[Path], typer.Option(help="Picture", rich_help_panel="Elements")
+        Path | None, typer.Option(help="Picture", rich_help_panel="Elements")
     ] = None,
     margin_px: Annotated[
         float,
@@ -235,7 +235,7 @@ def default(
         typer.Option(help="Scaling font factor, [0,100] [%]", rich_help_panel="Design"),
     ] = 90,
     tape_size_mm: Annotated[
-        Optional[int],
+        int | None,
         typer.Option(help="Tape size [mm]", rich_help_panel="Device Configuration"),
     ] = None,
     # Old dymoprint arguments
@@ -281,7 +281,7 @@ def default(
         ),
     ] = False,
     old_style: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "-s",
             help="DEPRECATED",
@@ -289,7 +289,7 @@ def default(
         ),
     ] = None,
     old_align: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "-a",
             help="DEPRECATED",
@@ -297,7 +297,7 @@ def default(
         ),
     ] = None,
     old_font: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "-u",
             help="DEPRECATED",
@@ -305,7 +305,7 @@ def default(
         ),
     ] = None,
     old_barcode: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "-c",
             help="DEPRECATED",
@@ -313,7 +313,7 @@ def default(
         ),
     ] = None,
     barcode_text: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "--barcode-text",
             help="DEPRECATED",
@@ -321,7 +321,7 @@ def default(
         ),
     ] = None,
     old_picture: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "-p",
             help="DEPRECATED",
@@ -329,7 +329,7 @@ def default(
         ),
     ] = None,
     old_margin: Annotated[
-        Optional[int],
+        int | None,
         typer.Option(
             "-m",
             help="DEPRECATED",
@@ -337,14 +337,14 @@ def default(
         ),
     ] = None,
     scale: Annotated[
-        Optional[float],
+        float | None,
         typer.Option(
             help="DEPRECATED",
             hidden=True,
         ),
     ] = None,
     old_tape_size: Annotated[
-        Optional[int],
+        int | None,
         typer.Option(
             "-t",
             help="DEPRECATED",
@@ -352,7 +352,7 @@ def default(
         ),
     ] = None,
     old_min_length: Annotated[
-        Optional[float],
+        float | None,
         typer.Option(
             "-l",
             help="DEPRECATED",
@@ -360,7 +360,7 @@ def default(
         ),
     ] = None,
     old_justify: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "-j",
             help="DEPRECATED",
@@ -368,7 +368,7 @@ def default(
         ),
     ] = None,
     test_pattern: Annotated[
-        Optional[int],
+        int | None,
         typer.Option(
             help="DEPRECATED",
             hidden=True,
@@ -504,9 +504,9 @@ def default(
         render_engines.append(PictureRenderEngine(picture))
 
     if batch:
-        accumulator: List[str] = []
+        accumulator: list[str] = []
         accumulator_type: str = "empty"
-        accumulator_options: List[str] = []
+        accumulator_options: list[str] = []
 
         def flush_all():
             nonlocal accumulator

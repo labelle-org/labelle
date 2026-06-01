@@ -1,6 +1,5 @@
 import logging
 import sys
-from typing import Optional
 
 from PIL import Image
 from PyQt6 import QtCore
@@ -26,7 +25,7 @@ LOG = logging.getLogger(__name__)
 
 
 class LabelleWindow(QWidget):
-    _label_bitmap_to_print: Optional[Image.Image]
+    _label_bitmap_to_print: Image.Image | None
     _device_manager: DeviceManager
     _dymo_labeler: DymoLabeler
     _render_context: RenderContext
