@@ -8,16 +8,11 @@
 import logging
 import sys
 from pathlib import Path
-from typing import List, NoReturn, Optional
+from typing import Annotated, List, NoReturn, Optional
 
 import typer
 from rich.console import Console
 from rich.table import Table
-
-if sys.version_info >= (3, 9):
-    from typing import Annotated
-else:
-    from typing_extensions import Annotated
 
 from labelle import __version__
 from labelle.lib.constants import (
