@@ -23,20 +23,17 @@ dependencies = [
     "PyQt6",
     "darkdetect",
     "typer>=0.16.0",
-    "typing_extensions>=3.7.4; python_version<'3.9'",
 ]
 classifiers = [
     "Operating System :: POSIX :: Linux",
     "License :: OSI Approved :: Apache Software License",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Printing",
 ]
 dynamic = ["version", "readme"]
-requires-python = ">=3.8,<4"
+requires-python = ">=3.10,<4"
 
 [project.optional-dependencies]
 test = [
@@ -97,16 +94,12 @@ qt_api = "pyqt6"
 legacy_tox_ini = """
 [tox]
 envlist =
-  py38
-  py39
   py310
   py311
   py312
 
 [gh-actions]
 python =
-    3.8: py38
-    3.9: py39
     3.10: py310
     3.11: py311
     3.12: py312
