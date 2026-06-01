@@ -31,8 +31,9 @@ Here's the instructions to draft a new release:
 
 ## Additional Info
 
-GitHub Actions is trusted by PyPI, and it generates a certificate saying that a package
-upload request is coming from labelle-org/labelle under the release environment.
+GitHub Actions is trusted by PyPI, and it generates a certificate saying that a
+package upload request is coming from labelle-org/labelle under the release
+environment.
 PyPI is configured to accept exactly such a certificate:
 
 ![Trusted Published Management](trusted_publisher_management.png)

@@ -250,15 +250,19 @@ class UsbDevice:
         devout = usb.util.find_descriptor(
             intf,
             custom_match=(
-                lambda e: usb.util.endpoint_direction(e.bEndpointAddress)
-                == usb.util.ENDPOINT_OUT
+                lambda e: (
+                    usb.util.endpoint_direction(e.bEndpointAddress)
+                    == usb.util.ENDPOINT_OUT
+                )
             ),
         )
         devin = usb.util.find_descriptor(
             intf,
             custom_match=(
-                lambda e: usb.util.endpoint_direction(e.bEndpointAddress)
-                == usb.util.ENDPOINT_IN
+                lambda e: (
+                    usb.util.endpoint_direction(e.bEndpointAddress)
+                    == usb.util.ENDPOINT_IN
+                )
             ),
         )
 
