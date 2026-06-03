@@ -19,7 +19,7 @@ jobs:
     env:
       DISPLAY: ':99.0'
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v6.0.2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v6
       with:
