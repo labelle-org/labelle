@@ -208,6 +208,9 @@ commands are:
 * `QR`: Creates a QR code block
 * `BARCODE`: Creates a barcode block. Optional: Can be preceded by #`TYPE`,
   to generate a different barcode; default is CODE128, . e.g. `BARCODE#EAN:123456789012`
+* `BARCODE-WITH-TEXT`: Creates a barcode block with text overlaid in the barcode.
+  Optional: Can be preceded by #`TYPE`, to generate a different barcode;
+  default is CODE128, e.g. `BARCODE-WITH-TEXT:im-a-text`
 
 For instance, this input:
 
