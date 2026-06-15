@@ -23,6 +23,12 @@
   and [@tomek-szczesny](https://github.com/tomek-szczesny):
   <https://github.com/labelle-org/labelle>
 
+Prefer a browser to the command line or desktop GUI?
+[**Labelle Web**](https://github.com/labelle-org/labelle-web) is a sibling
+`labelle-org` project that wraps this library in a web interface, so you can
+design and print labels from any device on your network. See
+[Web interface](#web-interface) below.
+
 ## Features
 
 * Text printing
@@ -277,6 +283,17 @@ Example 2: two images + text with frame, white on red
 Example 3: barcode with text, text, image
 
 ![alt](doc/Labelle_example_3.png)
+
+## Web interface
+
+[**Labelle Web**](https://github.com/labelle-org/labelle-web) is an officially
+adopted `labelle-org` project that provides a browser-based interface on top of
+this library. It runs a small web server (e.g. on a Raspberry Pi connected to
+the printer) so you can design and print labels from your phone or computer
+without installing the CLI or desktop GUI.
+
+See the [labelle-web repository](https://github.com/labelle-org/labelle-web)
+for screenshots, features, and setup instructions.
 
 ## About the name
 
