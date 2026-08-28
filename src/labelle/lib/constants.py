@@ -91,13 +91,27 @@ SUPPORTED_PRODUCTS = [
         supported_tape_sizes_mm=[6, 9, 12],
     ),
     DeviceConfig(
-        name=f"LabelManager Wireless PnP {UNCONFIRMED_MESSAGE}",
+        name="LabelManager Wireless PnP",
         device_ids=[0x1007, 0x1008],
-        # ToDo: Validate config!
-        # Printhead 64 Pixels, distributed over 9mm of active area
-        print_head_px=64,
-        print_head_mm=9,
-        supported_tape_sizes_mm=[6, 9, 12],
+        # Validated on real hardware: a printed calibration bar's physical
+        # width for a known pixel count, the tape distance covered by a
+        # fixed-size print batch, and a canvas height that visually filled a
+        # 24mm tape edge-to-edge all agreed on ~10.5-10.67 px/mm -- notably
+        # higher than this device's previous placeholder values (64px/9mm,
+        # copy-pasted from other models and never measured; see PR #81,
+        # which reported "squished" output from this same placeholder).
+        # Independently corroborated by a decoded USB capture of DYMO's own
+        # Windows software, which uses the same ~10.5 px/mm scale.
+        print_head_px=256,
+        print_head_mm=24,
+        # Datasheet lists 6/9/12/19/24mm D1 cassettes as supported; the
+        # previous placeholder only went up to 12mm.
+        supported_tape_sizes_mm=[6, 9, 12, 19, 24],
+        # 8.1mm (this device's physical print-head-to-cutter gap, inherited
+        # from the same constant other models used before px-based margins)
+        # at this device's own ~10.667 px/mm -- confirmed on hardware to
+        # clear the cutter with no content loss.
+        distance_between_print_head_and_cutter_px=86,
     ),
     DeviceConfig(
         name=f"MobileLabeler {UNCONFIRMED_MESSAGE}",
