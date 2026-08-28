@@ -233,6 +233,15 @@ def default(
         Optional[int],
         typer.Option(help="Tape size [mm]", rich_help_panel="Device Configuration"),
     ] = None,
+    cut: Annotated[
+        bool,
+        typer.Option(
+            help="Cut the tape after printing. Some devices without a "
+            "cutter may not handle this gracefully; see "
+            "labelle-org/labelle#81.",
+            rich_help_panel="Device Configuration",
+        ),
+    ] = False,
     # Old dymoprint arguments
     preview: Annotated[
         bool,
@@ -540,7 +549,7 @@ def default(
             min_width_px=min_payload_len_px,
         )
         bitmap, _ = render.render_with_meta(render_context)
-        dymo_labeler.print(bitmap)
+        dymo_labeler.print(bitmap, cut=cut)
     else:
         render = PrintPreviewRenderEngine(
             render_engine=render_engine,

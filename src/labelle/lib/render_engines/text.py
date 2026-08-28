@@ -67,12 +67,27 @@ class TextRenderEngine(RenderEngine):
                 )
 
             # write the text into the empty image
+            #
+            # PIL's "mm" (middle/middle) anchor centers using the font's
+            # ascent/descent line metrics, not the text's actual ink. Text
+            # with no descenders (no g/j/p/q/y) then renders visibly shifted
+            # toward the top of the canvas, since the reserved descender
+            # space below it stays blank. Center on the real ink bounding
+            # box instead so any string ends up visually centered.
             multiline_text = "\n".join(self.text_lines)
-            draw.multiline_text(
-                (label_width_px / 2, height_px / 2),
+            _left, ink_top, _right, ink_bottom = draw.multiline_textbbox(
+                (0, 0),
                 multiline_text,
                 align=self.align.value,
-                anchor="mm",
+                anchor="la",
+                font=font,
+            )
+            vertical_anchor_y = height_px / 2 - (ink_top + ink_bottom) / 2
+            draw.multiline_text(
+                (label_width_px / 2, vertical_anchor_y),
+                multiline_text,
+                align=self.align.value,
+                anchor="ma",
                 font=font,
                 fill=1,
             )
