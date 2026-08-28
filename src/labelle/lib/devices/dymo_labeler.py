@@ -67,9 +67,20 @@ class DymoLabelerFunctions:
         self,
         devout: usb.core.Endpoint,
         devin: usb.core.Endpoint,
+        tape_size_mm: int,
         synwait: int | None = None,
+        max_bytes_per_line: int | None = None,
     ):
-        """Initialize the LabelManager object (HLF)."""
+        """Initialize the LabelManager object (HLF).
+
+        `max_bytes_per_line`, when given, is the device's own true
+        addressable range in bytes (its DeviceConfig.print_head_px // 8),
+        used to bound _dot_tab instead of the generic formula in
+        _max_bytes_per_line -- which is calibrated for the models it was
+        originally written against and can be wrong (too small) for others,
+        incorrectly rejecting valid dot_tab values. Falls back to that
+        formula when not given, for callers that don't have a DeviceConfig.
+        """
         self._cmd: list[int] = []
         self._response = False
         self._bytesPerLine = None
@@ -77,7 +88,9 @@ class DymoLabelerFunctions:
         self._maxLines = 200
         self._devout = devout
         self._devin = devin
+        self._tape_size_mm = tape_size_mm
         self._synwait = synwait
+        self._max_bytes_per_line_override = max_bytes_per_line
 
     @classmethod
     def _max_bytes_per_line(cls, tape_size_mm: int) -> int:
@@ -104,21 +117,35 @@ class DymoLabelerFunctions:
                 _ = array.array("B", rspBin).tolist()
                 # Ok, we got a response. Now we can send a chunk of data
 
-                # Compute a chunk with at most synwait SYN characters
-                synCount = 0  # Number of SYN characters encountered in iteration
-                pos = -1  # Index of last SYN character encountered in iteration
+                # Compute a chunk containing exactly synwait complete lines
+                # (or, for the final chunk, however many lines remain): scan
+                # for the START of the (synwait+1)-th SYN-delimited line, and
+                # use that as the exclusive boundary. Scanning for one SYN
+                # too few here previously left the chunk boundary sitting AT
+                # the synwait-th SYN itself rather than past it -- for
+                # synwait=1 that boundary always landed back on the current
+                # position, producing an empty chunk and no progress: an
+                # infinite loop, not merely a "chunk of synwait lines" that
+                # was actually one line short.
+                search_from = 0
+                synCount = 0  # Number of complete lines found for this chunk
+                pos = len(self._cmd)  # default: no more SYNs, chunk runs to the end
                 while synCount < self._synwait:
                     try:
-                        # Increment pos to the index of the next SYN character
-                        pos += self._cmd[pos + 1 :].index(SYN) + 1
-                        synCount += 1
+                        search_from = self._cmd.index(SYN, search_from) + 1
                     except ValueError:
-                        # No more SYN characters in cmd
-                        pos = len(self._cmd)
                         break
+                    synCount += 1
+                if synCount == self._synwait:
+                    try:
+                        pos = self._cmd.index(SYN, search_from)
+                    except ValueError:
+                        pos = len(self._cmd)
                 cmd_to_send = self._cmd[:pos]
                 cmd_rest = self._cmd[pos:]
-                LOG.debug(f"Sending chunk of {len(cmd_to_send)} bytes")
+                LOG.debug(
+                    f"Sending chunk of {len(cmd_to_send)} bytes ({synCount} lines)"
+                )
 
             # Remove the computed chunk from the command to be processed
             self._cmd = cmd_rest
@@ -152,8 +179,15 @@ class DymoLabelerFunctions:
 
     def _dot_tab(self, value, tape_size_mm: int) -> None:
         """Set the bias text height, in bytes (MLF)."""
-        if value < 0 or value > self._max_bytes_per_line(tape_size_mm):
+        max_value = (
+            self._max_bytes_per_line_override
+            if self._max_bytes_per_line_override is not None
+            else self._max_bytes_per_line(tape_size_mm)
+        )
+        if value < 0 or value > max_value:
             raise ValueError
+        if value == self._dotTab:
+            return
         cmd = [ESC, ord("B"), value]
         self._build_command(cmd)
         self._dotTab = value
@@ -215,22 +249,50 @@ class DymoLabelerFunctions:
         self._status_request()
         return self._send_command()
 
-    def print_label(self, lines: list[list[int]]):
+    def print_label(self, lines: list[list[int]], cut: bool = False):
         """Print the label described by lines.
 
-        Automatically split the label if it's larger than maxLines.
+        Automatically split the label if it's larger than maxLines. `cut` is
+        only applied after the final batch.
         """
         while len(lines) > self._maxLines + 1:
-            self._raw_print_label(lines[0 : self._maxLines])
+            self._raw_print_label(lines[0 : self._maxLines], cut=False)
             del lines[0 : self._maxLines]
-        self._raw_print_label(lines)
+        self._raw_print_label(lines, cut=cut)
 
-    def _raw_print_label(self, lines: list[list[int]]):
-        """Print the label described by lines (HLF)."""
+    def _raw_print_label(self, lines: list[list[int]], cut: bool = False):
+        """Print the label described by lines (HLF).
+
+        Each line is trimmed to the byte range that actually contains ink
+        and positioned with `_dot_tab`; runs of fully blank lines are sent
+        as a single `_skip_lines` call instead of full-width zero bytes.
+        This produces the exact same printed image as sending every line at
+        full width starting from dot_tab 0 (the previous behavior here),
+        just as much less data -- real labels are usually mostly blank
+        outside a thin vertical band of actual content. Reverse-engineered
+        from a USB capture of DYMO's own software, which relies on this
+        encoding rather than ever sending a full-height line.
+        """
         # Here used to be a matrix optimization code that caused problems in issue #87
         self._tape_color(0)
+        blank_run = 0
         for line in lines:
-            self._line(line)
+            first_ink = next((i for i, b in enumerate(line) if b), None)
+            if first_ink is None:
+                blank_run += 1
+                continue
+            if blank_run:
+                self._skip_lines(blank_run)
+                blank_run = 0
+            last_ink = (
+                len(line) - 1 - next(i for i, b in enumerate(reversed(line)) if b)
+            )
+            self._dot_tab(first_ink, self._tape_size_mm)
+            self._line(line[first_ink : last_ink + 1])
+        if blank_run:
+            self._skip_lines(blank_run)
+        if cut:
+            self._cut()
         self._status_request()
         status = self._get_status()
         LOG.debug(f"Post-send response: {status}")
@@ -279,7 +341,9 @@ class DymoLabeler:
         return DymoLabelerFunctions(
             devout=self._device.devout,
             devin=self._device.devin,
+            tape_size_mm=self.tape_size_mm,
             synwait=64,
+            max_bytes_per_line=math.ceil(self.device_config.print_head_px / 8),
         )
 
     @property
@@ -397,11 +461,16 @@ class DymoLabeler:
     def print(
         self,
         bitmap: Image.Image,
+        cut: bool = False,
     ) -> None:
         """Print a label bitmap to the detected printer.
 
         The label bitmap is a PIL image in 1-bit format (mode=1), and pixels with value
-        equal to 1 are burned.
+        equal to 1 are burned. `cut` sends the tape-cut command after printing;
+        defaults to False to preserve existing behavior for callers/devices that
+        don't want it (e.g. manual-cut models, or a caller that batches labels;
+        see labelle-org/labelle#81 for a report of this crashing printers with
+        no cutter when sent unconditionally).
         """
         # Convert the image to the proper matrix for the dymo labeler object so that
         # rows span the width of the label, and the first row corresponds to the left
@@ -431,7 +500,7 @@ class DymoLabeler:
 
         try:
             LOG.debug("Printing label..")
-            self._functions.print_label(label_matrix)
+            self._functions.print_label(label_matrix, cut=cut)
             LOG.debug("Done printing.")
             if self._device is not None:
                 self._device.dispose()
