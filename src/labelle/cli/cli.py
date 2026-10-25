@@ -527,6 +527,20 @@ def default(
                 render_engines.append(
                     BarcodeRenderEngine("\n".join(accumulator), barcode_type)
                 )
+            elif accumulator_type == "barcode-with-text":
+                barcode_type = (
+                    BarcodeType(accumulator_options[0].lower())
+                    if accumulator_options
+                    else DEFAULT_BARCODE_TYPE
+                )
+                render_engines.append(
+                    BarcodeWithTextRenderEngine(
+                        content="\n".join(accumulator),
+                        barcode_type=barcode_type,
+                        font_file_name=font_path,
+                        frame_width_px=frame_width_px,
+                    )
+                )
 
             accumulator = []
             accumulator_type = "empty"
@@ -558,6 +572,11 @@ def default(
             elif setting == "BARCODE":
                 flush_all()
                 accumulator_type = "barcode"
+                accumulator_options = options
+                accumulator.append(value)
+            elif setting == "BARCODE-WITH-TEXT":
+                flush_all()
+                accumulator_type = "barcode-with-text"
                 accumulator_options = options
                 accumulator.append(value)
             elif setting == "NEWLINE":
