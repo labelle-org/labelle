@@ -38,6 +38,7 @@ SUPPORTED_PRODUCTS = {
     0x0011: "DYMO LabelMANAGER PC",
     0x001C: "DYMO LabelMANAGER PC II",
     0x0015: "LabelPoint 350",
+    0x0016: f"Rhino 6000+ {UNCONFIRMED_MESSAGE}",
     0x1001: "LabelManager PnP (no mode switch)",
     0x1002: "LabelManager PnP (mode switch)",
     0x1003: f"LabelManager 420P (no mode switch) {UNCONFIRMED_MESSAGE}",
@@ -53,7 +54,7 @@ DEV_VENDOR = 0x0922
 PRINTER_INTERFACE_CLASS = 0x07
 HID_INTERFACE_CLASS = 0x03
 
-# Escape character preceeding all commands
+# Escape character preceding all commands
 ESC = 0x1B
 
 # Synchronization character preceding uncompressed print data
