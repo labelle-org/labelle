@@ -534,16 +534,17 @@ def default(
 
         # Verify version
         line: str = sys.stdin.readline().strip()
-        parts = line.split(":", 1)
-        if not (parts[0] == "LABELLE-LABEL-SPEC-VERSION" and parts[1] == "1"):
-            err_console = Console(stderr=True)
-            err_console.print(
-                "Error: Batch doesn't begin with LABELLE-LABEL-SPEC-VERSION:1"
+        if line != "LABELLE-LABEL-SPEC-VERSION:1":
+            raise typer.BadParameter(
+                "Batch doesn't begin with LABELLE-LABEL-SPEC-VERSION:1"
             )
-            raise typer.Exit()
 
-        for line in sys.stdin:
+        for line_number, line in enumerate(sys.stdin, start=2):
             line = line.rstrip("\r\n")
+            if ":" not in line:
+                raise typer.BadParameter(
+                    f"Invalid batch line {line_number}: expected COMMAND:value"
+                )
             settings, value = line.split(":", 1)
             setting, *options = settings.split("#", 1)
 
