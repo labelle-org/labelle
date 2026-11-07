@@ -18,7 +18,6 @@ from labelle import __version__
 from labelle.lib.constants import (
     DEFAULT_BARCODE_TYPE,
     DEFAULT_MARGIN_PX,
-    PIXELS_PER_MM,
     USE_QR,
     BarcodeType,
     Direction,
@@ -50,16 +49,9 @@ from labelle.lib.render_engines import (
     SamplePatternRenderEngine,
     TextRenderEngine,
 )
+from labelle.lib.utils import mm_to_px
 
 LOG = logging.getLogger(__name__)
-
-
-def mm_to_payload_px(mm: float, margin: float) -> float:
-    """Convert a length in mm to a number of pixels of payload.
-
-    The print resolution is 7 pixels/mm, and margin is subtracted from each side.
-    """
-    return max(0, (mm * PIXELS_PER_MM) - margin * 2)
 
 
 def version_callback(value: bool) -> None:
@@ -453,6 +445,9 @@ def default(
             "Cannot specify min/max and fixed length at the same time"
         )
 
+    if fixed_length is not None and fixed_length <= 0:
+        raise typer.BadParameter("Fixed length must be positive number")
+
     if min_length is None:
         min_length = 0.0
     if min_length < 0:
@@ -573,11 +568,9 @@ def default(
         min_label_mm_len = fixed_length
         max_label_mm_len = fixed_length
 
-    min_payload_len_px = mm_to_payload_px(min_label_mm_len, margin_px)
-    max_payload_len_px = (
-        mm_to_payload_px(max_label_mm_len, margin_px)
-        if max_label_mm_len is not None
-        else None
+    min_label_len_px = mm_to_px(min_label_mm_len)
+    max_label_len_px = (
+        mm_to_px(max_label_mm_len) if max_label_mm_len is not None else None
     )
 
     if output == Output.PRINTER:
@@ -606,8 +599,8 @@ def default(
             justify=justify,
             visible_horizontal_margin_px=margin_px,
             labeler_margin_px=dymo_labeler.labeler_margin_px,
-            max_width_px=max_payload_len_px,
-            min_width_px=min_payload_len_px,
+            max_width_px=max_label_len_px,
+            min_width_px=min_label_len_px,
         )
         bitmap, _ = render.render_with_meta(render_context)
         dymo_labeler.print(bitmap)
@@ -617,8 +610,8 @@ def default(
             justify=justify,
             visible_horizontal_margin_px=margin_px,
             labeler_margin_px=dymo_labeler.labeler_margin_px,
-            max_width_px=max_payload_len_px,
-            min_width_px=min_payload_len_px,
+            max_width_px=max_label_len_px,
+            min_width_px=min_label_len_px,
         )
         bitmap = render.render(render_context)
         output_bitmap(bitmap, output)
