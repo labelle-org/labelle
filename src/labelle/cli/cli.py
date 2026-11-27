@@ -18,7 +18,7 @@ from labelle import __version__
 from labelle.lib.constants import (
     DEFAULT_BARCODE_TYPE,
     DEFAULT_MARGIN_PX,
-    PIXELS_PER_MM,
+    DPI,
     USE_QR,
     BarcodeType,
     Direction,
@@ -50,16 +50,17 @@ from labelle.lib.render_engines import (
     SamplePatternRenderEngine,
     TextRenderEngine,
 )
+from labelle.lib.utils import mm_to_px
 
 LOG = logging.getLogger(__name__)
 
 
-def mm_to_payload_px(mm: float, margin: float) -> float:
+def mm_to_payload_px(mm: float, margin: float, dpi: float = DPI) -> float:
     """Convert a length in mm to a number of pixels of payload.
 
-    The print resolution is 7 pixels/mm, and margin is subtracted from each side.
+    The print resolution is given in dpi, and margin is subtracted from each side.
     """
-    return max(0, (mm * PIXELS_PER_MM) - margin * 2)
+    return max(0, mm_to_px(mm, dpi) - margin * 2)
 
 
 def version_callback(value: bool) -> None:
@@ -573,13 +574,6 @@ def default(
         min_label_mm_len = fixed_length
         max_label_mm_len = fixed_length
 
-    min_payload_len_px = mm_to_payload_px(min_label_mm_len, margin_px)
-    max_payload_len_px = (
-        mm_to_payload_px(max_label_mm_len, margin_px)
-        if max_label_mm_len is not None
-        else None
-    )
-
     if output == Output.PRINTER:
         device_manager = get_device_manager()
         device = device_manager.find_and_select_device(patterns=device_pattern)
@@ -587,7 +581,28 @@ def default(
     else:
         device = None
 
-    dymo_labeler = DymoLabeler(tape_size_mm=tape_size_mm, device=device)
+    dymo_labeler = DymoLabeler(device=device)
+    if tape_size_mm is None:
+        tape_size_mm = dymo_labeler.detect_tape_size_mm()
+        if tape_size_mm is not None:
+            LOG.debug(f"Detected {tape_size_mm}mm tape")
+    if tape_size_mm is not None:
+        dymo_labeler.tape_size_mm = tape_size_mm
+        try:
+            dymo_labeler.check_tape_size()
+        except ValueError as e:
+            raise typer.BadParameter(str(e)) from e
+
+    # margin_px is given in pixels of the classic 180 dpi labelers.
+    margin_px = margin_px * dymo_labeler.dpi / DPI
+
+    min_payload_len_px = mm_to_payload_px(min_label_mm_len, margin_px, dymo_labeler.dpi)
+    max_payload_len_px = (
+        mm_to_payload_px(max_label_mm_len, margin_px, dymo_labeler.dpi)
+        if max_label_mm_len is not None
+        else None
+    )
+
     if not render_engines:
         raise typer.BadParameter("No elements to print")
     render_engine = HorizontallyCombinedRenderEngine(render_engines)
@@ -596,6 +611,7 @@ def default(
         foreground_color="black",
         height_px=dymo_labeler.height_px,
         preview_show_margins=False,
+        dpi=dymo_labeler.dpi,
     )
 
     # print or show the label

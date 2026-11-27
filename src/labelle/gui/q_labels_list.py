@@ -159,10 +159,12 @@ class QLabelList(QListWidget):
         render_engine = PrintPreviewRenderEngine(
             render_engine=self._payload_render_engine,
             justify=self.justify,
-            visible_horizontal_margin_px=mm_to_px(self.h_margin_mm),
+            visible_horizontal_margin_px=mm_to_px(
+                self.h_margin_mm, self.dymo_labeler.dpi
+            ),
             labeler_margin_px=self.dymo_labeler.labeler_margin_px,
             max_width_px=None,
-            min_width_px=mm_to_px(self.min_label_width_mm),
+            min_width_px=mm_to_px(self.min_label_width_mm, self.dymo_labeler.dpi),
         )
         try:
             bitmap = render_engine.render(self.render_context)
@@ -178,10 +180,12 @@ class QLabelList(QListWidget):
         render_engine = PrintPayloadRenderEngine(
             render_engine=self._payload_render_engine,
             justify=self.justify,
-            visible_horizontal_margin_px=mm_to_px(self.h_margin_mm),
+            visible_horizontal_margin_px=mm_to_px(
+                self.h_margin_mm, self.dymo_labeler.dpi
+            ),
             labeler_margin_px=self.dymo_labeler.labeler_margin_px,
             max_width_px=None,
-            min_width_px=mm_to_px(self.min_label_width_mm),
+            min_width_px=mm_to_px(self.min_label_width_mm, self.dymo_labeler.dpi),
         )
         try:
             bitmap, _ = render_engine.render_with_meta(self.render_context)

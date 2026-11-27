@@ -46,8 +46,9 @@ SUPPORTED_PRODUCTS = {
     0x1006: "LabelManager 280 (no mode switch)",
     0x1007: f"LabelManager Wireless PnP (no mode switch) {UNCONFIRMED_MESSAGE}",
     0x1008: f"LabelManager Wireless PnP (mode switch) {UNCONFIRMED_MESSAGE}",
-    0x1009: f"MobileLabeler {UNCONFIRMED_MESSAGE}",
+    0x1009: "MobileLabeler",
 }
+PRODUCT_MOBILE_LABELER = 0x1009
 DEV_VENDOR = 0x0922
 
 PRINTER_INTERFACE_CLASS = 0x07
@@ -65,6 +66,7 @@ DEFAULT_MARGIN_PX = 56
 VERTICAL_PREVIEW_MARGIN_PX = 13
 
 DPI = 180
+MOBILE_LABELER_DPI = 300
 MM_PER_INCH = 25.4
 PIXELS_PER_MM = DPI / MM_PER_INCH
 

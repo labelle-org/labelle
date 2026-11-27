@@ -61,10 +61,13 @@ class QSettingsToolbar(QToolBar):
         installed_tape_size: int,
         minimum_horizontal_margin_mm: float,
     ) -> None:
+        self._tape_size_mm.blockSignals(True)
+        self._tape_size_mm.clear()
         for tape_size_mm in supported_tape_sizes:
             self._tape_size_mm.addItem(str(tape_size_mm), tape_size_mm)
         tape_size_index = supported_tape_sizes.index(installed_tape_size)
         self._tape_size_mm.setCurrentIndex(tape_size_index)
+        self._tape_size_mm.blockSignals(False)
 
         h_margins_mm = round(minimum_horizontal_margin_mm)
         self._horizontal_margin_mm.setMinimum(h_margins_mm)
