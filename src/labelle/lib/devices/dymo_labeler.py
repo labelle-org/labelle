@@ -26,11 +26,12 @@ from labelle.lib.constants import (
     PRODUCT_MOBILE_LABELER,
     SYN,
 )
+from labelle.lib.devices.serial_device import SerialDevice, SerialDeviceError
 from labelle.lib.devices.usb_device import UsbDevice, UsbDeviceError
 from labelle.lib.utils import mm_to_px, px_to_mm
 
 LOG = logging.getLogger(__name__)
-POSSIBLE_USB_ERRORS = (UsbDeviceError, NoBackendError, USBError)
+POSSIBLE_USB_ERRORS = (UsbDeviceError, SerialDeviceError, NoBackendError, USBError)
 
 
 class DymoLabelerDetectError(Exception):
@@ -371,9 +372,15 @@ class MobileLabelerFunctions:
     LEADER_PX = 0
     TRAILER_PX = 0
 
-    def __init__(self, devout: usb.core.Endpoint, devin: usb.core.Endpoint):
+    def __init__(
+        self,
+        devout: usb.core.Endpoint | SerialDevice,
+        devin: usb.core.Endpoint | SerialDevice,
+        supports_status: bool = True,
+    ):
         self._devout = devout
         self._devin = devin
+        self._supports_status = supports_status
 
     def get_status(self, lock: bool = False) -> MobileLabelerStatus:
         self._devout.write(bytes([ESC, ord("A"), int(lock)]), 2000)
@@ -419,6 +426,14 @@ class MobileLabelerFunctions:
         return bytes(job)
 
     def print_label(self, lines: list[bytes], line_bytes: int) -> None:
+        if not self._supports_status:
+            # Over Bluetooth the printer accepts jobs but never replies.
+            job = self.build_job(lines, line_bytes)
+            LOG.debug(
+                f"Sending job of {len(lines)} lines, {len(job)} bytes (no status)"
+            )
+            self._devout.write(job, 30000)
+            return
         status = self.get_status(lock=True)
         if status.is_busy:
             status = self._wait_until_idle(30) or status
@@ -438,7 +453,7 @@ class MobileLabelerFunctions:
 
 
 class DymoLabeler:
-    _device: UsbDevice | None
+    _device: UsbDevice | SerialDevice | None
     tape_size_mm: int
 
     LABELER_DISTANCE_BETWEEN_PRINT_HEAD_AND_CUTTER_MM = 8.1
@@ -451,7 +466,7 @@ class DymoLabeler:
     def __init__(
         self,
         tape_size_mm: int | None = None,
-        device: UsbDevice | None = None,
+        device: UsbDevice | SerialDevice | None = None,
     ):
         self._device = device
         if tape_size_mm is None:
@@ -506,12 +521,16 @@ class DymoLabeler:
     def _mobile_functions(self) -> MobileLabelerFunctions:
         assert self._device is not None
         return MobileLabelerFunctions(
-            devout=self._device.devout, devin=self._device.devin
+            devout=self._device.devout,
+            devin=self._device.devin,
+            supports_status=getattr(self._device, "supports_status", True),
         )
 
     def detect_tape_size_mm(self) -> int | None:
         """Ask the printer which tape is loaded (MobileLabeler only)."""
-        if not self.is_mobile_labeler:
+        if not self.is_mobile_labeler or not getattr(
+            self._device, "supports_status", True
+        ):
             return None
         try:
             status = self._mobile_functions.get_status()
@@ -540,11 +559,11 @@ class DymoLabeler:
         )
 
     @property
-    def device(self) -> UsbDevice | None:
+    def device(self) -> UsbDevice | SerialDevice | None:
         return self._device
 
     @device.setter
-    def device(self, device: UsbDevice | None):
+    def device(self, device: UsbDevice | SerialDevice | None):
         try:
             if device:
                 device.setup()

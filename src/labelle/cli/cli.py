@@ -27,6 +27,8 @@ from labelle.lib.constants import (
 )
 from labelle.lib.devices.device_manager import DeviceManager, DeviceManagerNoDevices
 from labelle.lib.devices.dymo_labeler import DymoLabeler
+from labelle.lib.devices.serial_device import SerialDevice, SerialDeviceError
+from labelle.lib.devices.usb_device import UsbDevice
 from labelle.lib.env_config import is_verbose_env_vars
 from labelle.lib.font_config import (
     DefaultFontStyle,
@@ -116,6 +118,18 @@ def default(
             callback=version_callback,
             is_eager=True,
             help="Show application version",
+        ),
+    ] = None,
+    bluetooth_port: Annotated[
+        str | None,
+        typer.Option(
+            "--bluetooth",
+            help=(
+                "Print to a paired DYMO MobileLabeler over Bluetooth, given its "
+                "serial port (e.g. /dev/cu.DYMOML89C6 on macOS, /dev/rfcomm0 on "
+                "Linux, COM5 on Windows). Requires --tape-size-mm."
+            ),
+            rich_help_panel="Device Configuration",
         ),
     ] = None,
     device_pattern: Annotated[
@@ -574,7 +588,19 @@ def default(
         min_label_mm_len = fixed_length
         max_label_mm_len = fixed_length
 
-    if output == Output.PRINTER:
+    device: UsbDevice | SerialDevice | None
+    if output == Output.PRINTER and bluetooth_port is not None:
+        if tape_size_mm is None:
+            raise typer.BadParameter(
+                "--tape-size-mm is required with --bluetooth: the printer does not "
+                "report its tape over Bluetooth"
+            )
+        device = SerialDevice(bluetooth_port)
+        try:
+            device.setup()
+        except SerialDeviceError as e:
+            raise typer.BadParameter(str(e)) from e
+    elif output == Output.PRINTER:
         device_manager = get_device_manager()
         device = device_manager.find_and_select_device(patterns=device_pattern)
         device.setup()
