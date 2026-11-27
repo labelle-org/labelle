@@ -166,28 +166,28 @@ class PrintPreviewRenderEngine(RenderEngine):
             # payload width
             {
                 "xy": (self.X_MARGIN_PX + label_width / 2, preview_width_mark_y),
-                "text": f"{px_to_mm(label_width - x_margin * 2)} mm",
+                "text": f"{px_to_mm(label_width - x_margin * 2, context.dpi)} mm",
                 "anchor": "mm",
                 "align": "center",
             },
             # label width
             {
                 "xy": (self.X_MARGIN_PX + label_width / 2, label_width_mark_y),
-                "text": f"{px_to_mm(label_width)} mm",
+                "text": f"{px_to_mm(label_width, context.dpi)} mm",
                 "anchor": "mm",
                 "align": "center",
             },
             # payload height
             {
                 "xy": (preview_width_mark_x, self.DY + label_height / 2 - self.DY),
-                "text": f"{px_to_mm(label_height - y_margin * 2)} mm",
+                "text": f"{px_to_mm(label_height - y_margin * 2, context.dpi)} mm",
                 "anchor": "mm",
                 "align": "center",
             },
             # label height
             {
                 "xy": (label_width_mark_x, self.DY + label_height / 2 + self.DY),
-                "text": f"{px_to_mm(label_height)} mm",
+                "text": f"{px_to_mm(label_height, context.dpi)} mm",
                 "anchor": "mm",
                 "align": "center",
             },

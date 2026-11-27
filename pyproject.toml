@@ -38,6 +38,9 @@ dynamic = ["version", "readme"]
 requires-python = ">=3.10,<4"
 
 [project.optional-dependencies]
+bluetooth = [
+    "pyserial",
+]
 test = [
     "pytest-cov",
     "pytest-image-diff",

@@ -13,7 +13,7 @@ from collections.abc import Generator
 
 from PIL import ImageDraw
 
-from labelle.lib.constants import PIXELS_PER_MM
+from labelle.lib.constants import DPI, MM_PER_INCH
 from labelle.lib.logger import print_exception
 
 LOG = logging.getLogger(__name__)
@@ -34,14 +34,14 @@ def draw_image(bitmap) -> Generator[ImageDraw.ImageDraw, None, None]:
         del drawobj
 
 
-def px_to_mm(px) -> float:
-    mm = px / PIXELS_PER_MM
+def px_to_mm(px, dpi: float = DPI) -> float:
+    mm = px * MM_PER_INCH / dpi
     # Round up to nearest 0.1mm
     return math.ceil(mm * 10) / 10
 
 
-def mm_to_px(mm) -> float:
-    return mm * PIXELS_PER_MM
+def mm_to_px(mm, dpi: float = DPI) -> float:
+    return mm * dpi / MM_PER_INCH
 
 
 @contextlib.contextmanager
